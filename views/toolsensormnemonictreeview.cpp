@@ -30,6 +30,7 @@ void ToolSensorMnemonicTreeView::buildTree()
     for (const Tool &tool : storage->getTools()) {
         QStandardItem *toolItem = new QStandardItem(tool.getName());
         toolItem->setData(QVariant(tool.getId()), Qt::UserRole + 1); // Сохраняем ID инструмента
+        toolItem->setData(QVariant(ToolType), Qt::UserRole + 2); // Сохраняем тип элемента
 
         // Получаем все ToolSensor для данного инструмента
         QList<ToolSensor> toolSensors;
@@ -51,6 +52,8 @@ void ToolSensorMnemonicTreeView::buildTree()
                 QStandardItem *sensorItem = new QStandardItem(sensor->getName());
                 sensorItem->setData(QVariant(sensor->getId()),
                                     Qt::UserRole + 1); // Сохраняем ID сенсора
+                sensorItem->setData(QVariant(SensorType),
+                                    Qt::UserRole + 2); // Сохраняем тип элемента
 
                 // Получаем все MainMnemonic для данного сенсора
                 QList<MainMnemonic> mainMnemonics;
@@ -70,6 +73,8 @@ void ToolSensorMnemonicTreeView::buildTree()
                     QStandardItem *mainMnemonicItem = new QStandardItem(mainMnemonic.getName());
                     mainMnemonicItem->setData(QVariant(mainMnemonic.getId()),
                                               Qt::UserRole + 1); // Сохраняем ID main mnemonic
+                    mainMnemonicItem->setData(QVariant(MainMnemonicType),
+                                              Qt::UserRole + 2); // Сохраняем тип элемента
 
                     // Получаем все AdditionalMnemonic для данного main mnemonic
                     QList<AdditionalMnemonic> additionalMnemonics;
@@ -92,6 +97,8 @@ void ToolSensorMnemonicTreeView::buildTree()
                         additionalMnemonicItem->setData(QVariant(additionalMnemonic.getId()),
                                                         Qt::UserRole
                                                             + 1); // Сохраняем ID additional mnemonic
+                        additionalMnemonicItem->setData(QVariant(AdditionalMnemonicType),
+                                                        Qt::UserRole + 2); // Сохраняем тип элемента
                         mainMnemonicItem->appendRow(additionalMnemonicItem);
                     }
 
@@ -112,6 +119,7 @@ void ToolSensorMnemonicTreeView::buildTree()
     // Расширить все узлы
     expandAll();
 }
+
 const Sensor *ToolSensorMnemonicTreeView::findSensorById(int sensorId)
 {
     Storage *storage = Storage::getInstance();
@@ -129,21 +137,47 @@ void ToolSensorMnemonicTreeView::contextMenuEvent(QContextMenuEvent *event)
     if (!index.isValid())
         return;
 
+    // Извлекаем ID и тип элемента
+    int elementId = index.data(Qt::UserRole + 1).toInt();
+    ElementType elementType = static_cast<ElementType>(index.data(Qt::UserRole + 2).toInt());
+
+    // Проверяем, выбрано ли недопустимое значение (например, "N/A")
+    if (elementId == 0) {
+        qDebug() << "Invalid selection: N/A item chosen";
+        return; // Игнорируем "N/A" элементы
+    }
+
+    // Создаем контекстное меню
     QMenu contextMenu(this);
 
     QAction *addAction = contextMenu.addAction("Add");
     QAction *editAction = contextMenu.addAction("Edit");
     QAction *deleteAction = contextMenu.addAction("Delete");
 
-    connect(addAction, &QAction::triggered, this, &ToolSensorMnemonicTreeView::onAddItem);
-    connect(editAction, &QAction::triggered, this, &ToolSensorMnemonicTreeView::onEditItem);
-    connect(deleteAction, &QAction::triggered, this, &ToolSensorMnemonicTreeView::onDeleteItem);
+    // Соединяем действия с обработчиками, передавая ID и тип элемента
+    connect(addAction, &QAction::triggered, this, [=]() { onAddItem(elementId, elementType); });
+    connect(editAction, &QAction::triggered, this, [=]() { onEditItem(elementId, elementType); });
+    connect(deleteAction, &QAction::triggered, this, [=]() {
+        onDeleteItem(elementId, elementType);
+    });
 
     contextMenu.exec(mapToGlobal(event->pos()));
 }
 
-void ToolSensorMnemonicTreeView::onAddItem() {}
+void ToolSensorMnemonicTreeView::onAddItem(int elementId, ElementType elementType)
+{
+    qDebug() << "Add action triggered for ID:" << elementId << "Type:" << elementType;
+    // Логика добавления нового элемента
+}
 
-void ToolSensorMnemonicTreeView::onEditItem() {}
+void ToolSensorMnemonicTreeView::onEditItem(int elementId, ElementType elementType)
+{
+    qDebug() << "Edit action triggered for ID:" << elementId << "Type:" << elementType;
+    // Логика редактирования элемента
+}
 
-void ToolSensorMnemonicTreeView::onDeleteItem() {}
+void ToolSensorMnemonicTreeView::onDeleteItem(int elementId, ElementType elementType)
+{
+    qDebug() << "Delete action triggered for ID:" << elementId << "Type:" << elementType;
+    // Логика удаления элемента
+}

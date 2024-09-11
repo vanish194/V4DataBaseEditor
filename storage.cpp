@@ -31,9 +31,9 @@ QList<Producer> &Storage::getProducers()
 {
     return producers;
 }
-QList<TypeOfUnit> &Storage::getTypesOfUnits()
+QList<UnitType> &Storage::getUnitTypes()
 {
-    return typesOfUnits;
+    return unitTypes;
 }
 QList<ToolSensor> &Storage::getToolSensors()
 {
@@ -71,7 +71,7 @@ void Storage::createBackup()
     backupTools = tools;
     backupSensors = sensors;
     backupProducers = producers;
-    backupTypesOfUnits = typesOfUnits;
+    backupUnitTypes = unitTypes;
     backupToolSensors = toolSensors;
     backupAdditionalMnemonics = additionalMnemonics;
     backupMainMnemonics = mainMnemonics;
@@ -94,7 +94,7 @@ void Storage::restoreFromBackup()
     tools = backupTools;
     sensors = backupSensors;
     producers = backupProducers;
-    typesOfUnits = backupTypesOfUnits;
+    unitTypes = backupUnitTypes;
     toolSensors = backupToolSensors;
     additionalMnemonics = backupAdditionalMnemonics;
     mainMnemonics = backupMainMnemonics;
@@ -112,7 +112,7 @@ void Storage::clearBackup()
     backupTools.clear();
     backupSensors.clear();
     backupProducers.clear();
-    backupTypesOfUnits.clear();
+    backupUnitTypes.clear();
     backupToolSensors.clear();
     backupAdditionalMnemonics.clear();
     backupMainMnemonics.clear();
@@ -141,9 +141,9 @@ QList<Producer> &Storage::getBackupProducers()
 {
     return backupProducers;
 }
-QList<TypeOfUnit> &Storage::getBackupTypesOfUnits()
+QList<UnitType> &Storage::getBackupUnitTypes()
 {
-    return backupTypesOfUnits;
+    return backupUnitTypes;
 }
 QList<ToolSensor> &Storage::getBackupToolSensors()
 {
@@ -235,19 +235,18 @@ QList<Producer> Storage::getModifiedProducers()
     return modifiedProducers;
 }
 
-// Метод для получения изменённых TypesOfUnits
-QList<TypeOfUnit> Storage::getModifiedTypesOfUnits()
+QList<UnitType> Storage::getModifiedUnitTypes()
 {
-    QList<TypeOfUnit> modifiedTypesOfUnits;
+    QList<UnitType> modifiedUnitTypes;
 
     // Проходим по рабочим данным и сравниваем с данными из резервной копии
-    for (const TypeOfUnit &typeOfUnit : typesOfUnits) {
-        if (!backupTypesOfUnits.contains(typeOfUnit)) {
-            modifiedTypesOfUnits.append(typeOfUnit);
+    for (const UnitType &unitType : unitTypes) {
+        if (!backupUnitTypes.contains(unitType)) {
+            modifiedUnitTypes.append(unitType);
         }
     }
 
-    return modifiedTypesOfUnits;
+    return modifiedUnitTypes;
 }
 
 // Метод для получения изменённых ToolSensors
@@ -372,9 +371,9 @@ int Storage::generateNewProducerId()
 {
     return ++maxProducerId;
 }
-int Storage::generateNewTypeOfUnitId()
+int Storage::generateNewUnitTypeId()
 {
-    return ++maxTypeOfUnitId;
+    return ++maxUnitTypeId;
 }
 int Storage::generateNewToolSensorId()
 {
@@ -422,9 +421,9 @@ void Storage::setMaxProducerId(int id)
 {
     maxProducerId = id;
 }
-void Storage::setMaxTypeOfUnitId(int id)
+void Storage::setMaxUnitTypeId(int id)
 {
-    maxTypeOfUnitId = id;
+    maxUnitTypeId = id;
 }
 void Storage::setMaxToolSensorId(int id)
 {

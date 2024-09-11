@@ -20,8 +20,8 @@ SOURCES += \
     db_model/tool.cpp \
     db_model/tooldescription.cpp \
     db_model/toolsensor.cpp \
-    db_model/typeofunit.cpp \
     db_model/unit.cpp \
+    db_model/unittype.cpp \
     main.cpp \
     mainwindow.cpp \
     storage.cpp \
@@ -39,10 +39,11 @@ HEADERS += \
     db_model/tool.h \
     db_model/tooldescription.h \
     db_model/toolsensor.h \
-    db_model/typeofunit.h \
     db_model/unit.h \
+    db_model/unittype.h \
     mainwindow.h \
     storage.h \
+    storageeditor.h \
     views/toolsensormnemonictreeview.h
 
 FORMS += \

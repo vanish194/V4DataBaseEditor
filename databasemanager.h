@@ -26,7 +26,7 @@ private:
     int getDatabaseVersion() const;
     // Приватные методы для загрузки данных из каждой таблицы
     void loadUnits();
-    void loadTypesOfUnits();
+    void loadUnitTypes();
     void loadMethods();
     void loadProducers();
     void loadSensors();

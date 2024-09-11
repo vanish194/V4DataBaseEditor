@@ -60,7 +60,7 @@ int DatabaseManager::getDatabaseVersion() const
 void DatabaseManager::loadAllData()
 {
     loadUnits();
-    loadTypesOfUnits();
+    loadUnitTypes();
     loadMethods();
     loadProducers();
     loadSensors();
@@ -98,11 +98,11 @@ void DatabaseManager::loadUnits()
     storage->setMaxUnitId(maxId); // Устанавливаем максимальный ID для генерации новых данных
 }
 
-void DatabaseManager::loadTypesOfUnits()
+void DatabaseManager::loadUnitTypes()
 {
     QSqlQuery query;
-    if (!query.exec("SELECT type_id, type_name FROM types_of_units")) {
-        qDebug() << "Ошибка загрузки данных из таблицы types_of_units:" << query.lastError().text();
+    if (!query.exec("SELECT type_id, type_name FROM unit_types")) {
+        qDebug() << "Ошибка загрузки данных из таблицы unit_types:" << query.lastError().text();
         return;
     }
 
@@ -111,12 +111,12 @@ void DatabaseManager::loadTypesOfUnits()
     while (query.next()) {
         int id = query.value("type_id").toInt();
         QString name = query.value("type_name").toString();
-        storage->getTypesOfUnits().append(TypeOfUnit(id, name));
+        storage->getUnitTypes().append(UnitType(id, name));
         if (id > maxId) {
             maxId = id;
         }
     }
-    storage->setMaxTypeOfUnitId(maxId);
+    storage->setMaxUnitTypeId(maxId);
 }
 
 void DatabaseManager::loadMethods()

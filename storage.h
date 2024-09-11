@@ -13,8 +13,8 @@
 #include "db_model/Tool.h"
 #include "db_model/ToolDescription.h"
 #include "db_model/ToolSensor.h"
-#include "db_model/TypeOfUnit.h"
 #include "db_model/Unit.h"
+#include "db_model/UnitType.h"
 
 class Storage
 {
@@ -27,7 +27,7 @@ private:
     QList<Tool> tools;
     QList<Sensor> sensors;
     QList<Producer> producers;
-    QList<TypeOfUnit> typesOfUnits;
+    QList<UnitType> unitTypes;
     QList<ToolSensor> toolSensors;
     QList<AdditionalMnemonic> additionalMnemonics;
     QList<MainMnemonic> mainMnemonics;
@@ -41,7 +41,7 @@ private:
     QList<Tool> backupTools;
     QList<Sensor> backupSensors;
     QList<Producer> backupProducers;
-    QList<TypeOfUnit> backupTypesOfUnits;
+    QList<UnitType> backupUnitTypes;
     QList<ToolSensor> backupToolSensors;
     QList<AdditionalMnemonic> backupAdditionalMnemonics;
     QList<MainMnemonic> backupMainMnemonics;
@@ -55,7 +55,7 @@ private:
     int maxToolId = 0;
     int maxSensorId = 0;
     int maxProducerId = 0;
-    int maxTypeOfUnitId = 0;
+    int maxUnitTypeId = 0;
     int maxToolSensorId = 0;
     int maxAdditionalMnemonicId = 0;
     int maxMainMnemonicId = 0;
@@ -73,7 +73,7 @@ public:
     QList<Tool> &getTools();
     QList<Sensor> &getSensors();
     QList<Producer> &getProducers();
-    QList<TypeOfUnit> &getTypesOfUnits();
+    QList<UnitType> &getUnitTypes();
     QList<ToolSensor> &getToolSensors();
     QList<AdditionalMnemonic> &getAdditionalMnemonics();
     QList<MainMnemonic> &getMainMnemonics();
@@ -92,7 +92,7 @@ public:
     QList<Tool> &getBackupTools();
     QList<Sensor> &getBackupSensors();
     QList<Producer> &getBackupProducers();
-    QList<TypeOfUnit> &getBackupTypesOfUnits();
+    QList<UnitType> &getBackupUnitTypes();
     QList<ToolSensor> &getBackupToolSensors();
     QList<AdditionalMnemonic> &getBackupAdditionalMnemonics();
     QList<MainMnemonic> &getBackupMainMnemonics();
@@ -106,7 +106,7 @@ public:
     QList<Tool> getModifiedTools();
     QList<Sensor> getModifiedSensors();
     QList<Producer> getModifiedProducers();
-    QList<TypeOfUnit> getModifiedTypesOfUnits();
+    QList<UnitType> getModifiedUnitTypes();
     QList<ToolSensor> getModifiedToolSensors();
     QList<AdditionalMnemonic> getModifiedAdditionalMnemonics();
     QList<MainMnemonic> getModifiedMainMnemonics();
@@ -120,7 +120,7 @@ public:
     int generateNewToolId();
     int generateNewSensorId();
     int generateNewProducerId();
-    int generateNewTypeOfUnitId();
+    int generateNewUnitTypeId();
     int generateNewToolSensorId();
     int generateNewAdditionalMnemonicId();
     int generateNewMainMnemonicId();
@@ -134,7 +134,7 @@ public:
     void setMaxToolId(int id);
     void setMaxSensorId(int id);
     void setMaxProducerId(int id);
-    void setMaxTypeOfUnitId(int id);
+    void setMaxUnitTypeId(int id);
     void setMaxToolSensorId(int id);
     void setMaxAdditionalMnemonicId(int id);
     void setMaxMainMnemonicId(int id);

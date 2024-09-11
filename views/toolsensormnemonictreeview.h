@@ -11,6 +11,8 @@ class ToolSensorMnemonicTreeView : public QTreeView
     Q_OBJECT
 
 public:
+    enum ElementType { ToolType, SensorType, MainMnemonicType, AdditionalMnemonicType };
+
     explicit ToolSensorMnemonicTreeView(QWidget *parent = nullptr);
     void buildTree();
 
@@ -23,9 +25,9 @@ private:
     const Sensor *findSensorById(int sensorId);
 
     // Методы для контекстного меню
-    void onAddItem();
-    void onEditItem();
-    void onDeleteItem();
+    void onAddItem(int elementId, ElementType elementType);
+    void onEditItem(int elementId, ElementType elementType);
+    void onDeleteItem(int elementId, ElementType elementType);
 };
 
 #endif // TOOLSENSORMNEMONICTREEVIEW_H
