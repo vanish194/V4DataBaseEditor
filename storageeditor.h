@@ -1,6 +1,7 @@
 #ifndef STORAGEEDITOR_H
 #define STORAGEEDITOR_H
 
+#include <QDebug>
 #include "storage.h"
 
 class StorageEditor
@@ -20,12 +21,6 @@ private:
     Storage *storage;
 };
 
-// Реализация конструктора
-StorageEditor::StorageEditor(Storage *storage)
-    : storage(storage)
-{}
-
-// Реализация функции InsertOrReplace
 template<typename T>
 void StorageEditor::insertOrReplace(QList<T> &list, const T &element)
 {
@@ -40,7 +35,6 @@ void StorageEditor::insertOrReplace(QList<T> &list, const T &element)
     qDebug() << "Element with ID" << element.getId() << "added.";
 }
 
-// Реализация функции Delete
 template<typename T>
 void StorageEditor::deleteElement(QList<T> &list, const T &element)
 {

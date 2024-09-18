@@ -16,6 +16,38 @@
 #include "db_model/Unit.h"
 #include "db_model/UnitType.h"
 
+// Структура для хранения всех измененных данных
+struct ModifiedData
+{
+    // Списки добавленных или измененных объектов
+    QList<Unit> modifiedUnits;
+    QList<Tool> modifiedTools;
+    QList<Sensor> modifiedSensors;
+    QList<Producer> modifiedProducers;
+    QList<UnitType> modifiedUnitTypes;
+    QList<ToolSensor> modifiedToolSensors;
+    QList<AdditionalMnemonic> modifiedAdditionalMnemonics;
+    QList<MainMnemonic> modifiedMainMnemonics;
+    QList<ConversionFormula> modifiedConversionFormulas;
+    QList<Company> modifiedCompanies;
+    QList<Method> modifiedMethods;
+    QList<ToolDescription> modifiedToolDescriptions;
+
+    // Списки удаленных объектов
+    QList<Unit> deletedUnits;
+    QList<Tool> deletedTools;
+    QList<Sensor> deletedSensors;
+    QList<Producer> deletedProducers;
+    QList<UnitType> deletedUnitTypes;
+    QList<ToolSensor> deletedToolSensors;
+    QList<AdditionalMnemonic> deletedAdditionalMnemonics;
+    QList<MainMnemonic> deletedMainMnemonics;
+    QList<ConversionFormula> deletedConversionFormulas;
+    QList<Company> deletedCompanies;
+    QList<Method> deletedMethods;
+    QList<ToolDescription> deletedToolDescriptions;
+};
+
 class Storage
 {
 private:
@@ -67,7 +99,7 @@ private:
 public:
     static Storage *getInstance();
     ~Storage();
-    //1.удаление(значений с отрацательным id) -> добавление/редактивование
+
     // Методы для работы с данными
     QList<Unit> &getUnits();
     QList<Tool> &getTools();
@@ -114,6 +146,23 @@ public:
     QList<Company> getModifiedCompanies();
     QList<Method> getModifiedMethods();
     QList<ToolDescription> getModifiedToolDescriptions();
+
+    // Методы для получения удаленных данных
+    QList<Unit> getDeletedUnits();
+    QList<Tool> getDeletedTools();
+    QList<Sensor> getDeletedSensors();
+    QList<Producer> getDeletedProducers();
+    QList<UnitType> getDeletedUnitTypes();
+    QList<ToolSensor> getDeletedToolSensors();
+    QList<AdditionalMnemonic> getDeletedAdditionalMnemonics();
+    QList<MainMnemonic> getDeletedMainMnemonics();
+    QList<ConversionFormula> getDeletedConversionFormulas();
+    QList<Company> getDeletedCompanies();
+    QList<Method> getDeletedMethods();
+    QList<ToolDescription> getDeletedToolDescriptions();
+
+    // Метод для получения всех измененных данных
+    ModifiedData getAllModifiedData();
 
     // Методы для получения максимальных ID
     int generateNewUnitId();

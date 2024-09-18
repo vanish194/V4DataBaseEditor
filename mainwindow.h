@@ -24,6 +24,7 @@ public:
 
 private slots:
     void onOpenDatabase();
+    void onCompareCurrentData();
 
 private:
     Ui::MainWindow *ui;

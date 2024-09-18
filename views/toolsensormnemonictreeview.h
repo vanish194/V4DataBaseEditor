@@ -4,7 +4,11 @@
 #include <QMenu>
 #include <QStandardItemModel>
 #include <QTreeView>
+#include "editor_windows/sensor_editor.h"
+#include "editor_windows/tool_editor.h"
+#include "editor_windows/toolsensorrelationeditor.h"
 #include "storage.h"
+#include "storageeditor.h"
 
 class ToolSensorMnemonicTreeView : public QTreeView
 {
@@ -21,13 +25,15 @@ protected:
 
 private:
     QStandardItemModel *model;
-
     const Sensor *findSensorById(int sensorId);
 
     // Методы для контекстного меню
     void onAddItem(int elementId, ElementType elementType);
     void onEditItem(int elementId, ElementType elementType);
     void onDeleteItem(int elementId, ElementType elementType);
+
+    // Добавлен метод для редактора отношений
+    void onEditRelations(int elementId, ElementType elementType);
 };
 
 #endif // TOOLSENSORMNEMONICTREEVIEW_H

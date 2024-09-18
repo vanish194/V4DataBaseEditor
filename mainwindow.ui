@@ -39,12 +39,24 @@
     </property>
     <addaction name="actionOpen"/>
    </widget>
+   <widget class="QMenu" name="menuData">
+    <property name="title">
+     <string>Data</string>
+    </property>
+    <addaction name="actionCompareCurrentData"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuData"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionOpen">
    <property name="text">
     <string>Open Database</string>
+   </property>
+  </action>
+  <action name="actionCompareCurrentData">
+   <property name="text">
+    <string>Compare current data</string>
    </property>
   </action>
  </widget>

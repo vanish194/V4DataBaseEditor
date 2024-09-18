@@ -22,9 +22,13 @@ SOURCES += \
     db_model/toolsensor.cpp \
     db_model/unit.cpp \
     db_model/unittype.cpp \
+    editor_windows/sensor_editor.cpp \
+    editor_windows/tool_editor.cpp \
+    editor_windows/toolsensorrelationeditor.cpp \
     main.cpp \
     mainwindow.cpp \
     storage.cpp \
+    storageeditor.cpp \
     views/toolsensormnemonictreeview.cpp
 
 HEADERS += \
@@ -41,12 +45,18 @@ HEADERS += \
     db_model/toolsensor.h \
     db_model/unit.h \
     db_model/unittype.h \
+    editor_windows/sensor_editor.h \
+    editor_windows/tool_editor.h \
+    editor_windows/toolsensorrelationeditor.h \
     mainwindow.h \
     storage.h \
     storageeditor.h \
     views/toolsensormnemonictreeview.h
 
 FORMS += \
+    editor_windows/sensor_editor.ui \
+    editor_windows/tool_editor.ui \
+    editor_windows/toolsensorrelationeditor.ui \
     mainwindow.ui
 
 # Default rules for deployment.

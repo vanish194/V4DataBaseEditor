@@ -174,15 +174,32 @@ QList<ToolDescription> &Storage::getBackupToolDescriptions()
     return backupToolDescriptions;
 }
 
-// Пример метода для получения измененных данных
-// Метод для получения изменённых Units
+// Методы для получения измененных данных
+
+// Пример для Unit
 QList<Unit> Storage::getModifiedUnits()
 {
     QList<Unit> modifiedUnits;
 
-    // Проходим по рабочим данным и сравниваем с данными из резервной копии
     for (const Unit &unit : units) {
-        if (!backupUnits.contains(unit)) {
+        if (unit.getId() < 0) {
+            // Удаленные объекты обрабатываются отдельно
+            continue;
+        }
+
+        bool foundInBackup = false;
+        for (const Unit &backupUnit : backupUnits) {
+            if (unit.getId() == backupUnit.getId()) {
+                if (!(unit == backupUnit)) {
+                    // Объект изменен
+                    modifiedUnits.append(unit);
+                }
+                foundInBackup = true;
+                break;
+            }
+        }
+        if (!foundInBackup) {
+            // Новый объект
             modifiedUnits.append(unit);
         }
     }
@@ -190,14 +207,28 @@ QList<Unit> Storage::getModifiedUnits()
     return modifiedUnits;
 }
 
-// Метод для получения изменённых Tools
+// Аналогично для остальных типов данных
+
 QList<Tool> Storage::getModifiedTools()
 {
     QList<Tool> modifiedTools;
 
-    // Проходим по рабочим данным и сравниваем с данными из резервной копии
     for (const Tool &tool : tools) {
-        if (!backupTools.contains(tool)) {
+        if (tool.getId() < 0) {
+            continue;
+        }
+
+        bool foundInBackup = false;
+        for (const Tool &backupTool : backupTools) {
+            if (tool.getId() == backupTool.getId()) {
+                if (!(tool == backupTool)) {
+                    modifiedTools.append(tool);
+                }
+                foundInBackup = true;
+                break;
+            }
+        }
+        if (!foundInBackup) {
             modifiedTools.append(tool);
         }
     }
@@ -205,14 +236,26 @@ QList<Tool> Storage::getModifiedTools()
     return modifiedTools;
 }
 
-// Метод для получения изменённых Sensors
 QList<Sensor> Storage::getModifiedSensors()
 {
     QList<Sensor> modifiedSensors;
 
-    // Проходим по рабочим данным и сравниваем с данными из резервной копии
     for (const Sensor &sensor : sensors) {
-        if (!backupSensors.contains(sensor)) {
+        if (sensor.getId() < 0) {
+            continue;
+        }
+
+        bool foundInBackup = false;
+        for (const Sensor &backupSensor : backupSensors) {
+            if (sensor.getId() == backupSensor.getId()) {
+                if (!(sensor == backupSensor)) {
+                    modifiedSensors.append(sensor);
+                }
+                foundInBackup = true;
+                break;
+            }
+        }
+        if (!foundInBackup) {
             modifiedSensors.append(sensor);
         }
     }
@@ -220,14 +263,26 @@ QList<Sensor> Storage::getModifiedSensors()
     return modifiedSensors;
 }
 
-// Метод для получения изменённых Producers
 QList<Producer> Storage::getModifiedProducers()
 {
     QList<Producer> modifiedProducers;
 
-    // Проходим по рабочим данным и сравниваем с данными из резервной копии
     for (const Producer &producer : producers) {
-        if (!backupProducers.contains(producer)) {
+        if (producer.getId() < 0) {
+            continue;
+        }
+
+        bool foundInBackup = false;
+        for (const Producer &backupProducer : backupProducers) {
+            if (producer.getId() == backupProducer.getId()) {
+                if (!(producer == backupProducer)) {
+                    modifiedProducers.append(producer);
+                }
+                foundInBackup = true;
+                break;
+            }
+        }
+        if (!foundInBackup) {
             modifiedProducers.append(producer);
         }
     }
@@ -239,9 +294,22 @@ QList<UnitType> Storage::getModifiedUnitTypes()
 {
     QList<UnitType> modifiedUnitTypes;
 
-    // Проходим по рабочим данным и сравниваем с данными из резервной копии
     for (const UnitType &unitType : unitTypes) {
-        if (!backupUnitTypes.contains(unitType)) {
+        if (unitType.getId() < 0) {
+            continue;
+        }
+
+        bool foundInBackup = false;
+        for (const UnitType &backupUnitType : backupUnitTypes) {
+            if (unitType.getId() == backupUnitType.getId()) {
+                if (!(unitType == backupUnitType)) {
+                    modifiedUnitTypes.append(unitType);
+                }
+                foundInBackup = true;
+                break;
+            }
+        }
+        if (!foundInBackup) {
             modifiedUnitTypes.append(unitType);
         }
     }
@@ -249,14 +317,26 @@ QList<UnitType> Storage::getModifiedUnitTypes()
     return modifiedUnitTypes;
 }
 
-// Метод для получения изменённых ToolSensors
 QList<ToolSensor> Storage::getModifiedToolSensors()
 {
     QList<ToolSensor> modifiedToolSensors;
 
-    // Проходим по рабочим данным и сравниваем с данными из резервной копии
     for (const ToolSensor &toolSensor : toolSensors) {
-        if (!backupToolSensors.contains(toolSensor)) {
+        if (toolSensor.getId() < 0) {
+            continue;
+        }
+
+        bool foundInBackup = false;
+        for (const ToolSensor &backupToolSensor : backupToolSensors) {
+            if (toolSensor.getId() == backupToolSensor.getId()) {
+                if (!(toolSensor == backupToolSensor)) {
+                    modifiedToolSensors.append(toolSensor);
+                }
+                foundInBackup = true;
+                break;
+            }
+        }
+        if (!foundInBackup) {
             modifiedToolSensors.append(toolSensor);
         }
     }
@@ -264,14 +344,26 @@ QList<ToolSensor> Storage::getModifiedToolSensors()
     return modifiedToolSensors;
 }
 
-// Метод для получения изменённых AdditionalMnemonics
 QList<AdditionalMnemonic> Storage::getModifiedAdditionalMnemonics()
 {
     QList<AdditionalMnemonic> modifiedAdditionalMnemonics;
 
-    // Проходим по рабочим данным и сравниваем с данными из резервной копии
     for (const AdditionalMnemonic &additionalMnemonic : additionalMnemonics) {
-        if (!backupAdditionalMnemonics.contains(additionalMnemonic)) {
+        if (additionalMnemonic.getId() < 0) {
+            continue;
+        }
+
+        bool foundInBackup = false;
+        for (const AdditionalMnemonic &backupAdditionalMnemonic : backupAdditionalMnemonics) {
+            if (additionalMnemonic.getId() == backupAdditionalMnemonic.getId()) {
+                if (!(additionalMnemonic == backupAdditionalMnemonic)) {
+                    modifiedAdditionalMnemonics.append(additionalMnemonic);
+                }
+                foundInBackup = true;
+                break;
+            }
+        }
+        if (!foundInBackup) {
             modifiedAdditionalMnemonics.append(additionalMnemonic);
         }
     }
@@ -279,14 +371,26 @@ QList<AdditionalMnemonic> Storage::getModifiedAdditionalMnemonics()
     return modifiedAdditionalMnemonics;
 }
 
-// Метод для получения изменённых MainMnemonics
 QList<MainMnemonic> Storage::getModifiedMainMnemonics()
 {
     QList<MainMnemonic> modifiedMainMnemonics;
 
-    // Проходим по рабочим данным и сравниваем с данными из резервной копии
     for (const MainMnemonic &mainMnemonic : mainMnemonics) {
-        if (!backupMainMnemonics.contains(mainMnemonic)) {
+        if (mainMnemonic.getId() < 0) {
+            continue;
+        }
+
+        bool foundInBackup = false;
+        for (const MainMnemonic &backupMainMnemonic : backupMainMnemonics) {
+            if (mainMnemonic.getId() == backupMainMnemonic.getId()) {
+                if (!(mainMnemonic == backupMainMnemonic)) {
+                    modifiedMainMnemonics.append(mainMnemonic);
+                }
+                foundInBackup = true;
+                break;
+            }
+        }
+        if (!foundInBackup) {
             modifiedMainMnemonics.append(mainMnemonic);
         }
     }
@@ -294,14 +398,26 @@ QList<MainMnemonic> Storage::getModifiedMainMnemonics()
     return modifiedMainMnemonics;
 }
 
-// Метод для получения изменённых ConversionFormulas
 QList<ConversionFormula> Storage::getModifiedConversionFormulas()
 {
     QList<ConversionFormula> modifiedConversionFormulas;
 
-    // Проходим по рабочим данным и сравниваем с данными из резервной копии
     for (const ConversionFormula &conversionFormula : conversionFormulas) {
-        if (!backupConversionFormulas.contains(conversionFormula)) {
+        if (conversionFormula.getId() < 0) {
+            continue;
+        }
+
+        bool foundInBackup = false;
+        for (const ConversionFormula &backupConversionFormula : backupConversionFormulas) {
+            if (conversionFormula.getId() == backupConversionFormula.getId()) {
+                if (!(conversionFormula == backupConversionFormula)) {
+                    modifiedConversionFormulas.append(conversionFormula);
+                }
+                foundInBackup = true;
+                break;
+            }
+        }
+        if (!foundInBackup) {
             modifiedConversionFormulas.append(conversionFormula);
         }
     }
@@ -309,14 +425,26 @@ QList<ConversionFormula> Storage::getModifiedConversionFormulas()
     return modifiedConversionFormulas;
 }
 
-// Метод для получения изменённых Companies
 QList<Company> Storage::getModifiedCompanies()
 {
     QList<Company> modifiedCompanies;
 
-    // Проходим по рабочим данным и сравниваем с данными из резервной копии
     for (const Company &company : companies) {
-        if (!backupCompanies.contains(company)) {
+        if (company.getId() < 0) {
+            continue;
+        }
+
+        bool foundInBackup = false;
+        for (const Company &backupCompany : backupCompanies) {
+            if (company.getId() == backupCompany.getId()) {
+                if (!(company == backupCompany)) {
+                    modifiedCompanies.append(company);
+                }
+                foundInBackup = true;
+                break;
+            }
+        }
+        if (!foundInBackup) {
             modifiedCompanies.append(company);
         }
     }
@@ -324,14 +452,26 @@ QList<Company> Storage::getModifiedCompanies()
     return modifiedCompanies;
 }
 
-// Метод для получения изменённых Methods
 QList<Method> Storage::getModifiedMethods()
 {
     QList<Method> modifiedMethods;
 
-    // Проходим по рабочим данным и сравниваем с данными из резервной копии
     for (const Method &method : methods) {
-        if (!backupMethods.contains(method)) {
+        if (method.getId() < 0) {
+            continue;
+        }
+
+        bool foundInBackup = false;
+        for (const Method &backupMethod : backupMethods) {
+            if (method.getId() == backupMethod.getId()) {
+                if (!(method == backupMethod)) {
+                    modifiedMethods.append(method);
+                }
+                foundInBackup = true;
+                break;
+            }
+        }
+        if (!foundInBackup) {
             modifiedMethods.append(method);
         }
     }
@@ -339,19 +479,225 @@ QList<Method> Storage::getModifiedMethods()
     return modifiedMethods;
 }
 
-// Метод для получения изменённых ToolDescriptions
 QList<ToolDescription> Storage::getModifiedToolDescriptions()
 {
     QList<ToolDescription> modifiedToolDescriptions;
 
-    // Проходим по рабочим данным и сравниваем с данными из резервной копии
     for (const ToolDescription &toolDescription : toolDescriptions) {
-        if (!backupToolDescriptions.contains(toolDescription)) {
+        if (toolDescription.getId() < 0) {
+            continue;
+        }
+
+        bool foundInBackup = false;
+        for (const ToolDescription &backupToolDescription : backupToolDescriptions) {
+            if (toolDescription.getId() == backupToolDescription.getId()) {
+                if (!(toolDescription == backupToolDescription)) {
+                    modifiedToolDescriptions.append(toolDescription);
+                }
+                foundInBackup = true;
+                break;
+            }
+        }
+        if (!foundInBackup) {
             modifiedToolDescriptions.append(toolDescription);
         }
     }
 
     return modifiedToolDescriptions;
+}
+
+// Методы для получения удаленных данных
+
+QList<Unit> Storage::getDeletedUnits()
+{
+    QList<Unit> deletedUnits;
+
+    for (const Unit &unit : units) {
+        if (unit.getId() < 0) {
+            deletedUnits.append(unit);
+        }
+    }
+
+    return deletedUnits;
+}
+
+QList<Tool> Storage::getDeletedTools()
+{
+    QList<Tool> deletedTools;
+
+    for (const Tool &tool : tools) {
+        if (tool.getId() < 0) {
+            deletedTools.append(tool);
+        }
+    }
+
+    return deletedTools;
+}
+
+QList<Sensor> Storage::getDeletedSensors()
+{
+    QList<Sensor> deletedSensors;
+
+    for (const Sensor &sensor : sensors) {
+        if (sensor.getId() < 0) {
+            deletedSensors.append(sensor);
+        }
+    }
+
+    return deletedSensors;
+}
+
+QList<Producer> Storage::getDeletedProducers()
+{
+    QList<Producer> deletedProducers;
+
+    for (const Producer &producer : producers) {
+        if (producer.getId() < 0) {
+            deletedProducers.append(producer);
+        }
+    }
+
+    return deletedProducers;
+}
+
+QList<UnitType> Storage::getDeletedUnitTypes()
+{
+    QList<UnitType> deletedUnitTypes;
+
+    for (const UnitType &unitType : unitTypes) {
+        if (unitType.getId() < 0) {
+            deletedUnitTypes.append(unitType);
+        }
+    }
+
+    return deletedUnitTypes;
+}
+
+QList<ToolSensor> Storage::getDeletedToolSensors()
+{
+    QList<ToolSensor> deletedToolSensors;
+
+    for (const ToolSensor &toolSensor : toolSensors) {
+        if (toolSensor.getId() < 0) {
+            deletedToolSensors.append(toolSensor);
+        }
+    }
+
+    return deletedToolSensors;
+}
+
+QList<AdditionalMnemonic> Storage::getDeletedAdditionalMnemonics()
+{
+    QList<AdditionalMnemonic> deletedAdditionalMnemonics;
+
+    for (const AdditionalMnemonic &additionalMnemonic : additionalMnemonics) {
+        if (additionalMnemonic.getId() < 0) {
+            deletedAdditionalMnemonics.append(additionalMnemonic);
+        }
+    }
+
+    return deletedAdditionalMnemonics;
+}
+
+QList<MainMnemonic> Storage::getDeletedMainMnemonics()
+{
+    QList<MainMnemonic> deletedMainMnemonics;
+
+    for (const MainMnemonic &mainMnemonic : mainMnemonics) {
+        if (mainMnemonic.getId() < 0) {
+            deletedMainMnemonics.append(mainMnemonic);
+        }
+    }
+
+    return deletedMainMnemonics;
+}
+
+QList<ConversionFormula> Storage::getDeletedConversionFormulas()
+{
+    QList<ConversionFormula> deletedConversionFormulas;
+
+    for (const ConversionFormula &conversionFormula : conversionFormulas) {
+        if (conversionFormula.getId() < 0) {
+            deletedConversionFormulas.append(conversionFormula);
+        }
+    }
+
+    return deletedConversionFormulas;
+}
+
+QList<Company> Storage::getDeletedCompanies()
+{
+    QList<Company> deletedCompanies;
+
+    for (const Company &company : companies) {
+        if (company.getId() < 0) {
+            deletedCompanies.append(company);
+        }
+    }
+
+    return deletedCompanies;
+}
+
+QList<Method> Storage::getDeletedMethods()
+{
+    QList<Method> deletedMethods;
+
+    for (const Method &method : methods) {
+        if (method.getId() < 0) {
+            deletedMethods.append(method);
+        }
+    }
+
+    return deletedMethods;
+}
+
+QList<ToolDescription> Storage::getDeletedToolDescriptions()
+{
+    QList<ToolDescription> deletedToolDescriptions;
+
+    for (const ToolDescription &toolDescription : toolDescriptions) {
+        if (toolDescription.getId() < 0) {
+            deletedToolDescriptions.append(toolDescription);
+        }
+    }
+
+    return deletedToolDescriptions;
+}
+
+// Метод для получения всех измененных данных
+ModifiedData Storage::getAllModifiedData()
+{
+    ModifiedData modifiedData;
+
+    // Добавленные и измененные объекты
+    modifiedData.modifiedUnits = getModifiedUnits();
+    modifiedData.modifiedTools = getModifiedTools();
+    modifiedData.modifiedSensors = getModifiedSensors();
+    modifiedData.modifiedProducers = getModifiedProducers();
+    modifiedData.modifiedUnitTypes = getModifiedUnitTypes();
+    modifiedData.modifiedToolSensors = getModifiedToolSensors();
+    modifiedData.modifiedAdditionalMnemonics = getModifiedAdditionalMnemonics();
+    modifiedData.modifiedMainMnemonics = getModifiedMainMnemonics();
+    modifiedData.modifiedConversionFormulas = getModifiedConversionFormulas();
+    modifiedData.modifiedCompanies = getModifiedCompanies();
+    modifiedData.modifiedMethods = getModifiedMethods();
+    modifiedData.modifiedToolDescriptions = getModifiedToolDescriptions();
+
+    // Удаленные объекты
+    modifiedData.deletedUnits = getDeletedUnits();
+    modifiedData.deletedTools = getDeletedTools();
+    modifiedData.deletedSensors = getDeletedSensors();
+    modifiedData.deletedProducers = getDeletedProducers();
+    modifiedData.deletedUnitTypes = getDeletedUnitTypes();
+    modifiedData.deletedToolSensors = getDeletedToolSensors();
+    modifiedData.deletedAdditionalMnemonics = getDeletedAdditionalMnemonics();
+    modifiedData.deletedMainMnemonics = getDeletedMainMnemonics();
+    modifiedData.deletedConversionFormulas = getDeletedConversionFormulas();
+    modifiedData.deletedCompanies = getDeletedCompanies();
+    modifiedData.deletedMethods = getDeletedMethods();
+    modifiedData.deletedToolDescriptions = getDeletedToolDescriptions();
+
+    return modifiedData;
 }
 
 // Реализация методов генерации новых ID
