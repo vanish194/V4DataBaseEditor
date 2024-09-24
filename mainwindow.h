@@ -5,6 +5,7 @@
 #include <QMainWindow>
 #include <QMessageBox>
 #include "databasemanager.h"
+#include "editor_windows/comparedatadialog.h"
 #include "storage.h"
 #include "views/toolsensormnemonictreeview.h"
 

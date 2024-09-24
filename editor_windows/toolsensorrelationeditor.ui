@@ -27,20 +27,15 @@
        <string>Tool</string>
       </property>
      </column>
-     <column>
-      <property name="text">
-       <string>Offset (mm)</string>
-      </property>
-     </column>
     </widget>
    </item>
    <item>
     <widget class="QTreeWidget" name="treeWidgetSensors">
      <property name="contextMenuPolicy">
-      <enum>Qt::CustomContextMenu</enum>
+      <enum>Qt::NoContextMenu</enum>
      </property>
      <property name="selectionMode">
-      <enum>QAbstractItemView::SingleSelection</enum>
+      <enum>QAbstractItemView::NoSelection</enum>
      </property>
      <column>
       <property name="text">

@@ -22,6 +22,7 @@ SOURCES += \
     db_model/toolsensor.cpp \
     db_model/unit.cpp \
     db_model/unittype.cpp \
+    editor_windows/comparedatadialog.cpp \
     editor_windows/sensor_editor.cpp \
     editor_windows/tool_editor.cpp \
     editor_windows/toolsensorrelationeditor.cpp \
@@ -45,6 +46,7 @@ HEADERS += \
     db_model/toolsensor.h \
     db_model/unit.h \
     db_model/unittype.h \
+    editor_windows/comparedatadialog.h \
     editor_windows/sensor_editor.h \
     editor_windows/tool_editor.h \
     editor_windows/toolsensorrelationeditor.h \
@@ -54,6 +56,7 @@ HEADERS += \
     views/toolsensormnemonictreeview.h
 
 FORMS += \
+    editor_windows/comparedatadialog.ui \
     editor_windows/sensor_editor.ui \
     editor_windows/tool_editor.ui \
     editor_windows/toolsensorrelationeditor.ui \

@@ -15,7 +15,15 @@ class ToolSensorMnemonicTreeView : public QTreeView
     Q_OBJECT
 
 public:
-    enum ElementType { ToolType, SensorType, MainMnemonicType, AdditionalMnemonicType };
+    enum ElementType {
+        ToolType,
+        ToolDescriptionType,
+        SensorType,
+        SensorDescriptionType,
+        MainMnemonicType,
+        AdditionalMnemonicType,
+        NoneType
+    };
 
     explicit ToolSensorMnemonicTreeView(QWidget *parent = nullptr);
     void buildTree();
@@ -32,7 +40,6 @@ private:
     void onEditItem(int elementId, ElementType elementType);
     void onDeleteItem(int elementId, ElementType elementType);
 
-    // Добавлен метод для редактора отношений
     void onEditRelations(int elementId, ElementType elementType);
 };
 

@@ -16,35 +16,27 @@ ToolSensorRelationEditor::ToolSensorRelationEditor(QWidget *parent)
     , ui(new Ui::ToolSensorRelationEditor)
     , storage(Storage::getInstance())
     , selectedToolId(-1) // Initialization
-    , selectedSensorId(-1)
 {
     ui->setupUi(this);
 
     loadTools();
     loadSensors();
 
-    // Connect signals for updating selection
+    // Connect signal for updating selection
     connect(ui->treeWidgetTools,
             &QTreeWidget::itemSelectionChanged,
             this,
             &ToolSensorRelationEditor::onToolSelectionChanged);
-    connect(ui->treeWidgetSensors,
-            &QTreeWidget::itemSelectionChanged,
-            this,
-            &ToolSensorRelationEditor::onSensorSelectionChanged);
 
-    // Set up context menus
+    // Set up context menu for tools
     ui->treeWidgetTools->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->treeWidgetTools,
             &QTreeWidget::customContextMenuRequested,
             this,
             &ToolSensorRelationEditor::showToolContextMenu);
 
-    ui->treeWidgetSensors->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->treeWidgetSensors,
-            &QTreeWidget::customContextMenuRequested,
-            this,
-            &ToolSensorRelationEditor::showSensorContextMenu);
+    // Disable context menu for sensors
+    ui->treeWidgetSensors->setContextMenuPolicy(Qt::NoContextMenu);
 }
 
 ToolSensorRelationEditor::~ToolSensorRelationEditor()
@@ -69,30 +61,16 @@ void ToolSensorRelationEditor::setTool(int toolId)
     updateSensorSelectionForTool(toolId);
 }
 
-// Method to set the selected sensor
-void ToolSensorRelationEditor::setSensor(int sensorId)
-{
-    selectedSensorId = sensorId; // Store the sensor ID
-
-    // Select the sensor in treeWidgetSensors
-    for (int i = 0; i < ui->treeWidgetSensors->topLevelItemCount(); ++i) {
-        QTreeWidgetItem *item = ui->treeWidgetSensors->topLevelItem(i);
-        if (item->data(0, Qt::UserRole).toInt() == sensorId) {
-            ui->treeWidgetSensors->setCurrentItem(item);
-            break;
-        }
-    }
-
-    updateToolSelectionForSensor(sensorId);
-}
-
 void ToolSensorRelationEditor::loadTools()
 {
     ui->treeWidgetTools->clear();
-    ui->treeWidgetTools->setHeaderLabels(QStringList() << "Tool"
-                                                       << "Offset (mm)");
+    ui->treeWidgetTools->setHeaderLabels(QStringList() << "Tool");
 
     for (const Tool &tool : storage->getTools()) {
+        // Пропускаем удалённые инструменты
+        if (tool.getId() < 0) {
+            continue;
+        }
         QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeWidgetTools);
         item->setText(0, tool.getName());
         item->setData(0, Qt::UserRole, tool.getId());
@@ -106,6 +84,10 @@ void ToolSensorRelationEditor::loadSensors()
                                                          << "Offset (mm)");
 
     for (const Sensor &sensor : storage->getSensors()) {
+        // Пропускаем удалённые сенсоры
+        if (sensor.getId() < 0) {
+            continue;
+        }
         QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeWidgetSensors);
         item->setText(0, sensor.getName());
         item->setData(0, Qt::UserRole, sensor.getId());
@@ -116,7 +98,7 @@ void ToolSensorRelationEditor::onToolSelectionChanged()
 {
     QList<QTreeWidgetItem *> selectedItems = ui->treeWidgetTools->selectedItems();
     if (selectedItems.isEmpty()) {
-        ui->treeWidgetSensors->clearSelection();
+        ui->treeWidgetSensors->clear();
         return;
     }
 
@@ -125,57 +107,35 @@ void ToolSensorRelationEditor::onToolSelectionChanged()
     updateSensorSelectionForTool(toolId);
 }
 
-void ToolSensorRelationEditor::onSensorSelectionChanged()
-{
-    QList<QTreeWidgetItem *> selectedItems = ui->treeWidgetSensors->selectedItems();
-    if (selectedItems.isEmpty()) {
-        ui->treeWidgetTools->clearSelection();
-        return;
-    }
-
-    int sensorId = selectedItems.first()->data(0, Qt::UserRole).toInt();
-    selectedSensorId = sensorId;
-    updateToolSelectionForSensor(sensorId);
-}
-
 void ToolSensorRelationEditor::updateSensorSelectionForTool(int toolId)
 {
-    ui->treeWidgetSensors->blockSignals(true);
+    ui->treeWidgetSensors->clear();
 
-    for (int i = 0; i < ui->treeWidgetSensors->topLevelItemCount(); ++i) {
-        QTreeWidgetItem *item = ui->treeWidgetSensors->topLevelItem(i);
-        int sensorId = item->data(0, Qt::UserRole).toInt();
-        const ToolSensor *toolSensor = findToolSensor(toolId, sensorId);
-        if (toolSensor) {
-            item->setText(1, QString::number(toolSensor->getOffsetMm()));
-            item->setSelected(true);
-        } else {
-            item->setText(1, "");
-            item->setSelected(false);
+    // Получаем все сенсоры, связанные с выбранным инструментом
+    QList<const ToolSensor *> relatedToolSensors;
+    for (const ToolSensor &toolSensor : storage->getToolSensors()) {
+        // Пропускаем удалённые связи
+        if (toolSensor.getId() < 0) {
+            continue;
+        }
+        if (toolSensor.getToolId() == toolId) {
+            relatedToolSensors.append(&toolSensor);
         }
     }
 
-    ui->treeWidgetSensors->blockSignals(false);
-}
-
-void ToolSensorRelationEditor::updateToolSelectionForSensor(int sensorId)
-{
-    ui->treeWidgetTools->blockSignals(true);
-
-    for (int i = 0; i < ui->treeWidgetTools->topLevelItemCount(); ++i) {
-        QTreeWidgetItem *item = ui->treeWidgetTools->topLevelItem(i);
-        int toolId = item->data(0, Qt::UserRole).toInt();
-        const ToolSensor *toolSensor = findToolSensor(toolId, sensorId);
-        if (toolSensor) {
+    for (const ToolSensor *toolSensor : relatedToolSensors) {
+        const Sensor *sensor = findSensorById(toolSensor->getSensorId());
+        if (sensor) {
+            // Пропускаем удалённые сенсоры
+            if (sensor->getId() < 0) {
+                continue;
+            }
+            QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeWidgetSensors);
+            item->setText(0, sensor->getName());
             item->setText(1, QString::number(toolSensor->getOffsetMm()));
-            item->setSelected(true);
-        } else {
-            item->setText(1, "");
-            item->setSelected(false);
+            item->setData(0, Qt::UserRole, sensor->getId());
         }
     }
-
-    ui->treeWidgetTools->blockSignals(false);
 }
 
 const ToolSensor *ToolSensorRelationEditor::findToolSensor(int toolId, int sensorId) const
@@ -215,8 +175,8 @@ void ToolSensorRelationEditor::showToolContextMenu(const QPoint &pos)
         return;
 
     QMenu contextMenu;
-    QAction *addAction = contextMenu.addAction("Add Relation");
-    QAction *removeAction = contextMenu.addAction("Remove Relation");
+    QAction *addAction = contextMenu.addAction("Add Sensor");
+    QAction *removeAction = contextMenu.addAction("Remove Sensor");
     QAction *editOffsetAction = contextMenu.addAction("Edit Offset");
 
     connect(addAction, &QAction::triggered, this, &ToolSensorRelationEditor::addRelationFromTool);
@@ -230,30 +190,6 @@ void ToolSensorRelationEditor::showToolContextMenu(const QPoint &pos)
             &ToolSensorRelationEditor::editOffsetFromTool);
 
     contextMenu.exec(ui->treeWidgetTools->mapToGlobal(pos));
-}
-
-void ToolSensorRelationEditor::showSensorContextMenu(const QPoint &pos)
-{
-    QTreeWidgetItem *item = ui->treeWidgetSensors->itemAt(pos);
-    if (!item)
-        return;
-
-    QMenu contextMenu;
-    QAction *addAction = contextMenu.addAction("Add Relation");
-    QAction *removeAction = contextMenu.addAction("Remove Relation");
-    QAction *editOffsetAction = contextMenu.addAction("Edit Offset");
-
-    connect(addAction, &QAction::triggered, this, &ToolSensorRelationEditor::addRelationFromSensor);
-    connect(removeAction,
-            &QAction::triggered,
-            this,
-            &ToolSensorRelationEditor::removeRelationFromSensor);
-    connect(editOffsetAction,
-            &QAction::triggered,
-            this,
-            &ToolSensorRelationEditor::editOffsetFromSensor);
-
-    contextMenu.exec(ui->treeWidgetSensors->mapToGlobal(pos));
 }
 
 void ToolSensorRelationEditor::addRelationFromTool()
@@ -280,13 +216,13 @@ void ToolSensorRelationEditor::addRelationFromTool()
     }
 
     if (availableSensors.isEmpty()) {
-        QMessageBox::information(this, "Add Relation", "No available sensors to relate.");
+        QMessageBox::information(this, "Add Sensor", "No available sensors to add.");
         return;
     }
 
     // Show dialog to select sensors and specify offsetMm
     QDialog dialog(this);
-    dialog.setWindowTitle("Add Relations");
+    dialog.setWindowTitle("Add Sensors");
     QVBoxLayout *layout = new QVBoxLayout(&dialog);
 
     QLabel *label = new QLabel("Select Sensors and specify Offset (mm):", &dialog);
@@ -323,7 +259,7 @@ void ToolSensorRelationEditor::addRelationFromTool()
         StorageEditor storageEditor(storage);
         for (int i = 0; i < tableWidget->rowCount(); ++i) {
             QTableWidgetItem *itemSensor = tableWidget->item(i, 0);
-            if (itemSensor->isSelected()) { // Corrected line
+            if (itemSensor->isSelected()) {
                 int sensorId = itemSensor->data(Qt::UserRole).toInt();
                 QTableWidgetItem *itemOffset = tableWidget->item(i, 1);
                 int offsetMm = itemOffset->text().toInt();
@@ -339,131 +275,46 @@ void ToolSensorRelationEditor::addRelationFromTool()
 
 void ToolSensorRelationEditor::removeRelationFromTool()
 {
-    // Implementation remains the same
-    // ...
-}
-
-void ToolSensorRelationEditor::editOffsetFromTool()
-{
-    // Implementation remains the same
-    // ...
-}
-
-void ToolSensorRelationEditor::addRelationFromSensor()
-{
-    QList<QTreeWidgetItem *> selectedSensors = ui->treeWidgetSensors->selectedItems();
-    if (selectedSensors.isEmpty())
+    QList<QTreeWidgetItem *> selectedTools = ui->treeWidgetTools->selectedItems();
+    if (selectedTools.isEmpty())
         return;
 
-    int sensorId = selectedSensors.first()->data(0, Qt::UserRole).toInt();
-
-    // Get tools not related to the selected sensor
-    QSet<int> relatedToolIds;
-    for (const ToolSensor &toolSensor : storage->getToolSensors()) {
-        if (toolSensor.getSensorId() == sensorId) {
-            relatedToolIds.insert(toolSensor.getToolId());
-        }
-    }
-
-    QList<const Tool *> availableTools;
-    for (const Tool &tool : storage->getTools()) {
-        if (!relatedToolIds.contains(tool.getId())) {
-            availableTools.append(&tool);
-        }
-    }
-
-    if (availableTools.isEmpty()) {
-        QMessageBox::information(this, "Add Relation", "No available tools to relate.");
-        return;
-    }
-
-    // Show dialog to select tools and specify offsetMm
-    QDialog dialog(this);
-    dialog.setWindowTitle("Add Relations");
-    QVBoxLayout *layout = new QVBoxLayout(&dialog);
-
-    QLabel *label = new QLabel("Select Tools and specify Offset (mm):", &dialog);
-    layout->addWidget(label);
-
-    QTableWidget *tableWidget = new QTableWidget(&dialog);
-    tableWidget->setColumnCount(2);
-    tableWidget->setHorizontalHeaderLabels(QStringList() << "Tool"
-                                                         << "Offset (mm)");
-    tableWidget->setRowCount(availableTools.size());
-    tableWidget->setSelectionMode(QAbstractItemView::MultiSelection);
-    for (int i = 0; i < availableTools.size(); ++i) {
-        const Tool *tool = availableTools.at(i);
-        QTableWidgetItem *itemTool = new QTableWidgetItem(tool->getName());
-        itemTool->setData(Qt::UserRole, tool->getId());
-        tableWidget->setItem(i, 0, itemTool);
-
-        QTableWidgetItem *itemOffset = new QTableWidgetItem("0");
-        tableWidget->setItem(i, 1, itemOffset);
-    }
-    layout->addWidget(tableWidget);
-
-    QPushButton *okButton = new QPushButton("OK", &dialog);
-    QPushButton *cancelButton = new QPushButton("Cancel", &dialog);
-    QHBoxLayout *buttonLayout = new QHBoxLayout();
-    buttonLayout->addWidget(okButton);
-    buttonLayout->addWidget(cancelButton);
-    layout->addLayout(buttonLayout);
-
-    connect(okButton, &QPushButton::clicked, &dialog, &QDialog::accept);
-    connect(cancelButton, &QPushButton::clicked, &dialog, &QDialog::reject);
-
-    if (dialog.exec() == QDialog::Accepted) {
-        StorageEditor storageEditor(storage);
-        for (int i = 0; i < tableWidget->rowCount(); ++i) {
-            QTableWidgetItem *itemTool = tableWidget->item(i, 0);
-            if (itemTool->isSelected()) { // Corrected line
-                int toolId = itemTool->data(Qt::UserRole).toInt();
-                QTableWidgetItem *itemOffset = tableWidget->item(i, 1);
-                int offsetMm = itemOffset->text().toInt();
-
-                int newId = storage->generateNewToolSensorId();
-                ToolSensor newRelation(newId, toolId, sensorId, offsetMm);
-                storageEditor.insertOrReplace(storage->getToolSensors(), newRelation);
-            }
-        }
-        refreshRelations();
-    }
-}
-
-void ToolSensorRelationEditor::removeRelationFromSensor()
-{
-    QList<QTreeWidgetItem *> selectedSensors = ui->treeWidgetSensors->selectedItems();
-    if (selectedSensors.isEmpty())
-        return;
-
-    int sensorId = selectedSensors.first()->data(0, Qt::UserRole).toInt();
+    int toolId = selectedTools.first()->data(0, Qt::UserRole).toInt();
 
     QList<const ToolSensor *> relatedToolSensors;
     for (const ToolSensor &toolSensor : storage->getToolSensors()) {
-        if (toolSensor.getSensorId() == sensorId) {
+        // Пропускаем удалённые связи
+        if (toolSensor.getId() < 0) {
+            continue;
+        }
+        if (toolSensor.getToolId() == toolId) {
             relatedToolSensors.append(&toolSensor);
         }
     }
 
     if (relatedToolSensors.isEmpty()) {
-        QMessageBox::information(this, "Remove Relation", "No relations to remove.");
+        QMessageBox::information(this, "Remove Sensor", "No sensors to remove.");
         return;
     }
 
-    // Показываем диалог для выбора инструментов для удаления связей
+    // Показываем диалог для выбора сенсоров для удаления
     QDialog dialog(this);
-    dialog.setWindowTitle("Remove Relations");
+    dialog.setWindowTitle("Remove Sensors");
     QVBoxLayout *layout = new QVBoxLayout(&dialog);
 
-    QLabel *label = new QLabel("Select Tools to remove relations:", &dialog);
+    QLabel *label = new QLabel("Select Sensors to remove:", &dialog);
     layout->addWidget(label);
 
     QListWidget *listWidget = new QListWidget(&dialog);
     listWidget->setSelectionMode(QAbstractItemView::MultiSelection);
     for (const ToolSensor *toolSensor : relatedToolSensors) {
-        const Tool *tool = findToolById(toolSensor->getToolId());
-        if (tool) {
-            QListWidgetItem *item = new QListWidgetItem(tool->getName());
+        const Sensor *sensor = findSensorById(toolSensor->getSensorId());
+        if (sensor) {
+            // Пропускаем удалённые сенсоры
+            if (sensor->getId() < 0) {
+                continue;
+            }
+            QListWidgetItem *item = new QListWidgetItem(sensor->getName());
             item->setData(Qt::UserRole, toolSensor->getId());
             listWidget->addItem(item);
         }
@@ -485,10 +336,11 @@ void ToolSensorRelationEditor::removeRelationFromSensor()
         QList<QListWidgetItem *> selectedItems = listWidget->selectedItems();
         for (QListWidgetItem *item : selectedItems) {
             int toolSensorId = item->data(Qt::UserRole).toInt();
-            for (auto it = storage->getToolSensors().begin(); it != storage->getToolSensors().end();
-                 ++it) {
-                if (it->getId() == toolSensorId) {
-                    storageEditor.deleteElement(storage->getToolSensors(), *it);
+            for (ToolSensor &toolSensor : storage->getToolSensors()) {
+                if (toolSensor.getId() == toolSensorId) {
+                    // Помечаем связь как удалённую, установив отрицательный ID
+                    toolSensor.setId(-abs(toolSensor.getId()));
+                    storageEditor.insertOrReplace(storage->getToolSensors(), toolSensor);
                     break;
                 }
             }
@@ -496,49 +348,50 @@ void ToolSensorRelationEditor::removeRelationFromSensor()
         refreshRelations();
     }
 }
-void ToolSensorRelationEditor::editOffsetFromSensor()
+
+void ToolSensorRelationEditor::editOffsetFromTool()
 {
-    // Получаем выбранный сенсор
-    QList<QTreeWidgetItem *> selectedSensors = ui->treeWidgetSensors->selectedItems();
-    if (selectedSensors.isEmpty()) {
-        QMessageBox::warning(this, "Edit Offset", "No sensor selected.");
+    QList<QTreeWidgetItem *> selectedTools = ui->treeWidgetTools->selectedItems();
+    if (selectedTools.isEmpty()) {
+        QMessageBox::warning(this, "Edit Offset", "No tool selected.");
         return;
     }
 
-    int sensorId = selectedSensors.first()->data(0, Qt::UserRole).toInt();
+    int toolId = selectedTools.first()->data(0, Qt::UserRole).toInt();
 
-    // Получаем все связи для этого сенсора
+    // Get all relations for this tool
     QList<const ToolSensor *> relatedToolSensors;
     for (const ToolSensor &toolSensor : storage->getToolSensors()) {
-        if (toolSensor.getSensorId() == sensorId) {
+        if (toolSensor.getToolId() == toolId) {
             relatedToolSensors.append(&toolSensor);
         }
     }
 
-    // Если нет связей для этого сенсора
     if (relatedToolSensors.isEmpty()) {
-        QMessageBox::information(this, "Edit Offset", "No relations found for the selected sensor.");
+        QMessageBox::information(this, "Edit Offset", "No sensors related to the selected tool.");
         return;
     }
 
-    // Создаём диалог для выбора связи
+    // Create dialog to select relation
     QDialog dialog(this);
-    dialog.setWindowTitle("Select Relation to Edit");
+    dialog.setWindowTitle("Select Sensor to Edit Offset");
 
     QVBoxLayout *layout = new QVBoxLayout(&dialog);
 
-    QLabel *label = new QLabel("Select a relation to edit the offset:", &dialog);
+    QLabel *label = new QLabel("Select a sensor to edit the offset:", &dialog);
     layout->addWidget(label);
 
-    // Таблица для отображения связей
+    // Table to display relations
     QTableWidget *tableWidget = new QTableWidget(&dialog);
     tableWidget->setColumnCount(3);
     tableWidget->setHorizontalHeaderLabels(QStringList() << "Tool"
                                                          << "Sensor"
                                                          << "Offset (mm)");
     tableWidget->setRowCount(relatedToolSensors.size());
+    tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
+    tableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
 
-    // Заполнение таблицы данными
+    // Fill table with data
     for (int i = 0; i < relatedToolSensors.size(); ++i) {
         const ToolSensor *toolSensor = relatedToolSensors[i];
         const Tool *tool = findToolById(toolSensor->getToolId());
@@ -559,7 +412,7 @@ void ToolSensorRelationEditor::editOffsetFromSensor()
 
     layout->addWidget(tableWidget);
 
-    // Кнопки OK и Cancel
+    // OK and Cancel buttons
     QPushButton *okButton = new QPushButton("OK", &dialog);
     QPushButton *cancelButton = new QPushButton("Cancel", &dialog);
     QHBoxLayout *buttonLayout = new QHBoxLayout();
@@ -571,16 +424,15 @@ void ToolSensorRelationEditor::editOffsetFromSensor()
     connect(cancelButton, &QPushButton::clicked, &dialog, &QDialog::reject);
 
     if (dialog.exec() == QDialog::Accepted) {
-        // Получаем выбранный элемент
-        QList<QTableWidgetItem *> selectedItems = tableWidget->selectedItems();
-        if (selectedItems.isEmpty()) {
-            QMessageBox::warning(this, "Edit Offset", "No relation selected.");
+        // Get selected item
+        QModelIndexList selectedRows = tableWidget->selectionModel()->selectedRows();
+        if (selectedRows.isEmpty()) {
+            QMessageBox::warning(this, "Edit Offset", "No sensor selected.");
             return;
         }
 
-        // Получаем выбранный toolId
-        int selectedRow = tableWidget->currentRow();
-        int toolId = tableWidget->item(selectedRow, 0)->data(Qt::UserRole).toInt();
+        int selectedRow = selectedRows.first().row();
+        int sensorId = tableWidget->item(selectedRow, 1)->data(Qt::UserRole).toInt();
 
         ToolSensor *toolSensorPtr = nullptr;
         for (ToolSensor &toolSensor : storage->getToolSensors()) {
@@ -597,7 +449,7 @@ void ToolSensorRelationEditor::editOffsetFromSensor()
             return;
         }
 
-        // Показываем диалог для ввода нового значения offset
+        // Show dialog to input new offset value
         bool ok;
         int newOffsetMm = QInputDialog::getInt(this,
                                                "Edit Offset",
@@ -610,11 +462,11 @@ void ToolSensorRelationEditor::editOffsetFromSensor()
         if (ok) {
             toolSensorPtr->setOffsetMm(newOffsetMm);
 
-            // Сохраняем изменения в хранилище
+            // Save changes to storage
             StorageEditor storageEditor(storage);
             storageEditor.insertOrReplace(storage->getToolSensors(), *toolSensorPtr);
 
-            // Обновляем интерфейс
+            // Update UI
             refreshRelations();
         }
     }
@@ -622,7 +474,7 @@ void ToolSensorRelationEditor::editOffsetFromSensor()
 
 void ToolSensorRelationEditor::updateRelation(int toolId, int sensorId, int offsetMm)
 {
-    // Найдем существующую связь между инструментом и сенсором
+    // Find existing relation between tool and sensor
     ToolSensor *existingRelation = nullptr;
     for (ToolSensor &toolSensor : storage->getToolSensors()) {
         if (toolSensor.getToolId() == toolId && toolSensor.getSensorId() == sensorId) {
@@ -633,24 +485,24 @@ void ToolSensorRelationEditor::updateRelation(int toolId, int sensorId, int offs
 
     StorageEditor storageEditor(storage);
 
-    // Если связь найдена, обновляем offsetMm
+    // If relation found, update offsetMm
     if (existingRelation) {
         existingRelation->setOffsetMm(offsetMm);
         storageEditor.insertOrReplace(storage->getToolSensors(), *existingRelation);
     } else {
-        // Если связь не найдена, создаем новую
+        // If relation not found, create new one
         int newId = storage->generateNewToolSensorId();
         ToolSensor newRelation(newId, toolId, sensorId, offsetMm);
         storageEditor.insertOrReplace(storage->getToolSensors(), newRelation);
     }
 
-    // Обновляем отображение связей
+    // Refresh relations display
     refreshRelations();
 }
 
 void ToolSensorRelationEditor::removeRelation(int toolId, int sensorId)
 {
-    // Найдем связь для удаления
+    // Find relation to remove
     for (auto it = storage->getToolSensors().begin(); it != storage->getToolSensors().end(); ++it) {
         if (it->getToolId() == toolId && it->getSensorId() == sensorId) {
             StorageEditor storageEditor(storage);
@@ -659,7 +511,7 @@ void ToolSensorRelationEditor::removeRelation(int toolId, int sensorId)
         }
     }
 
-    // Обновляем отображение связей
+    // Refresh relations display
     refreshRelations();
 }
 
@@ -667,9 +519,5 @@ void ToolSensorRelationEditor::refreshRelations()
 {
     if (selectedToolId != -1) {
         updateSensorSelectionForTool(selectedToolId);
-    }
-
-    if (selectedSensorId != -1) {
-        updateToolSelectionForSensor(selectedSensorId);
     }
 }

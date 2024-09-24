@@ -25,21 +25,15 @@ public:
     explicit ToolSensorRelationEditor(QWidget *parent = nullptr);
     ~ToolSensorRelationEditor();
 
-    // Методы для установки выбранного инструмента и сенсора
+    // Methods to set the selected tool
     void setTool(int toolId);
-    void setSensor(int sensorId);
 
 private slots:
     void onToolSelectionChanged();
-    void onSensorSelectionChanged();
     void showToolContextMenu(const QPoint &pos);
-    void showSensorContextMenu(const QPoint &pos);
     void addRelationFromTool();
     void removeRelationFromTool();
     void editOffsetFromTool();
-    void addRelationFromSensor();
-    void removeRelationFromSensor();
-    void editOffsetFromSensor();
     void updateRelation(int toolId, int sensorId, int offsetMm);
     void removeRelation(int toolId, int sensorId);
     void refreshRelations();
@@ -48,9 +42,8 @@ private:
     Ui::ToolSensorRelationEditor *ui;
     Storage *storage;
 
-    // Переменные для хранения выбранного инструмента и сенсора
+    // Variable to store selected tool ID
     int selectedToolId;
-    int selectedSensorId;
 
     const Sensor *findSensorById(int sensorId) const;
     const ToolSensor *findToolSensor(int toolId, int sensorId) const;
@@ -59,7 +52,6 @@ private:
     void loadTools();
     void loadSensors();
     void updateSensorSelectionForTool(int toolId);
-    void updateToolSelectionForSensor(int sensorId);
 };
 
 #endif // TOOLSENSORRELATIONEDITOR_H
