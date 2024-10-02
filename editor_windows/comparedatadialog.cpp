@@ -4,11 +4,11 @@
 #include <QCheckBox>
 #include <QMessageBox>
 
-CompareDataDialog::CompareDataDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::CompareDataDialog),
-    storage(Storage::getInstance()),
-    model(new QStandardItemModel(this))
+CompareDataDialog::CompareDataDialog(QWidget *parent)
+    : QDialog(parent)
+    , ui(new Ui::CompareDataDialog)
+    , storage(Storage::getInstance())
+    , model(new QStandardItemModel(this))
 {
     ui->setupUi(this);
 
@@ -16,7 +16,10 @@ CompareDataDialog::CompareDataDialog(QWidget *parent) :
     ui->tableView->setModel(model);
 
     // Set column headers
-    model->setHorizontalHeaderLabels(QStringList() << "Revert" << "Type" << "ID" << "Change Type");
+    model->setHorizontalHeaderLabels(QStringList() << "Revert"
+                                                   << "Type"
+                                                   << "ID"
+                                                   << "Change Type");
 
     // Populate data
     populateData();
@@ -35,117 +38,107 @@ void CompareDataDialog::populateData()
     ModifiedData modifiedData = storage->getAllModifiedData();
 
     // List of all changes for processing
-    struct ChangeItem {
+    struct ChangeItem
+    {
         QString typeName;
         int id;
-        QString changeType; // "Modified" or "Deleted"
+        QString changeType; // "Added", "Modified", or "Deleted"
     };
 
     QList<ChangeItem> changes;
 
-    // Add all modified and deleted objects to the list
-    // For Units
-    for (const Unit &unit : modifiedData.modifiedUnits) {
-        changes.append({"Unit", unit.getId(), "Modified"});
-    }
-    for (const Unit &unit : modifiedData.deletedUnits) {
-        changes.append({"Unit", -unit.getId(), "Deleted"});
-    }
+    // Helper lambda to add items to the changes list
+    auto addChanges =
+        [&changes](const QString &typeName, const QList<int> &ids, const QString &changeType) {
+            for (int id : ids) {
+                changes.append({typeName, id, changeType});
+            }
+        };
 
-    // Repeat for all other data types
+    // Helper functions to extract IDs
+    auto toIds = [](const auto &list) -> QList<int> {
+        QList<int> ids;
+        for (const auto &item : list) {
+            ids.append(item.getId());
+        }
+        return ids;
+    };
+
+    auto toNegativeIds = [](const auto &list) -> QList<int> {
+        QList<int> ids;
+        for (const auto &item : list) {
+            ids.append(-item.getId());
+        }
+        return ids;
+    };
+
+    // For Units
+    addChanges("Unit", toIds(modifiedData.addedUnits), "Added");
+    addChanges("Unit", toIds(modifiedData.modifiedUnits), "Modified");
+    addChanges("Unit", toNegativeIds(modifiedData.deletedUnits), "Deleted");
+
     // For Tools
-    for (const Tool &tool : modifiedData.modifiedTools) {
-        changes.append({"Tool", tool.getId(), "Modified"});
-    }
-    for (const Tool &tool : modifiedData.deletedTools) {
-        changes.append({"Tool", -tool.getId(), "Deleted"});
-    }
+    addChanges("Tool", toIds(modifiedData.addedTools), "Added");
+    addChanges("Tool", toIds(modifiedData.modifiedTools), "Modified");
+    addChanges("Tool", toNegativeIds(modifiedData.deletedTools), "Deleted");
 
     // For Sensors
-    for (const Sensor &sensor : modifiedData.modifiedSensors) {
-        changes.append({"Sensor", sensor.getId(), "Modified"});
-    }
-    for (const Sensor &sensor : modifiedData.deletedSensors) {
-        changes.append({"Sensor", -sensor.getId(), "Deleted"});
-    }
-
-    // ... Repeat for all other data types (Producers, UnitTypes, etc.)
+    addChanges("Sensor", toIds(modifiedData.addedSensors), "Added");
+    addChanges("Sensor", toIds(modifiedData.modifiedSensors), "Modified");
+    addChanges("Sensor", toNegativeIds(modifiedData.deletedSensors), "Deleted");
 
     // For Producers
-    for (const Producer &producer : modifiedData.modifiedProducers) {
-        changes.append({"Producer", producer.getId(), "Modified"});
-    }
-    for (const Producer &producer : modifiedData.deletedProducers) {
-        changes.append({"Producer", -producer.getId(), "Deleted"});
-    }
+    addChanges("Producer", toIds(modifiedData.addedProducers), "Added");
+    addChanges("Producer", toIds(modifiedData.modifiedProducers), "Modified");
+    addChanges("Producer", toNegativeIds(modifiedData.deletedProducers), "Deleted");
 
     // For UnitTypes
-    for (const UnitType &unitType : modifiedData.modifiedUnitTypes) {
-        changes.append({"UnitType", unitType.getId(), "Modified"});
-    }
-    for (const UnitType &unitType : modifiedData.deletedUnitTypes) {
-        changes.append({"UnitType", -unitType.getId(), "Deleted"});
-    }
+    addChanges("UnitType", toIds(modifiedData.addedUnitTypes), "Added");
+    addChanges("UnitType", toIds(modifiedData.modifiedUnitTypes), "Modified");
+    addChanges("UnitType", toNegativeIds(modifiedData.deletedUnitTypes), "Deleted");
 
     // For ToolSensors
-    for (const ToolSensor &toolSensor : modifiedData.modifiedToolSensors) {
-        changes.append({"ToolSensor", toolSensor.getId(), "Modified"});
-    }
-    for (const ToolSensor &toolSensor : modifiedData.deletedToolSensors) {
-        changes.append({"ToolSensor", -toolSensor.getId(), "Deleted"});
-    }
+    addChanges("ToolSensor", toIds(modifiedData.addedToolSensors), "Added");
+    addChanges("ToolSensor", toIds(modifiedData.modifiedToolSensors), "Modified");
+    addChanges("ToolSensor", toNegativeIds(modifiedData.deletedToolSensors), "Deleted");
 
     // For MainMnemonics
-    for (const MainMnemonic &mainMnemonic : modifiedData.modifiedMainMnemonics) {
-        changes.append({"MainMnemonic", mainMnemonic.getId(), "Modified"});
-    }
-    for (const MainMnemonic &mainMnemonic : modifiedData.deletedMainMnemonics) {
-        changes.append({"MainMnemonic", -mainMnemonic.getId(), "Deleted"});
-    }
+    addChanges("MainMnemonic", toIds(modifiedData.addedMainMnemonics), "Added");
+    addChanges("MainMnemonic", toIds(modifiedData.modifiedMainMnemonics), "Modified");
+    addChanges("MainMnemonic", toNegativeIds(modifiedData.deletedMainMnemonics), "Deleted");
 
     // For AdditionalMnemonics
-    for (const AdditionalMnemonic &additionalMnemonic : modifiedData.modifiedAdditionalMnemonics) {
-        changes.append({"AdditionalMnemonic", additionalMnemonic.getId(), "Modified"});
-    }
-    for (const AdditionalMnemonic &additionalMnemonic : modifiedData.deletedAdditionalMnemonics) {
-        changes.append({"AdditionalMnemonic", -additionalMnemonic.getId(), "Deleted"});
-    }
+    addChanges("AdditionalMnemonic", toIds(modifiedData.addedAdditionalMnemonics), "Added");
+    addChanges("AdditionalMnemonic", toIds(modifiedData.modifiedAdditionalMnemonics), "Modified");
+    addChanges("AdditionalMnemonic",
+               toNegativeIds(modifiedData.deletedAdditionalMnemonics),
+               "Deleted");
 
     // For ConversionFormulas
-    for (const ConversionFormula &formula : modifiedData.modifiedConversionFormulas) {
-        changes.append({"ConversionFormula", formula.getId(), "Modified"});
-    }
-    for (const ConversionFormula &formula : modifiedData.deletedConversionFormulas) {
-        changes.append({"ConversionFormula", -formula.getId(), "Deleted"});
-    }
+    addChanges("ConversionFormula", toIds(modifiedData.addedConversionFormulas), "Added");
+    addChanges("ConversionFormula", toIds(modifiedData.modifiedConversionFormulas), "Modified");
+    addChanges("ConversionFormula",
+               toNegativeIds(modifiedData.deletedConversionFormulas),
+               "Deleted");
 
     // For Companies
-    for (const Company &company : modifiedData.modifiedCompanies) {
-        changes.append({"Company", company.getId(), "Modified"});
-    }
-    for (const Company &company : modifiedData.deletedCompanies) {
-        changes.append({"Company", -company.getId(), "Deleted"});
-    }
+    addChanges("Company", toIds(modifiedData.addedCompanies), "Added");
+    addChanges("Company", toIds(modifiedData.modifiedCompanies), "Modified");
+    addChanges("Company", toNegativeIds(modifiedData.deletedCompanies), "Deleted");
 
     // For Methods
-    for (const Method &method : modifiedData.modifiedMethods) {
-        changes.append({"Method", method.getId(), "Modified"});
-    }
-    for (const Method &method : modifiedData.deletedMethods) {
-        changes.append({"Method", -method.getId(), "Deleted"});
-    }
+    addChanges("Method", toIds(modifiedData.addedMethods), "Added");
+    addChanges("Method", toIds(modifiedData.modifiedMethods), "Modified");
+    addChanges("Method", toNegativeIds(modifiedData.deletedMethods), "Deleted");
 
     // For ToolDescriptions
-    for (const ToolDescription &description : modifiedData.modifiedToolDescriptions) {
-        changes.append({"ToolDescription", description.getId(), "Modified"});
-    }
-    for (const ToolDescription &description : modifiedData.deletedToolDescriptions) {
-        changes.append({"ToolDescription", -description.getId(), "Deleted"});
-    }
+    addChanges("ToolDescription", toIds(modifiedData.addedToolDescriptions), "Added");
+    addChanges("ToolDescription", toIds(modifiedData.modifiedToolDescriptions), "Modified");
+    addChanges("ToolDescription", toNegativeIds(modifiedData.deletedToolDescriptions), "Deleted");
 
     // Populate the model with data
     for (const ChangeItem &item : changes) {
-        QList<QStandardItem*> rowItems;
+        QList<QStandardItem *> rowItems;
 
         // Checkbox for selection
         QStandardItem *checkItem = new QStandardItem();
@@ -192,6 +185,17 @@ void revertDeletedData(QList<T> &dataList, int id)
     }
 }
 
+template<typename T>
+void revertAddedData(QList<T> &dataList, int id)
+{
+    for (int i = 0; i < dataList.size(); ++i) {
+        if (dataList[i].getId() == id) {
+            dataList.removeAt(i);
+            break;
+        }
+    }
+}
+
 void CompareDataDialog::onRevertSelected()
 {
     QList<int> rowsToRevert;
@@ -225,74 +229,114 @@ void CompareDataDialog::onRevertSelected()
         QString changeType = model->item(row, 0)->data(Qt::UserRole + 3).toString();
 
         if (typeName == "Unit") {
-            if (changeType == "Modified") {
+            if (changeType == "Added") {
+                revertAddedData<Unit>(storage->getUnits(), id);
+            } else if (changeType == "Modified") {
                 revertModifiedData<Unit>(storage->getUnits(), storage->getBackupUnits(), id);
             } else if (changeType == "Deleted") {
                 revertDeletedData<Unit>(storage->getUnits(), id);
             }
         } else if (typeName == "Tool") {
-            if (changeType == "Modified") {
+            if (changeType == "Added") {
+                revertAddedData<Tool>(storage->getTools(), id);
+            } else if (changeType == "Modified") {
                 revertModifiedData<Tool>(storage->getTools(), storage->getBackupTools(), id);
             } else if (changeType == "Deleted") {
                 revertDeletedData<Tool>(storage->getTools(), id);
             }
         } else if (typeName == "Sensor") {
-            if (changeType == "Modified") {
+            if (changeType == "Added") {
+                revertAddedData<Sensor>(storage->getSensors(), id);
+            } else if (changeType == "Modified") {
                 revertModifiedData<Sensor>(storage->getSensors(), storage->getBackupSensors(), id);
             } else if (changeType == "Deleted") {
                 revertDeletedData<Sensor>(storage->getSensors(), id);
             }
         } else if (typeName == "Producer") {
-            if (changeType == "Modified") {
-                revertModifiedData<Producer>(storage->getProducers(), storage->getBackupProducers(), id);
+            if (changeType == "Added") {
+                revertAddedData<Producer>(storage->getProducers(), id);
+            } else if (changeType == "Modified") {
+                revertModifiedData<Producer>(storage->getProducers(),
+                                             storage->getBackupProducers(),
+                                             id);
             } else if (changeType == "Deleted") {
                 revertDeletedData<Producer>(storage->getProducers(), id);
             }
         } else if (typeName == "UnitType") {
-            if (changeType == "Modified") {
-                revertModifiedData<UnitType>(storage->getUnitTypes(), storage->getBackupUnitTypes(), id);
+            if (changeType == "Added") {
+                revertAddedData<UnitType>(storage->getUnitTypes(), id);
+            } else if (changeType == "Modified") {
+                revertModifiedData<UnitType>(storage->getUnitTypes(),
+                                             storage->getBackupUnitTypes(),
+                                             id);
             } else if (changeType == "Deleted") {
                 revertDeletedData<UnitType>(storage->getUnitTypes(), id);
             }
         } else if (typeName == "ToolSensor") {
-            if (changeType == "Modified") {
-                revertModifiedData<ToolSensor>(storage->getToolSensors(), storage->getBackupToolSensors(), id);
+            if (changeType == "Added") {
+                revertAddedData<ToolSensor>(storage->getToolSensors(), id);
+            } else if (changeType == "Modified") {
+                revertModifiedData<ToolSensor>(storage->getToolSensors(),
+                                               storage->getBackupToolSensors(),
+                                               id);
             } else if (changeType == "Deleted") {
                 revertDeletedData<ToolSensor>(storage->getToolSensors(), id);
             }
         } else if (typeName == "MainMnemonic") {
-            if (changeType == "Modified") {
-                revertModifiedData<MainMnemonic>(storage->getMainMnemonics(), storage->getBackupMainMnemonics(), id);
+            if (changeType == "Added") {
+                revertAddedData<MainMnemonic>(storage->getMainMnemonics(), id);
+            } else if (changeType == "Modified") {
+                revertModifiedData<MainMnemonic>(storage->getMainMnemonics(),
+                                                 storage->getBackupMainMnemonics(),
+                                                 id);
             } else if (changeType == "Deleted") {
                 revertDeletedData<MainMnemonic>(storage->getMainMnemonics(), id);
             }
         } else if (typeName == "AdditionalMnemonic") {
-            if (changeType == "Modified") {
-                revertModifiedData<AdditionalMnemonic>(storage->getAdditionalMnemonics(), storage->getBackupAdditionalMnemonics(), id);
+            if (changeType == "Added") {
+                revertAddedData<AdditionalMnemonic>(storage->getAdditionalMnemonics(), id);
+            } else if (changeType == "Modified") {
+                revertModifiedData<AdditionalMnemonic>(storage->getAdditionalMnemonics(),
+                                                       storage->getBackupAdditionalMnemonics(),
+                                                       id);
             } else if (changeType == "Deleted") {
                 revertDeletedData<AdditionalMnemonic>(storage->getAdditionalMnemonics(), id);
             }
         } else if (typeName == "ConversionFormula") {
-            if (changeType == "Modified") {
-                revertModifiedData<ConversionFormula>(storage->getConversionFormulas(), storage->getBackupConversionFormulas(), id);
+            if (changeType == "Added") {
+                revertAddedData<ConversionFormula>(storage->getConversionFormulas(), id);
+            } else if (changeType == "Modified") {
+                revertModifiedData<ConversionFormula>(storage->getConversionFormulas(),
+                                                      storage->getBackupConversionFormulas(),
+                                                      id);
             } else if (changeType == "Deleted") {
                 revertDeletedData<ConversionFormula>(storage->getConversionFormulas(), id);
             }
         } else if (typeName == "Company") {
-            if (changeType == "Modified") {
-                revertModifiedData<Company>(storage->getCompanies(), storage->getBackupCompanies(), id);
+            if (changeType == "Added") {
+                revertAddedData<Company>(storage->getCompanies(), id);
+            } else if (changeType == "Modified") {
+                revertModifiedData<Company>(storage->getCompanies(),
+                                            storage->getBackupCompanies(),
+                                            id);
             } else if (changeType == "Deleted") {
                 revertDeletedData<Company>(storage->getCompanies(), id);
             }
         } else if (typeName == "Method") {
-            if (changeType == "Modified") {
+            if (changeType == "Added") {
+                revertAddedData<Method>(storage->getMethods(), id);
+            } else if (changeType == "Modified") {
                 revertModifiedData<Method>(storage->getMethods(), storage->getBackupMethods(), id);
             } else if (changeType == "Deleted") {
                 revertDeletedData<Method>(storage->getMethods(), id);
             }
         } else if (typeName == "ToolDescription") {
-            if (changeType == "Modified") {
-                revertModifiedData<ToolDescription>(storage->getToolDescriptions(), storage->getBackupToolDescriptions(), id);
+            if (changeType == "Added") {
+                revertAddedData<ToolDescription>(storage->getToolDescriptions(), id);
+            } else if (changeType == "Modified") {
+                revertModifiedData<ToolDescription>(storage->getToolDescriptions(),
+                                                    storage->getBackupToolDescriptions(),
+                                                    id);
             } else if (changeType == "Deleted") {
                 revertDeletedData<ToolDescription>(storage->getToolDescriptions(), id);
             }

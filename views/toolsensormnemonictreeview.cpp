@@ -36,33 +36,6 @@ void ToolSensorMnemonicTreeView::buildTree()
         toolItem->setData(QVariant(tool.getId()), Qt::UserRole + 1); // Сохраняем ID инструмента
         toolItem->setData(QVariant(ToolType), Qt::UserRole + 2); // Сохраняем тип элемента
 
-        // **Добавляем описание инструмента**
-        int toolDescriptionId = tool.getToolDescriptionId();
-        const ToolDescription *toolDescription = nullptr;
-
-        for (const ToolDescription &desc : storage->getToolDescriptions()) {
-            if (desc.getId() == toolDescriptionId) {
-                toolDescription = &desc;
-                break;
-            }
-        }
-
-        if (toolDescription) {
-            QString descriptionText = "Description: " + toolDescription->getDescription();
-            QStandardItem *toolDescriptionItem = new QStandardItem(descriptionText);
-            toolDescriptionItem->setData(QVariant(toolDescription->getId()), Qt::UserRole + 1);
-            toolDescriptionItem->setData(QVariant(ToolDescriptionType), Qt::UserRole + 2);
-
-            // Добавляем описание как дочерний элемент инструмента
-            toolItem->appendRow(toolDescriptionItem);
-        } else {
-            // Если описание не найдено, добавляем затычку
-            QStandardItem *naItem = new QStandardItem("Description: N/A");
-            toolItem->appendRow(naItem);
-        }
-
-        // Далее строим дерево сенсоров и мнемоник как раньше
-
         // Получаем все ToolSensor для данного инструмента
         QList<ToolSensor> toolSensors;
         for (const ToolSensor &toolSensor : storage->getToolSensors()) {
@@ -93,15 +66,6 @@ void ToolSensorMnemonicTreeView::buildTree()
                                     Qt::UserRole + 1); // Сохраняем ID сенсора
                 sensorItem->setData(QVariant(SensorType),
                                     Qt::UserRole + 2); // Сохраняем тип элемента
-
-                // **Добавляем описание сенсора как дочерний элемент**
-                QStandardItem *sensorDescriptionItem = new QStandardItem(
-                    "Description: " + sensor->getDescription());
-                sensorDescriptionItem->setData(QVariant(sensor->getId()), Qt::UserRole + 1);
-                sensorDescriptionItem->setData(QVariant(SensorDescriptionType), Qt::UserRole + 2);
-
-                // Добавляем описание под сенсором
-                sensorItem->appendRow(sensorDescriptionItem);
 
                 // Получаем все MainMnemonic для данного сенсора
                 QList<MainMnemonic> mainMnemonics;

@@ -1,7 +1,6 @@
 #ifndef STORAGE_H
 #define STORAGE_H
 
-#include <QDebug>
 #include <QList>
 #include "db_model/AdditionalMnemonic.h"
 #include "db_model/Company.h"
@@ -19,7 +18,21 @@
 // Структура для хранения всех измененных данных
 struct ModifiedData
 {
-    // Списки добавленных или измененных объектов
+    // Списки добавленных объектов
+    QList<Unit> addedUnits;
+    QList<Tool> addedTools;
+    QList<Sensor> addedSensors;
+    QList<Producer> addedProducers;
+    QList<UnitType> addedUnitTypes;
+    QList<ToolSensor> addedToolSensors;
+    QList<AdditionalMnemonic> addedAdditionalMnemonics;
+    QList<MainMnemonic> addedMainMnemonics;
+    QList<ConversionFormula> addedConversionFormulas;
+    QList<Company> addedCompanies;
+    QList<Method> addedMethods;
+    QList<ToolDescription> addedToolDescriptions;
+
+    // Списки измененных объектов
     QList<Unit> modifiedUnits;
     QList<Tool> modifiedTools;
     QList<Sensor> modifiedSensors;
@@ -100,7 +113,9 @@ public:
     static Storage *getInstance();
     ~Storage();
 
-    // Методы для работы с данными
+    bool isDataLoaded();
+
+    // Методы доступа к данным
     QList<Unit> &getUnits();
     QList<Tool> &getTools();
     QList<Sensor> &getSensors();
@@ -114,12 +129,22 @@ public:
     QList<Method> &getMethods();
     QList<ToolDescription> &getToolDescriptions();
 
-    // Методы для работы с резервными копиями данных
+    // Методы поиска объектов по ID
+    const Tool *findToolById(int id) const;
+    const Sensor *findSensorById(int id) const;
+    const MainMnemonic *findMainMnemonicById(int id) const;
+    const AdditionalMnemonic *findAdditionalMnemonicById(int id) const;
+    const ToolDescription *findToolDescriptionById(int id) const;
+    const Company *findCompanyById(int id) const;
+    const Producer *findProducerById(int id) const;
+    const Method *findMethodById(int id) const;
+
+    // Методы работы с резервными копиями
     void createBackup();
     void restoreFromBackup();
     void clearBackup();
 
-    // Методы для получения данных из резервной копии
+    // Методы доступа к резервным данным
     QList<Unit> &getBackupUnits();
     QList<Tool> &getBackupTools();
     QList<Sensor> &getBackupSensors();
@@ -133,7 +158,21 @@ public:
     QList<Method> &getBackupMethods();
     QList<ToolDescription> &getBackupToolDescriptions();
 
-    // Методы для сравнения данных
+    // Методы получения добавленных данных
+    QList<Unit> getAddedUnits();
+    QList<Tool> getAddedTools();
+    QList<Sensor> getAddedSensors();
+    QList<Producer> getAddedProducers();
+    QList<UnitType> getAddedUnitTypes();
+    QList<ToolSensor> getAddedToolSensors();
+    QList<AdditionalMnemonic> getAddedAdditionalMnemonics();
+    QList<MainMnemonic> getAddedMainMnemonics();
+    QList<ConversionFormula> getAddedConversionFormulas();
+    QList<Company> getAddedCompanies();
+    QList<Method> getAddedMethods();
+    QList<ToolDescription> getAddedToolDescriptions();
+
+    // Методы получения измененных данных
     QList<Unit> getModifiedUnits();
     QList<Tool> getModifiedTools();
     QList<Sensor> getModifiedSensors();
@@ -147,7 +186,7 @@ public:
     QList<Method> getModifiedMethods();
     QList<ToolDescription> getModifiedToolDescriptions();
 
-    // Методы для получения удаленных данных
+    // Методы получения удаленных данных
     QList<Unit> getDeletedUnits();
     QList<Tool> getDeletedTools();
     QList<Sensor> getDeletedSensors();
@@ -164,7 +203,7 @@ public:
     // Метод для получения всех измененных данных
     ModifiedData getAllModifiedData();
 
-    // Методы для получения максимальных ID
+    // Методы для генерации новых ID
     int generateNewUnitId();
     int generateNewToolId();
     int generateNewSensorId();
@@ -192,6 +231,7 @@ public:
     void setMaxMethodId(int id);
     void setMaxToolDescriptionId(int id);
 
+    // Запрет копирования и присваивания
     Storage(const Storage &) = delete;
     Storage &operator=(const Storage &) = delete;
 };

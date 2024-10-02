@@ -1,9 +1,10 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QFileDialog>
+#include <QLabel>
 #include <QMainWindow>
-#include <QMessageBox>
+#include <QSplitter>
+#include <QTextEdit>
 #include "databasemanager.h"
 #include "editor_windows/comparedatadialog.h"
 #include "storage.h"
@@ -27,14 +28,18 @@ private slots:
     void onOpenDatabase();
     void onCompareCurrentData();
 
+    // Слот для обновления деталей и изображения
+    void onTreeSelectionChanged(const QModelIndex &current, const QModelIndex &previous);
+
 private:
     Ui::MainWindow *ui;
     DatabaseManager dbManager;
     Storage *storage;
     ToolSensorMnemonicTreeView *treeView;
-
-    void populateTreeToolSensorMnemonic();
-    void populateTableToolSensorMnemonic();
+    QTextEdit *detailView;
+    QLabel *imageLabel;       // Для отображения изображения
+    QSplitter *mainSplitter;  // Главный сплиттер
+    QSplitter *rightSplitter; // Сплиттер для правой половины
 
     void setViewsForToolSensorMnemonic();
 };
