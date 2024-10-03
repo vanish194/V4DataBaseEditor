@@ -15,14 +15,14 @@ Storage::~Storage() {}
 
 bool Storage::isDataLoaded()
 {
-    // Проверяем, загружены ли какие-либо данные
+    // Checking if any data has been uploaded
     return !units.isEmpty() || !tools.isEmpty() || !sensors.isEmpty() || !producers.isEmpty()
            || !unitTypes.isEmpty() || !toolSensors.isEmpty() || !additionalMnemonics.isEmpty()
            || !mainMnemonics.isEmpty() || !conversionFormulas.isEmpty() || !companies.isEmpty()
            || !methods.isEmpty() || !toolDescriptions.isEmpty();
 }
 
-// Методы доступа к данным
+// Data access methods
 QList<Unit> &Storage::getUnits()
 {
     return units;
@@ -83,7 +83,7 @@ QList<ToolDescription> &Storage::getToolDescriptions()
     return toolDescriptions;
 }
 
-// Методы поиска объектов по ID
+// Methods for searching for objects by ID
 const Tool *Storage::findToolById(int id) const
 {
     for (const Tool &tool : tools) {
@@ -163,7 +163,7 @@ const Method *Storage::findMethodById(int id) const
     }
     return nullptr;
 }
-// Методы работы с резервными копиями
+// Methods of working with backups
 void Storage::createBackup()
 {
     backupUnits = units;
@@ -212,7 +212,7 @@ void Storage::clearBackup()
     backupToolDescriptions.clear();
 }
 
-// Методы доступа к резервным данным
+// Methods of accessing backup data
 QList<Unit> &Storage::getBackupUnits()
 {
     return backupUnits;
@@ -273,7 +273,7 @@ QList<ToolDescription> &Storage::getBackupToolDescriptions()
     return backupToolDescriptions;
 }
 
-// Шаблонные функции для получения добавленных, измененных и удаленных данных
+// Template functions for getting added, modified, and deleted data
 template<typename T>
 QList<T> getAddedData(const QList<T> &dataList, const QList<T> &backupList)
 {
@@ -281,7 +281,7 @@ QList<T> getAddedData(const QList<T> &dataList, const QList<T> &backupList)
 
     for (const T &item : dataList) {
         if (item.getId() < 0) {
-            // Удаленные объекты обрабатываются отдельно
+            // Deleted objects are processed separately
             continue;
         }
 
@@ -293,7 +293,7 @@ QList<T> getAddedData(const QList<T> &dataList, const QList<T> &backupList)
             }
         }
         if (!foundInBackup) {
-            // Новый объект
+            // New object
             addedData.append(item);
         }
     }
@@ -308,14 +308,14 @@ QList<T> getModifiedData(const QList<T> &dataList, const QList<T> &backupList)
 
     for (const T &item : dataList) {
         if (item.getId() < 0) {
-            // Удаленные объекты обрабатываются отдельно
+            // Deleted objects are processed separately
             continue;
         }
 
         for (const T &backupItem : backupList) {
             if (item.getId() == backupItem.getId()) {
                 if (!(item == backupItem)) {
-                    // Объект изменен
+                    // The object has been changed
                     modifiedData.append(item);
                 }
                 break;
@@ -340,7 +340,7 @@ QList<T> getDeletedData(const QList<T> &dataList)
     return deletedData;
 }
 
-// Методы получения добавленных данных
+// Methods for obtaining added data
 QList<Unit> Storage::getAddedUnits()
 {
     return getAddedData(units, backupUnits);
@@ -401,7 +401,7 @@ QList<ToolDescription> Storage::getAddedToolDescriptions()
     return getAddedData(toolDescriptions, backupToolDescriptions);
 }
 
-// Методы получения измененных данных
+// Methods for obtaining modified data
 QList<Unit> Storage::getModifiedUnits()
 {
     return getModifiedData(units, backupUnits);
@@ -462,7 +462,7 @@ QList<ToolDescription> Storage::getModifiedToolDescriptions()
     return getModifiedData(toolDescriptions, backupToolDescriptions);
 }
 
-// Методы получения удаленных данных
+// Methods for obtaining deleted data
 QList<Unit> Storage::getDeletedUnits()
 {
     return getDeletedData(units);
@@ -523,12 +523,12 @@ QList<ToolDescription> Storage::getDeletedToolDescriptions()
     return getDeletedData(toolDescriptions);
 }
 
-// Метод для получения всех измененных данных
+// The method for getting all the changed data
 ModifiedData Storage::getAllModifiedData()
 {
     ModifiedData modifiedData;
 
-    // Добавленные объекты
+    // Added objects
     modifiedData.addedUnits = getAddedUnits();
     modifiedData.addedTools = getAddedTools();
     modifiedData.addedSensors = getAddedSensors();
@@ -542,7 +542,7 @@ ModifiedData Storage::getAllModifiedData()
     modifiedData.addedMethods = getAddedMethods();
     modifiedData.addedToolDescriptions = getAddedToolDescriptions();
 
-    // Измененные объекты
+    // Modified objects
     modifiedData.modifiedUnits = getModifiedUnits();
     modifiedData.modifiedTools = getModifiedTools();
     modifiedData.modifiedSensors = getModifiedSensors();
@@ -556,7 +556,7 @@ ModifiedData Storage::getAllModifiedData()
     modifiedData.modifiedMethods = getModifiedMethods();
     modifiedData.modifiedToolDescriptions = getModifiedToolDescriptions();
 
-    // Удаленные объекты
+    // Deleted objects
     modifiedData.deletedUnits = getDeletedUnits();
     modifiedData.deletedTools = getDeletedTools();
     modifiedData.deletedSensors = getDeletedSensors();
@@ -573,7 +573,7 @@ ModifiedData Storage::getAllModifiedData()
     return modifiedData;
 }
 
-// Методы для генерации новых ID
+// Methods for generating new IDs
 int Storage::generateNewUnitId()
 {
     return ++maxUnitId;
@@ -634,7 +634,7 @@ int Storage::generateNewToolDescriptionId()
     return ++maxToolDescriptionId;
 }
 
-// Методы для установки максимальных ID при загрузке данных
+// Methods for setting maximum IDs when uploading data
 void Storage::setMaxUnitId(int id)
 {
     maxUnitId = id;

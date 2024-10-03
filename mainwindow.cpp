@@ -17,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    // Отключаем действие "Compare Current Data" по умолчанию
+    // Disabling the "Compare Current Data" action by default
     ui->actionCompareCurrentData->setEnabled(false);
 
     connect(ui->actionOpen, &QAction::triggered, this, &MainWindow::onOpenDatabase);
@@ -26,17 +26,17 @@ MainWindow::MainWindow(QWidget *parent)
             this,
             &MainWindow::onCompareCurrentData);
 
-    // Инициализация splitter'ов, detailView и imageLabel
+    // Initializing splitters, DetailView, and image Label
     mainSplitter = ui->mainSplitter;
     rightSplitter = ui->rightSplitter;
     detailView = ui->detailView;
     imageLabel = ui->imageLabel;
-    treeView = ui->treeView; // Это теперь QTreeView*
+    treeView = ui->treeView;
 
-    mainSplitter->setStretchFactor(4, 5); // Левая часть дерева
-    mainSplitter->setStretchFactor(1, 2); // Правая часть (описание и изображение)
+    mainSplitter->setStretchFactor(4, 5); // The left part is a tree
+    mainSplitter->setStretchFactor(1, 2); // The right part (description and image)
 
-    // Подключаем сигнал выбора элемента к слоту обновления деталей и изображения
+    // Connecting the element selection signal to the details and image update slot
     connect(treeView->selectionModel(),
             &QItemSelectionModel::currentChanged,
             this,
@@ -59,7 +59,7 @@ void MainWindow::onOpenDatabase()
             dbManager.loadAllData();
             setViewsForToolSensorMnemonic();
 
-            // Включаем действие "Compare Current Data" после успешного открытия базы данных
+            // Enabling the "Compare Current Data" action after successfully opening the database
             ui->actionCompareCurrentData->setEnabled(true);
 
         } else {
@@ -73,9 +73,9 @@ void MainWindow::onOpenDatabase()
 
 void MainWindow::setViewsForToolSensorMnemonic()
 {
-    // Перестраиваем дерево
-    treeView->buildTree(); // Предположим, у вашего treeView есть этот метод
-    // Очищаем область детализации и изображение
+    // Rebuilding the tree
+    treeView->buildTree();
+    // Clearing the detail area and the image
     detailView->clear();
     imageLabel->clear();
     imageLabel->setText("No Image");
@@ -91,7 +91,7 @@ void MainWindow::onCompareCurrentData()
     CompareDataDialog dialog(this);
     dialog.exec();
 
-    // Обновляем дерево после отката изменений
+    // Updating the tree after rolling back the changes
     if (treeView) {
         treeView->buildTree();
     }
@@ -101,7 +101,7 @@ void MainWindow::onTreeSelectionChanged(const QModelIndex &current, const QModel
 {
     Q_UNUSED(previous);
 
-    // Очищаем область детализации и изображения, если элемент не выбран
+    // Clearing the detail and image area if the element is not selected
     if (!current.isValid()) {
         detailView->clear();
         imageLabel->clear();
@@ -109,18 +109,18 @@ void MainWindow::onTreeSelectionChanged(const QModelIndex &current, const QModel
         return;
     }
 
-    // Получаем тип элемента и его ID из выбранного элемента
+    // Getting the element type and its ID from the selected element
     int elementId = current.data(Qt::UserRole + 1).toInt();
     ToolSensorMnemonicTreeView::ElementType elementType
         = static_cast<ToolSensorMnemonicTreeView::ElementType>(
             current.data(Qt::UserRole + 2).toInt());
 
-    // Очищаем изображение перед обновлением
+    // Clearing the image before updating
     imageLabel->clear();
 
     QString description;
 
-    // Обработка различных типов элементов
+    // Processing of various types of elements
     switch (elementType) {
     case ToolSensorMnemonicTreeView::ToolType: {
         const Tool *tool = storage->findToolById(elementId);
@@ -136,11 +136,11 @@ void MainWindow::onTreeSelectionChanged(const QModelIndex &current, const QModel
                                   .arg(toolDescription->getOuterDiameterMm())
                                   .arg(toolDescription->getInnerDiameterMm());
 
-                // Загрузка изображения, если доступно
+                // Uploading an image, if available
                 if (!toolDescription->getImage().isEmpty()) {
                     QPixmap pixmap;
                     if (pixmap.loadFromData(toolDescription->getImage())) {
-                        // Улучшение качества изображения при масштабировании
+                        // Image quality improvement when zooming
                         imageLabel->setPixmap(pixmap.scaled(imageLabel->size(),
                                                             Qt::KeepAspectRatio,
                                                             Qt::SmoothTransformation));
@@ -212,6 +212,6 @@ void MainWindow::onTreeSelectionChanged(const QModelIndex &current, const QModel
         break;
     }
 
-    // Отображаем описание в текстовом виджете
+    // Displaying the description in a text widget
     detailView->setText(description);
 }

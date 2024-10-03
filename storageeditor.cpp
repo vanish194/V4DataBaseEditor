@@ -1,6 +1,5 @@
 #include "storageeditor.h"
 
-// Реализация конструктора StorageEditor
 StorageEditor::StorageEditor(Storage *storage)
     : storage(storage)
 {

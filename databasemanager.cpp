@@ -56,7 +56,7 @@ int DatabaseManager::getDatabaseVersion() const
     return version;
 }
 
-// Методы для загрузки данных
+// Methods for loading data
 void DatabaseManager::loadAllData()
 {
     loadUnits();
@@ -71,7 +71,7 @@ void DatabaseManager::loadAllData()
     loadToolSensors();
     loadConversionFormulas();
     loadCompanies();
-    // После загрузки всех данных создаём резервную копию
+    // After downloading all the data, we create a backup copy
     Storage *storage = Storage::getInstance();
     storage->createBackup();
 }
@@ -92,10 +92,10 @@ void DatabaseManager::loadUnits()
         QString shortName = query.value("unit_short_name").toString();
         storage->getUnits().append(Unit(id, name, typeId, shortName));
         if (id > maxId) {
-            maxId = id; // Запоминаем максимальный ID
+            maxId = id; // Memorizing the maximum ID
         }
     }
-    storage->setMaxUnitId(maxId); // Устанавливаем максимальный ID для генерации новых данных
+    storage->setMaxUnitId(maxId); // Setting the maximum ID for generating new data
 }
 
 void DatabaseManager::loadUnitTypes()
