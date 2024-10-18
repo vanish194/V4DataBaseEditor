@@ -1,12 +1,10 @@
 #include "mainmnemonic.h"
 
 // Конструктор
-MainMnemonic::MainMnemonic(
-    int id, const QString &name, const QString &description, int sensorId, int unitId)
+MainMnemonic::MainMnemonic(int id, const QString &name, const QString &description, int unitId)
     : m_id(id)
     , m_name(name)
     , m_description(description)
-    , m_sensorId(sensorId)
     , m_unitId(unitId)
 {}
 
@@ -14,7 +12,7 @@ MainMnemonic::MainMnemonic(
 bool MainMnemonic::operator==(const MainMnemonic &other) const
 {
     return m_id == other.m_id && m_name == other.m_name && m_description == other.m_description
-           && m_sensorId == other.m_sensorId && m_unitId == other.m_unitId;
+           && m_unitId == other.m_unitId;
 }
 
 // Геттеры
@@ -31,11 +29,6 @@ QString MainMnemonic::getName() const
 QString MainMnemonic::getDescription() const
 {
     return m_description;
-}
-
-int MainMnemonic::getSensorId() const
-{
-    return m_sensorId;
 }
 
 int MainMnemonic::getUnitId() const
@@ -59,10 +52,6 @@ void MainMnemonic::setDescription(const QString &description)
     m_description = description;
 }
 
-void MainMnemonic::setSensorId(int sensorId)
-{
-    m_sensorId = sensorId;
-}
 
 void MainMnemonic::setUnitId(int unitId)
 {

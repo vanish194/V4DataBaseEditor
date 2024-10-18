@@ -24,7 +24,7 @@ bool DatabaseManager::connect(const QString &path)
 
     // Check the database version
     int currentVersion = getDatabaseVersion();
-    int expectedVersion = 1; // Set this to the version your application expects
+    int expectedVersion = 2; // Set this to the version your application expects
 
     if (currentVersion < 0) {
         qDebug() << "Error: Unable to determine database version.";
@@ -43,7 +43,8 @@ int DatabaseManager::getDatabaseVersion() const
 {
     int version = -1; // Default to an invalid version
 
-    QSqlQuery query("SELECT version FROM db_information ORDER BY version DESC LIMIT 1");
+    // Query to get the maximum version from db_information table
+    QSqlQuery query("SELECT MAX(version) FROM db_information");
 
     if (query.exec()) {
         if (query.next()) {
@@ -69,6 +70,8 @@ void DatabaseManager::loadAllData()
     loadToolDescriptions();
     loadTools();
     loadToolSensors();
+    loadToolMnemonics();
+    loadSensorMnemonics();
     loadConversionFormulas();
     loadCompanies();
     // After downloading all the data, we create a backup copy
@@ -188,7 +191,7 @@ void DatabaseManager::loadMainMnemonics()
 {
     QSqlQuery query;
     if (!query.exec("SELECT main_mnemonic_id, main_mnemonic_name, main_mnemonic_description, "
-                    "sensor_id, unit_id FROM main_mnemonics")) {
+                    "unit_id FROM main_mnemonics")) {
         qDebug() << "Ошибка загрузки данных из таблицы main_mnemonics:" << query.lastError().text();
         return;
     }
@@ -199,9 +202,8 @@ void DatabaseManager::loadMainMnemonics()
         int id = query.value("main_mnemonic_id").toInt();
         QString name = query.value("main_mnemonic_name").toString();
         QString description = query.value("main_mnemonic_description").toString();
-        int sensorId = query.value("sensor_id").toInt();
         int unitId = query.value("unit_id").toInt();
-        storage->getMainMnemonics().append(MainMnemonic(id, name, description, sensorId, unitId));
+        storage->getMainMnemonics().append(MainMnemonic(id, name, description, unitId));
         if (id > maxId) {
             maxId = id;
         }
@@ -308,6 +310,53 @@ void DatabaseManager::loadToolSensors()
         }
     }
     storage->setMaxToolSensorId(maxId);
+}
+
+void DatabaseManager::loadToolMnemonics()
+{
+    QSqlQuery query;
+    if (!query.exec(
+            "SELECT tool_mnemonic_id, tool_id, mnemonic_id, offset_mm FROM tools_mnemonics")) {
+        qDebug() << "Ошибка загрузки данных из таблицы tools_mnemonics:"
+                 << query.lastError().text();
+        return;
+    }
+
+    Storage *storage = Storage::getInstance();
+    int maxId = 0;
+    while (query.next()) {
+        int id = query.value("tool_mnemonic_id").toInt();
+        int toolId = query.value("tool_id").toInt();
+        int mnemonicId = query.value("mnemonic_id").toInt();
+        int offsetMm = query.value("offset_mm").toInt();
+        storage->getToolMnemonics().append(ToolMnemonic(id, toolId, mnemonicId, offsetMm));
+        if (id > maxId) {
+            maxId = id; // Memorizing the maximum ID
+        }
+    }
+    storage->setMaxToolMnemonicId(maxId); // Setting the maximum ID for generating new data
+}
+void DatabaseManager::loadSensorMnemonics()
+{
+    QSqlQuery query;
+    if (!query.exec("SELECT sensor_mnemonic_id, sensor_id, mnemonic_id FROM sensors_mnemonics")) {
+        qDebug() << "Ошибка загрузки данных из таблицы sensors_mnemonics:"
+                 << query.lastError().text();
+        return;
+    }
+
+    Storage *storage = Storage::getInstance();
+    int maxId = 0;
+    while (query.next()) {
+        int id = query.value("sensor_mnemonic_id").toInt();
+        int sensorId = query.value("sensor_id").toInt();
+        int mnemonicId = query.value("mnemonic_id").toInt();
+        storage->getSensorMnemonics().append(SensorMnemonic(id, sensorId, mnemonicId));
+        if (id > maxId) {
+            maxId = id; // Memorizing the maximum ID
+        }
+    }
+    storage->setMaxSensorMnemonicId(maxId); // Setting the maximum ID for generating new data
 }
 
 void DatabaseManager::loadConversionFormulas()

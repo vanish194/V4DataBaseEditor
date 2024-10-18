@@ -17,8 +17,10 @@ SOURCES += \
     db_model/method.cpp \
     db_model/producer.cpp \
     db_model/sensor.cpp \
+    db_model/sensormnemonic.cpp \
     db_model/tool.cpp \
     db_model/tooldescription.cpp \
+    db_model/toolmnemonic.cpp \
     db_model/toolsensor.cpp \
     db_model/unit.cpp \
     db_model/unittype.cpp \
@@ -41,8 +43,10 @@ HEADERS += \
     db_model/method.h \
     db_model/producer.h \
     db_model/sensor.h \
+    db_model/sensormnemonic.h \
     db_model/tool.h \
     db_model/tooldescription.h \
+    db_model/toolmnemonic.h \
     db_model/toolsensor.h \
     db_model/unit.h \
     db_model/unittype.h \

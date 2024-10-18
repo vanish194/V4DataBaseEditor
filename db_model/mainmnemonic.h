@@ -10,7 +10,6 @@ public:
     MainMnemonic(int id = 0,
                  const QString &name = QString(),
                  const QString &description = QString(),
-                 int sensorId = 0,
                  int unitId = 0);
 
     // Оператор сравнения
@@ -20,14 +19,12 @@ public:
     int getId() const;
     QString getName() const;
     QString getDescription() const;
-    int getSensorId() const;
     int getUnitId() const;
 
     // Сеттеры
     void setId(int id);
     void setName(const QString &name);
     void setDescription(const QString &description);
-    void setSensorId(int sensorId);
     void setUnitId(int unitId);
 
     void markAsDeleted();

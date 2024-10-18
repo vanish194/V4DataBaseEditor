@@ -9,8 +9,10 @@
 #include "db_model/Method.h"
 #include "db_model/Producer.h"
 #include "db_model/Sensor.h"
+#include "db_model/SensorMnemonic.h"
 #include "db_model/Tool.h"
 #include "db_model/ToolDescription.h"
+#include "db_model/ToolMnemonic.h"
 #include "db_model/ToolSensor.h"
 #include "db_model/Unit.h"
 #include "db_model/UnitType.h"
@@ -25,6 +27,8 @@ struct ModifiedData
     QList<Producer> addedProducers;
     QList<UnitType> addedUnitTypes;
     QList<ToolSensor> addedToolSensors;
+    QList<ToolMnemonic> addedToolMnemonics;
+    QList<SensorMnemonic> addedSensorMnemonics;
     QList<AdditionalMnemonic> addedAdditionalMnemonics;
     QList<MainMnemonic> addedMainMnemonics;
     QList<ConversionFormula> addedConversionFormulas;
@@ -39,6 +43,8 @@ struct ModifiedData
     QList<Producer> modifiedProducers;
     QList<UnitType> modifiedUnitTypes;
     QList<ToolSensor> modifiedToolSensors;
+    QList<ToolMnemonic> modifiedToolMnemonics;
+    QList<SensorMnemonic> modifiedSensorMnemonics;
     QList<AdditionalMnemonic> modifiedAdditionalMnemonics;
     QList<MainMnemonic> modifiedMainMnemonics;
     QList<ConversionFormula> modifiedConversionFormulas;
@@ -53,6 +59,8 @@ struct ModifiedData
     QList<Producer> deletedProducers;
     QList<UnitType> deletedUnitTypes;
     QList<ToolSensor> deletedToolSensors;
+    QList<ToolMnemonic> deletedToolMnemonics;
+    QList<SensorMnemonic> deletedSensorMnemonics;
     QList<AdditionalMnemonic> deletedAdditionalMnemonics;
     QList<MainMnemonic> deletedMainMnemonics;
     QList<ConversionFormula> deletedConversionFormulas;
@@ -74,6 +82,8 @@ private:
     QList<Producer> producers;
     QList<UnitType> unitTypes;
     QList<ToolSensor> toolSensors;
+    QList<ToolMnemonic> toolMnemonics;
+    QList<SensorMnemonic> sensorMnemonics;
     QList<AdditionalMnemonic> additionalMnemonics;
     QList<MainMnemonic> mainMnemonics;
     QList<ConversionFormula> conversionFormulas;
@@ -88,6 +98,8 @@ private:
     QList<Producer> backupProducers;
     QList<UnitType> backupUnitTypes;
     QList<ToolSensor> backupToolSensors;
+    QList<ToolMnemonic> backupToolMnemonics;
+    QList<SensorMnemonic> backupSensorMnemonics;
     QList<AdditionalMnemonic> backupAdditionalMnemonics;
     QList<MainMnemonic> backupMainMnemonics;
     QList<ConversionFormula> backupConversionFormulas;
@@ -102,6 +114,8 @@ private:
     int maxProducerId = 0;
     int maxUnitTypeId = 0;
     int maxToolSensorId = 0;
+    int maxToolMnemonicId = 0;
+    int maxSensorMnemonicId = 0;
     int maxAdditionalMnemonicId = 0;
     int maxMainMnemonicId = 0;
     int maxConversionFormulaId = 0;
@@ -122,6 +136,8 @@ public:
     QList<Producer> &getProducers();
     QList<UnitType> &getUnitTypes();
     QList<ToolSensor> &getToolSensors();
+    QList<ToolMnemonic> &getToolMnemonics();
+    QList<SensorMnemonic> &getSensorMnemonics();
     QList<AdditionalMnemonic> &getAdditionalMnemonics();
     QList<MainMnemonic> &getMainMnemonics();
     QList<ConversionFormula> &getConversionFormulas();
@@ -133,6 +149,8 @@ public:
     const Tool *findToolById(int id) const;
     const Sensor *findSensorById(int id) const;
     const MainMnemonic *findMainMnemonicById(int id) const;
+    const ToolMnemonic *findToolMnemonicById(int id) const;
+    const SensorMnemonic *findSensorMnemonicById(int id) const;
     const AdditionalMnemonic *findAdditionalMnemonicById(int id) const;
     const ToolDescription *findToolDescriptionById(int id) const;
     const Company *findCompanyById(int id) const;
@@ -151,6 +169,8 @@ public:
     QList<Producer> &getBackupProducers();
     QList<UnitType> &getBackupUnitTypes();
     QList<ToolSensor> &getBackupToolSensors();
+    QList<ToolMnemonic> &getBackupToolMnemonics();
+    QList<SensorMnemonic> &getBackupSensorMnemonics();
     QList<AdditionalMnemonic> &getBackupAdditionalMnemonics();
     QList<MainMnemonic> &getBackupMainMnemonics();
     QList<ConversionFormula> &getBackupConversionFormulas();
@@ -165,6 +185,8 @@ public:
     QList<Producer> getAddedProducers();
     QList<UnitType> getAddedUnitTypes();
     QList<ToolSensor> getAddedToolSensors();
+    QList<ToolMnemonic> getAddedToolMnemonics();
+    QList<SensorMnemonic> getAddedSensorMnemonics();
     QList<AdditionalMnemonic> getAddedAdditionalMnemonics();
     QList<MainMnemonic> getAddedMainMnemonics();
     QList<ConversionFormula> getAddedConversionFormulas();
@@ -179,6 +201,8 @@ public:
     QList<Producer> getModifiedProducers();
     QList<UnitType> getModifiedUnitTypes();
     QList<ToolSensor> getModifiedToolSensors();
+    QList<ToolMnemonic> getModifiedToolMnemonics();
+    QList<SensorMnemonic> getModifiedSensorMnemonics();
     QList<AdditionalMnemonic> getModifiedAdditionalMnemonics();
     QList<MainMnemonic> getModifiedMainMnemonics();
     QList<ConversionFormula> getModifiedConversionFormulas();
@@ -193,6 +217,8 @@ public:
     QList<Producer> getDeletedProducers();
     QList<UnitType> getDeletedUnitTypes();
     QList<ToolSensor> getDeletedToolSensors();
+    QList<ToolMnemonic> getDeletedToolMnemonics();
+    QList<SensorMnemonic> getDeletedSensorMnemonics();
     QList<AdditionalMnemonic> getDeletedAdditionalMnemonics();
     QList<MainMnemonic> getDeletedMainMnemonics();
     QList<ConversionFormula> getDeletedConversionFormulas();
@@ -210,6 +236,8 @@ public:
     int generateNewProducerId();
     int generateNewUnitTypeId();
     int generateNewToolSensorId();
+    int generateNewToolMnemonicId();
+    int generateNewSensorMnemonicId();
     int generateNewAdditionalMnemonicId();
     int generateNewMainMnemonicId();
     int generateNewConversionFormulaId();
@@ -224,6 +252,8 @@ public:
     void setMaxProducerId(int id);
     void setMaxUnitTypeId(int id);
     void setMaxToolSensorId(int id);
+    void setMaxToolMnemonicId(int id);
+    void setMaxSensorMnemonicId(int id);
     void setMaxAdditionalMnemonicId(int id);
     void setMaxMainMnemonicId(int id);
     void setMaxConversionFormulaId(int id);

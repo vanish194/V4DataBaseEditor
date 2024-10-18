@@ -35,6 +35,8 @@ private:
     void loadToolDescriptions();
     void loadTools();
     void loadToolSensors();
+    void loadToolMnemonics();
+    void loadSensorMnemonics();
     void loadConversionFormulas();
     void loadCompanies();
 };

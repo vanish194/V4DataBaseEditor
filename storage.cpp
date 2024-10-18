@@ -17,7 +17,8 @@ bool Storage::isDataLoaded()
 {
     // Checking if any data has been uploaded
     return !units.isEmpty() || !tools.isEmpty() || !sensors.isEmpty() || !producers.isEmpty()
-           || !unitTypes.isEmpty() || !toolSensors.isEmpty() || !additionalMnemonics.isEmpty()
+           || !unitTypes.isEmpty() || !toolSensors.isEmpty() || !toolMnemonics.isEmpty()
+           || !sensorMnemonics.isEmpty() || !additionalMnemonics.isEmpty()
            || !mainMnemonics.isEmpty() || !conversionFormulas.isEmpty() || !companies.isEmpty()
            || !methods.isEmpty() || !toolDescriptions.isEmpty();
 }
@@ -27,63 +28,60 @@ QList<Unit> &Storage::getUnits()
 {
     return units;
 }
-
 QList<Tool> &Storage::getTools()
 {
     return tools;
 }
-
 QList<Sensor> &Storage::getSensors()
 {
     return sensors;
 }
-
 QList<Producer> &Storage::getProducers()
 {
     return producers;
 }
-
 QList<UnitType> &Storage::getUnitTypes()
 {
     return unitTypes;
 }
-
 QList<ToolSensor> &Storage::getToolSensors()
 {
     return toolSensors;
 }
-
+QList<ToolMnemonic> &Storage::getToolMnemonics()
+{
+    return toolMnemonics;
+}
+QList<SensorMnemonic> &Storage::getSensorMnemonics()
+{
+    return sensorMnemonics;
+}
 QList<AdditionalMnemonic> &Storage::getAdditionalMnemonics()
 {
     return additionalMnemonics;
 }
-
 QList<MainMnemonic> &Storage::getMainMnemonics()
 {
     return mainMnemonics;
 }
-
 QList<ConversionFormula> &Storage::getConversionFormulas()
 {
     return conversionFormulas;
 }
-
 QList<Company> &Storage::getCompanies()
 {
     return companies;
 }
-
 QList<Method> &Storage::getMethods()
 {
     return methods;
 }
-
 QList<ToolDescription> &Storage::getToolDescriptions()
 {
     return toolDescriptions;
 }
 
-// Methods for searching for objects by ID
+// Methods for searching objects by ID
 const Tool *Storage::findToolById(int id) const
 {
     for (const Tool &tool : tools) {
@@ -107,6 +105,26 @@ const Sensor *Storage::findSensorById(int id) const
 const MainMnemonic *Storage::findMainMnemonicById(int id) const
 {
     for (const MainMnemonic &mnemonic : mainMnemonics) {
+        if (mnemonic.getId() == id && mnemonic.getId() > 0) {
+            return &mnemonic;
+        }
+    }
+    return nullptr;
+}
+
+const ToolMnemonic *Storage::findToolMnemonicById(int id) const
+{
+    for (const ToolMnemonic &mnemonic : toolMnemonics) {
+        if (mnemonic.getId() == id && mnemonic.getId() > 0) {
+            return &mnemonic;
+        }
+    }
+    return nullptr;
+}
+
+const SensorMnemonic *Storage::findSensorMnemonicById(int id) const
+{
+    for (const SensorMnemonic &mnemonic : sensorMnemonics) {
         if (mnemonic.getId() == id && mnemonic.getId() > 0) {
             return &mnemonic;
         }
@@ -163,7 +181,8 @@ const Method *Storage::findMethodById(int id) const
     }
     return nullptr;
 }
-// Methods of working with backups
+
+// Backup management methods
 void Storage::createBackup()
 {
     backupUnits = units;
@@ -172,6 +191,8 @@ void Storage::createBackup()
     backupProducers = producers;
     backupUnitTypes = unitTypes;
     backupToolSensors = toolSensors;
+    backupToolMnemonics = toolMnemonics;
+    backupSensorMnemonics = sensorMnemonics;
     backupAdditionalMnemonics = additionalMnemonics;
     backupMainMnemonics = mainMnemonics;
     backupConversionFormulas = conversionFormulas;
@@ -188,6 +209,8 @@ void Storage::restoreFromBackup()
     producers = backupProducers;
     unitTypes = backupUnitTypes;
     toolSensors = backupToolSensors;
+    toolMnemonics = backupToolMnemonics;
+    sensorMnemonics = backupSensorMnemonics;
     additionalMnemonics = backupAdditionalMnemonics;
     mainMnemonics = backupMainMnemonics;
     conversionFormulas = backupConversionFormulas;
@@ -204,6 +227,8 @@ void Storage::clearBackup()
     backupProducers.clear();
     backupUnitTypes.clear();
     backupToolSensors.clear();
+    backupToolMnemonics.clear();
+    backupSensorMnemonics.clear();
     backupAdditionalMnemonics.clear();
     backupMainMnemonics.clear();
     backupConversionFormulas.clear();
@@ -217,57 +242,54 @@ QList<Unit> &Storage::getBackupUnits()
 {
     return backupUnits;
 }
-
 QList<Tool> &Storage::getBackupTools()
 {
     return backupTools;
 }
-
 QList<Sensor> &Storage::getBackupSensors()
 {
     return backupSensors;
 }
-
 QList<Producer> &Storage::getBackupProducers()
 {
     return backupProducers;
 }
-
 QList<UnitType> &Storage::getBackupUnitTypes()
 {
     return backupUnitTypes;
 }
-
 QList<ToolSensor> &Storage::getBackupToolSensors()
 {
     return backupToolSensors;
 }
-
+QList<ToolMnemonic> &Storage::getBackupToolMnemonics()
+{
+    return backupToolMnemonics;
+}
+QList<SensorMnemonic> &Storage::getBackupSensorMnemonics()
+{
+    return backupSensorMnemonics;
+}
 QList<AdditionalMnemonic> &Storage::getBackupAdditionalMnemonics()
 {
     return backupAdditionalMnemonics;
 }
-
 QList<MainMnemonic> &Storage::getBackupMainMnemonics()
 {
     return backupMainMnemonics;
 }
-
 QList<ConversionFormula> &Storage::getBackupConversionFormulas()
 {
     return backupConversionFormulas;
 }
-
 QList<Company> &Storage::getBackupCompanies()
 {
     return backupCompanies;
 }
-
 QList<Method> &Storage::getBackupMethods()
 {
     return backupMethods;
 }
-
 QList<ToolDescription> &Storage::getBackupToolDescriptions()
 {
     return backupToolDescriptions;
@@ -345,57 +367,54 @@ QList<Unit> Storage::getAddedUnits()
 {
     return getAddedData(units, backupUnits);
 }
-
 QList<Tool> Storage::getAddedTools()
 {
     return getAddedData(tools, backupTools);
 }
-
 QList<Sensor> Storage::getAddedSensors()
 {
     return getAddedData(sensors, backupSensors);
 }
-
 QList<Producer> Storage::getAddedProducers()
 {
     return getAddedData(producers, backupProducers);
 }
-
 QList<UnitType> Storage::getAddedUnitTypes()
 {
     return getAddedData(unitTypes, backupUnitTypes);
 }
-
 QList<ToolSensor> Storage::getAddedToolSensors()
 {
     return getAddedData(toolSensors, backupToolSensors);
 }
-
+QList<ToolMnemonic> Storage::getAddedToolMnemonics()
+{
+    return getAddedData(toolMnemonics, backupToolMnemonics);
+}
+QList<SensorMnemonic> Storage::getAddedSensorMnemonics()
+{
+    return getAddedData(sensorMnemonics, backupSensorMnemonics);
+}
 QList<AdditionalMnemonic> Storage::getAddedAdditionalMnemonics()
 {
     return getAddedData(additionalMnemonics, backupAdditionalMnemonics);
 }
-
 QList<MainMnemonic> Storage::getAddedMainMnemonics()
 {
     return getAddedData(mainMnemonics, backupMainMnemonics);
 }
-
 QList<ConversionFormula> Storage::getAddedConversionFormulas()
 {
     return getAddedData(conversionFormulas, backupConversionFormulas);
 }
-
 QList<Company> Storage::getAddedCompanies()
 {
     return getAddedData(companies, backupCompanies);
 }
-
 QList<Method> Storage::getAddedMethods()
 {
     return getAddedData(methods, backupMethods);
 }
-
 QList<ToolDescription> Storage::getAddedToolDescriptions()
 {
     return getAddedData(toolDescriptions, backupToolDescriptions);
@@ -406,57 +425,54 @@ QList<Unit> Storage::getModifiedUnits()
 {
     return getModifiedData(units, backupUnits);
 }
-
 QList<Tool> Storage::getModifiedTools()
 {
     return getModifiedData(tools, backupTools);
 }
-
 QList<Sensor> Storage::getModifiedSensors()
 {
     return getModifiedData(sensors, backupSensors);
 }
-
 QList<Producer> Storage::getModifiedProducers()
 {
     return getModifiedData(producers, backupProducers);
 }
-
 QList<UnitType> Storage::getModifiedUnitTypes()
 {
     return getModifiedData(unitTypes, backupUnitTypes);
 }
-
 QList<ToolSensor> Storage::getModifiedToolSensors()
 {
     return getModifiedData(toolSensors, backupToolSensors);
 }
-
+QList<ToolMnemonic> Storage::getModifiedToolMnemonics()
+{
+    return getModifiedData(toolMnemonics, backupToolMnemonics);
+}
+QList<SensorMnemonic> Storage::getModifiedSensorMnemonics()
+{
+    return getModifiedData(sensorMnemonics, backupSensorMnemonics);
+}
 QList<AdditionalMnemonic> Storage::getModifiedAdditionalMnemonics()
 {
     return getModifiedData(additionalMnemonics, backupAdditionalMnemonics);
 }
-
 QList<MainMnemonic> Storage::getModifiedMainMnemonics()
 {
     return getModifiedData(mainMnemonics, backupMainMnemonics);
 }
-
 QList<ConversionFormula> Storage::getModifiedConversionFormulas()
 {
     return getModifiedData(conversionFormulas, backupConversionFormulas);
 }
-
 QList<Company> Storage::getModifiedCompanies()
 {
     return getModifiedData(companies, backupCompanies);
 }
-
 QList<Method> Storage::getModifiedMethods()
 {
     return getModifiedData(methods, backupMethods);
 }
-
 QList<ToolDescription> Storage::getModifiedToolDescriptions()
 {
     return getModifiedData(toolDescriptions, backupToolDescriptions);
@@ -467,57 +483,54 @@ QList<Unit> Storage::getDeletedUnits()
 {
     return getDeletedData(units);
 }
-
 QList<Tool> Storage::getDeletedTools()
 {
     return getDeletedData(tools);
 }
-
 QList<Sensor> Storage::getDeletedSensors()
 {
     return getDeletedData(sensors);
 }
-
 QList<Producer> Storage::getDeletedProducers()
 {
     return getDeletedData(producers);
 }
-
 QList<UnitType> Storage::getDeletedUnitTypes()
 {
     return getDeletedData(unitTypes);
 }
-
 QList<ToolSensor> Storage::getDeletedToolSensors()
 {
     return getDeletedData(toolSensors);
 }
-
+QList<ToolMnemonic> Storage::getDeletedToolMnemonics()
+{
+    return getDeletedData(toolMnemonics);
+}
+QList<SensorMnemonic> Storage::getDeletedSensorMnemonics()
+{
+    return getDeletedData(sensorMnemonics);
+}
 QList<AdditionalMnemonic> Storage::getDeletedAdditionalMnemonics()
 {
     return getDeletedData(additionalMnemonics);
 }
-
 QList<MainMnemonic> Storage::getDeletedMainMnemonics()
 {
     return getDeletedData(mainMnemonics);
 }
-
 QList<ConversionFormula> Storage::getDeletedConversionFormulas()
 {
     return getDeletedData(conversionFormulas);
 }
-
 QList<Company> Storage::getDeletedCompanies()
 {
     return getDeletedData(companies);
 }
-
 QList<Method> Storage::getDeletedMethods()
 {
     return getDeletedData(methods);
 }
-
 QList<ToolDescription> Storage::getDeletedToolDescriptions()
 {
     return getDeletedData(toolDescriptions);
@@ -535,6 +548,8 @@ ModifiedData Storage::getAllModifiedData()
     modifiedData.addedProducers = getAddedProducers();
     modifiedData.addedUnitTypes = getAddedUnitTypes();
     modifiedData.addedToolSensors = getAddedToolSensors();
+    modifiedData.addedToolMnemonics = getAddedToolMnemonics();
+    modifiedData.addedSensorMnemonics = getAddedSensorMnemonics();
     modifiedData.addedAdditionalMnemonics = getAddedAdditionalMnemonics();
     modifiedData.addedMainMnemonics = getAddedMainMnemonics();
     modifiedData.addedConversionFormulas = getAddedConversionFormulas();
@@ -549,6 +564,8 @@ ModifiedData Storage::getAllModifiedData()
     modifiedData.modifiedProducers = getModifiedProducers();
     modifiedData.modifiedUnitTypes = getModifiedUnitTypes();
     modifiedData.modifiedToolSensors = getModifiedToolSensors();
+    modifiedData.modifiedToolMnemonics = getModifiedToolMnemonics();
+    modifiedData.modifiedSensorMnemonics = getModifiedSensorMnemonics();
     modifiedData.modifiedAdditionalMnemonics = getModifiedAdditionalMnemonics();
     modifiedData.modifiedMainMnemonics = getModifiedMainMnemonics();
     modifiedData.modifiedConversionFormulas = getModifiedConversionFormulas();
@@ -563,6 +580,8 @@ ModifiedData Storage::getAllModifiedData()
     modifiedData.deletedProducers = getDeletedProducers();
     modifiedData.deletedUnitTypes = getDeletedUnitTypes();
     modifiedData.deletedToolSensors = getDeletedToolSensors();
+    modifiedData.deletedToolMnemonics = getDeletedToolMnemonics();
+    modifiedData.deletedSensorMnemonics = getDeletedSensorMnemonics();
     modifiedData.deletedAdditionalMnemonics = getDeletedAdditionalMnemonics();
     modifiedData.deletedMainMnemonics = getDeletedMainMnemonics();
     modifiedData.deletedConversionFormulas = getDeletedConversionFormulas();
@@ -578,57 +597,54 @@ int Storage::generateNewUnitId()
 {
     return ++maxUnitId;
 }
-
 int Storage::generateNewToolId()
 {
     return ++maxToolId;
 }
-
 int Storage::generateNewSensorId()
 {
     return ++maxSensorId;
 }
-
 int Storage::generateNewProducerId()
 {
     return ++maxProducerId;
 }
-
 int Storage::generateNewUnitTypeId()
 {
     return ++maxUnitTypeId;
 }
-
 int Storage::generateNewToolSensorId()
 {
     return ++maxToolSensorId;
 }
-
+int Storage::generateNewToolMnemonicId()
+{
+    return ++maxToolMnemonicId;
+}
+int Storage::generateNewSensorMnemonicId()
+{
+    return ++maxSensorMnemonicId;
+}
 int Storage::generateNewAdditionalMnemonicId()
 {
     return ++maxAdditionalMnemonicId;
 }
-
 int Storage::generateNewMainMnemonicId()
 {
     return ++maxMainMnemonicId;
 }
-
 int Storage::generateNewConversionFormulaId()
 {
     return ++maxConversionFormulaId;
 }
-
 int Storage::generateNewCompanyId()
 {
     return ++maxCompanyId;
 }
-
 int Storage::generateNewMethodId()
 {
     return ++maxMethodId;
 }
-
 int Storage::generateNewToolDescriptionId()
 {
     return ++maxToolDescriptionId;
@@ -639,57 +655,54 @@ void Storage::setMaxUnitId(int id)
 {
     maxUnitId = id;
 }
-
 void Storage::setMaxToolId(int id)
 {
     maxToolId = id;
 }
-
 void Storage::setMaxSensorId(int id)
 {
     maxSensorId = id;
 }
-
 void Storage::setMaxProducerId(int id)
 {
     maxProducerId = id;
 }
-
 void Storage::setMaxUnitTypeId(int id)
 {
     maxUnitTypeId = id;
 }
-
 void Storage::setMaxToolSensorId(int id)
 {
     maxToolSensorId = id;
 }
-
+void Storage::setMaxToolMnemonicId(int id)
+{
+    maxToolMnemonicId = id;
+}
+void Storage::setMaxSensorMnemonicId(int id)
+{
+    maxSensorMnemonicId = id;
+}
 void Storage::setMaxAdditionalMnemonicId(int id)
 {
     maxAdditionalMnemonicId = id;
 }
-
 void Storage::setMaxMainMnemonicId(int id)
 {
     maxMainMnemonicId = id;
 }
-
 void Storage::setMaxConversionFormulaId(int id)
 {
     maxConversionFormulaId = id;
 }
-
 void Storage::setMaxCompanyId(int id)
 {
     maxCompanyId = id;
 }
-
 void Storage::setMaxMethodId(int id)
 {
     maxMethodId = id;
 }
-
 void Storage::setMaxToolDescriptionId(int id)
 {
     maxToolDescriptionId = id;
