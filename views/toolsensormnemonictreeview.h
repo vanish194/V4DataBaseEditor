@@ -5,11 +5,12 @@
 #include <QStandardItemModel>
 #include <QTreeView>
 #include "editor_windows/sensor_editor.h"
+#include "editor_windows/sensormnemonicrelationeditor.h"
 #include "editor_windows/tool_editor.h"
+#include "editor_windows/toolmnemonicrelationeditor.h"
 #include "editor_windows/toolsensorrelationeditor.h"
 #include "storage.h"
 #include "storageeditor.h"
-
 class ToolSensorMnemonicTreeView : public QTreeView
 {
     Q_OBJECT
@@ -39,8 +40,10 @@ private:
     void onAddItem(int elementId, ElementType elementType);
     void onEditItem(int elementId, ElementType elementType);
     void onDeleteItem(int elementId, ElementType elementType);
-
+    void onToolSensorRelations(int toolId);
     void onEditRelations(int elementId, ElementType elementType);
+    void onToolMnemonicRelations(int toolId);
+    void onSensorMnemonicRelations(int sensorId);
 };
 
 #endif // TOOLSENSORMNEMONICTREEVIEW_H

@@ -6,6 +6,7 @@
 #include <QSplitter>
 #include <QTextEdit>
 #include "databasemanager.h"
+#include "databasesaver.h"
 #include "editor_windows/comparedatadialog.h"
 #include "storage.h"
 #include "views/toolsensormnemonictreeview.h"
@@ -27,6 +28,7 @@ public:
 private slots:
     void onOpenDatabase();
     void onCompareCurrentData();
+    void onApplyChanges();
 
     // Слот для обновления деталей и изображения
     void onTreeSelectionChanged(const QModelIndex &current, const QModelIndex &previous);

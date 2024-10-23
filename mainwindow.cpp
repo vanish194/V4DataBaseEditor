@@ -10,6 +10,13 @@
 #include <QMessageBox>
 #include <QPixmap>
 
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
+
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QPixmap>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -17,26 +24,32 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    // Disabling the "Compare Current Data" action by default
+    // Отключаем действия по умолчанию
     ui->actionCompareCurrentData->setEnabled(false);
+    ui->actionApplyChanges->setEnabled(false); // Отключаем "Apply Changes" по умолчанию
 
+    // Подключаем действия к слотам
     connect(ui->actionOpen, &QAction::triggered, this, &MainWindow::onOpenDatabase);
     connect(ui->actionCompareCurrentData,
             &QAction::triggered,
             this,
             &MainWindow::onCompareCurrentData);
+    connect(ui->actionApplyChanges,
+            &QAction::triggered,
+            this,
+            &MainWindow::onApplyChanges); // Подключаем "Apply Changes"
 
-    // Initializing splitters, DetailView, and image Label
+    // Инициализация виджетов
     mainSplitter = ui->mainSplitter;
     rightSplitter = ui->rightSplitter;
     detailView = ui->detailView;
     imageLabel = ui->imageLabel;
     treeView = ui->treeView;
 
-    mainSplitter->setStretchFactor(4, 5); // The left part is a tree
-    mainSplitter->setStretchFactor(1, 2); // The right part (description and image)
+    mainSplitter->setStretchFactor(4, 5); // Левая часть - дерево
+    mainSplitter->setStretchFactor(1, 2); // Правая часть (описание и изображение)
 
-    // Connecting the element selection signal to the details and image update slot
+    // Подключение сигнала выбора элемента к слоту обновления деталей и изображения
     connect(treeView->selectionModel(),
             &QItemSelectionModel::currentChanged,
             this,
@@ -47,7 +60,6 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
-
 void MainWindow::onOpenDatabase()
 {
     QString fileName = QFileDialog::getOpenFileName(this,
@@ -59,8 +71,9 @@ void MainWindow::onOpenDatabase()
             dbManager.loadAllData();
             setViewsForToolSensorMnemonic();
 
-            // Enabling the "Compare Current Data" action after successfully opening the database
+            // Включаем действия после успешного открытия базы данных
             ui->actionCompareCurrentData->setEnabled(true);
+            ui->actionApplyChanges->setEnabled(true);
 
         } else {
             QMessageBox::critical(
@@ -214,4 +227,21 @@ void MainWindow::onTreeSelectionChanged(const QModelIndex &current, const QModel
 
     // Displaying the description in a text widget
     detailView->setText(description);
+}
+
+void MainWindow::onApplyChanges()
+{
+    DatabaseSaver dbSaver(dbManager.getDatabase());
+
+    if (dbSaver.saveAllData()) {
+        QMessageBox::information(this,
+                                 "Apply Changes",
+                                 "Changes have been applied to the database.");
+
+        // После успешного сохранения обновляем резервную копию данных
+        storage->createBackup();
+
+    } else {
+        QMessageBox::critical(this, "Apply Changes", "Failed to apply changes to the database.");
+    }
 }

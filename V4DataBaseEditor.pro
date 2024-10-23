@@ -10,6 +10,7 @@ CONFIG += c++17
 
 SOURCES += \
     databasemanager.cpp \
+    databasesaver.cpp \
     db_model/additionalmnemonic.cpp \
     db_model/company.cpp \
     db_model/conversionformula.cpp \
@@ -26,7 +27,9 @@ SOURCES += \
     db_model/unittype.cpp \
     editor_windows/comparedatadialog.cpp \
     editor_windows/sensor_editor.cpp \
+    editor_windows/sensormnemonicrelationeditor.cpp \
     editor_windows/tool_editor.cpp \
+    editor_windows/toolmnemonicrelationeditor.cpp \
     editor_windows/toolsensorrelationeditor.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -36,6 +39,7 @@ SOURCES += \
 
 HEADERS += \
     databasemanager.h \
+    databasesaver.h \
     db_model/additionalmnemonic.h \
     db_model/company.h \
     db_model/conversionformula.h \
@@ -52,7 +56,9 @@ HEADERS += \
     db_model/unittype.h \
     editor_windows/comparedatadialog.h \
     editor_windows/sensor_editor.h \
+    editor_windows/sensormnemonicrelationeditor.h \
     editor_windows/tool_editor.h \
+    editor_windows/toolmnemonicrelationeditor.h \
     editor_windows/toolsensorrelationeditor.h \
     mainwindow.h \
     storage.h \
@@ -62,7 +68,9 @@ HEADERS += \
 FORMS += \
     editor_windows/comparedatadialog.ui \
     editor_windows/sensor_editor.ui \
+    editor_windows/sensormnemonicrelationeditor.ui \
     editor_windows/tool_editor.ui \
+    editor_windows/toolmnemonicrelationeditor.ui \
     editor_windows/toolsensorrelationeditor.ui \
     mainwindow.ui
 

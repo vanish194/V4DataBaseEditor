@@ -78,6 +78,11 @@ void DatabaseManager::loadAllData()
     Storage *storage = Storage::getInstance();
     storage->createBackup();
 }
+
+QSqlDatabase &DatabaseManager::getDatabase()
+{
+    return db;
+}
 void DatabaseManager::loadUnits()
 {
     QSqlQuery query;
@@ -191,7 +196,7 @@ void DatabaseManager::loadMainMnemonics()
 {
     QSqlQuery query;
     if (!query.exec("SELECT main_mnemonic_id, main_mnemonic_name, main_mnemonic_description, "
-                    "unit_id FROM main_mnemonics")) {
+                    "unit_id, service FROM main_mnemonics")) {
         qDebug() << "Ошибка загрузки данных из таблицы main_mnemonics:" << query.lastError().text();
         return;
     }
@@ -203,7 +208,8 @@ void DatabaseManager::loadMainMnemonics()
         QString name = query.value("main_mnemonic_name").toString();
         QString description = query.value("main_mnemonic_description").toString();
         int unitId = query.value("unit_id").toInt();
-        storage->getMainMnemonics().append(MainMnemonic(id, name, description, unitId));
+        bool service = query.value("service").toBool(); // Получаем значение service
+        storage->getMainMnemonics().append(MainMnemonic(id, name, description, unitId, service));
         if (id > maxId) {
             maxId = id;
         }

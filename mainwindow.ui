@@ -19,7 +19,7 @@
      <widget class="QSplitter" name="mainSplitter">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
-      </property>      
+      </property>
       <widget class="ToolSensorMnemonicTreeView" name="treeView">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -77,6 +77,7 @@
      <string>Data</string>
     </property>
     <addaction name="actionCompareCurrentData"/>
+    <addaction name="actionApplyChanges"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuData"/>
@@ -97,7 +98,19 @@
     <string>Compare Current Data</string>
    </property>
   </action>
+  <action name="actionApplyChanges">
+   <property name="text">
+    <string>Apply Changes</string>
+   </property>
+  </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ToolSensorMnemonicTreeView</class>
+   <extends>QWidget</extends>
+   <header>views/toolsensormnemonictreeview.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

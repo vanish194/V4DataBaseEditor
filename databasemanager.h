@@ -19,6 +19,7 @@ public:
 
     // Методы для загрузки данных
     void loadAllData();
+    QSqlDatabase &getDatabase();
 
 private:
     QSqlDatabase db;

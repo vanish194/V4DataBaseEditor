@@ -12,19 +12,19 @@ CompareDataDialog::CompareDataDialog(QWidget *parent)
 {
     ui->setupUi(this);
 
-    // Set up the model for the table
+    // Устанавливаем модель для таблицы
     ui->tableView->setModel(model);
 
-    // Set column headers
+    // Устанавливаем заголовки столбцов
     model->setHorizontalHeaderLabels(QStringList() << "Revert"
                                                    << "Type"
                                                    << "ID"
                                                    << "Change Type");
 
-    // Populate data
+    // Заполняем данные
     populateData();
 
-    // Connect the "Revert Selected" button
+    // Подключаем кнопку "Revert Selected"
     connect(ui->buttonRevert, &QPushButton::clicked, this, &CompareDataDialog::onRevertSelected);
 }
 
@@ -37,17 +37,17 @@ void CompareDataDialog::populateData()
 {
     ModifiedData modifiedData = storage->getAllModifiedData();
 
-    // List of all changes for processing
+    // Список всех изменений для обработки
     struct ChangeItem
     {
         QString typeName;
         int id;
-        QString changeType; // "Added", "Modified", or "Deleted"
+        QString changeType; // "Added", "Modified", или "Deleted"
     };
 
     QList<ChangeItem> changes;
 
-    // Helper lambda to add items to the changes list
+    // Лямбда-функция для добавления элементов в список изменений
     auto addChanges =
         [&changes](const QString &typeName, const QList<int> &ids, const QString &changeType) {
             for (int id : ids) {
@@ -55,7 +55,7 @@ void CompareDataDialog::populateData()
             }
         };
 
-    // Helper functions to extract IDs
+    // Функции для извлечения ID
     auto toIds = [](const auto &list) -> QList<int> {
         QList<int> ids;
         for (const auto &item : list) {
@@ -72,81 +72,92 @@ void CompareDataDialog::populateData()
         return ids;
     };
 
-    // For Units
+    // Добавляем изменения для всех типов данных
+    // Units
     addChanges("Unit", toIds(modifiedData.addedUnits), "Added");
     addChanges("Unit", toIds(modifiedData.modifiedUnits), "Modified");
     addChanges("Unit", toNegativeIds(modifiedData.deletedUnits), "Deleted");
 
-    // For Tools
+    // Tools
     addChanges("Tool", toIds(modifiedData.addedTools), "Added");
     addChanges("Tool", toIds(modifiedData.modifiedTools), "Modified");
     addChanges("Tool", toNegativeIds(modifiedData.deletedTools), "Deleted");
 
-    // For Sensors
+    // Sensors
     addChanges("Sensor", toIds(modifiedData.addedSensors), "Added");
     addChanges("Sensor", toIds(modifiedData.modifiedSensors), "Modified");
     addChanges("Sensor", toNegativeIds(modifiedData.deletedSensors), "Deleted");
 
-    // For Producers
+    // Producers
     addChanges("Producer", toIds(modifiedData.addedProducers), "Added");
     addChanges("Producer", toIds(modifiedData.modifiedProducers), "Modified");
     addChanges("Producer", toNegativeIds(modifiedData.deletedProducers), "Deleted");
 
-    // For UnitTypes
+    // UnitTypes
     addChanges("UnitType", toIds(modifiedData.addedUnitTypes), "Added");
     addChanges("UnitType", toIds(modifiedData.modifiedUnitTypes), "Modified");
     addChanges("UnitType", toNegativeIds(modifiedData.deletedUnitTypes), "Deleted");
 
-    // For ToolSensors
+    // ToolSensors
     addChanges("ToolSensor", toIds(modifiedData.addedToolSensors), "Added");
     addChanges("ToolSensor", toIds(modifiedData.modifiedToolSensors), "Modified");
     addChanges("ToolSensor", toNegativeIds(modifiedData.deletedToolSensors), "Deleted");
 
-    // For MainMnemonics
+    // ToolMnemonics
+    addChanges("ToolMnemonic", toIds(modifiedData.addedToolMnemonics), "Added");
+    addChanges("ToolMnemonic", toIds(modifiedData.modifiedToolMnemonics), "Modified");
+    addChanges("ToolMnemonic", toNegativeIds(modifiedData.deletedToolMnemonics), "Deleted");
+
+    // SensorMnemonics
+    addChanges("SensorMnemonic", toIds(modifiedData.addedSensorMnemonics), "Added");
+    addChanges("SensorMnemonic", toIds(modifiedData.modifiedSensorMnemonics), "Modified");
+    addChanges("SensorMnemonic", toNegativeIds(modifiedData.deletedSensorMnemonics), "Deleted");
+
+    // MainMnemonics
     addChanges("MainMnemonic", toIds(modifiedData.addedMainMnemonics), "Added");
     addChanges("MainMnemonic", toIds(modifiedData.modifiedMainMnemonics), "Modified");
     addChanges("MainMnemonic", toNegativeIds(modifiedData.deletedMainMnemonics), "Deleted");
 
-    // For AdditionalMnemonics
+    // AdditionalMnemonics
     addChanges("AdditionalMnemonic", toIds(modifiedData.addedAdditionalMnemonics), "Added");
     addChanges("AdditionalMnemonic", toIds(modifiedData.modifiedAdditionalMnemonics), "Modified");
     addChanges("AdditionalMnemonic",
                toNegativeIds(modifiedData.deletedAdditionalMnemonics),
                "Deleted");
 
-    // For ConversionFormulas
+    // ConversionFormulas
     addChanges("ConversionFormula", toIds(modifiedData.addedConversionFormulas), "Added");
     addChanges("ConversionFormula", toIds(modifiedData.modifiedConversionFormulas), "Modified");
     addChanges("ConversionFormula",
                toNegativeIds(modifiedData.deletedConversionFormulas),
                "Deleted");
 
-    // For Companies
+    // Companies
     addChanges("Company", toIds(modifiedData.addedCompanies), "Added");
     addChanges("Company", toIds(modifiedData.modifiedCompanies), "Modified");
     addChanges("Company", toNegativeIds(modifiedData.deletedCompanies), "Deleted");
 
-    // For Methods
+    // Methods
     addChanges("Method", toIds(modifiedData.addedMethods), "Added");
     addChanges("Method", toIds(modifiedData.modifiedMethods), "Modified");
     addChanges("Method", toNegativeIds(modifiedData.deletedMethods), "Deleted");
 
-    // For ToolDescriptions
+    // ToolDescriptions
     addChanges("ToolDescription", toIds(modifiedData.addedToolDescriptions), "Added");
     addChanges("ToolDescription", toIds(modifiedData.modifiedToolDescriptions), "Modified");
     addChanges("ToolDescription", toNegativeIds(modifiedData.deletedToolDescriptions), "Deleted");
 
-    // Populate the model with data
+    // Заполняем модель данными
     for (const ChangeItem &item : changes) {
         QList<QStandardItem *> rowItems;
 
-        // Checkbox for selection
+        // Checkbox для выбора
         QStandardItem *checkItem = new QStandardItem();
         checkItem->setCheckable(true);
         checkItem->setCheckState(Qt::Unchecked);
-        checkItem->setData(item.typeName, Qt::UserRole + 1);   // Store type name
-        checkItem->setData(item.id, Qt::UserRole + 2);         // Store ID
-        checkItem->setData(item.changeType, Qt::UserRole + 3); // Store change type
+        checkItem->setData(item.typeName, Qt::UserRole + 1); // Сохраняем тип
+        checkItem->setData(item.id, Qt::UserRole + 2);       // Сохраняем ID
+        checkItem->setData(item.changeType, Qt::UserRole + 3); // Сохраняем тип изменения
 
         rowItems.append(checkItem);
         rowItems.append(new QStandardItem(item.typeName));
@@ -157,7 +168,7 @@ void CompareDataDialog::populateData()
     }
 }
 
-// Helper template functions to revert changes
+// Вспомогательные шаблонные функции для отката изменений
 template<typename T>
 void revertModifiedData(QList<T> &dataList, const QList<T> &backupList, int id)
 {
@@ -179,7 +190,7 @@ void revertDeletedData(QList<T> &dataList, int id)
 {
     for (T &item : dataList) {
         if (item.getId() == -id) {
-            item.setId(id); // Restore the positive ID
+            item.setId(id); // Восстанавливаем положительный ID
             break;
         }
     }
@@ -200,7 +211,7 @@ void CompareDataDialog::onRevertSelected()
 {
     QList<int> rowsToRevert;
 
-    // Collect selected items
+    // Собираем выбранные элементы
     for (int row = 0; row < model->rowCount(); ++row) {
         QStandardItem *checkItem = model->item(row, 0);
         if (checkItem->checkState() == Qt::Checked) {
@@ -213,7 +224,7 @@ void CompareDataDialog::onRevertSelected()
         return;
     }
 
-    // Confirmation dialog
+    // Диалог подтверждения
     int ret = QMessageBox::warning(this,
                                    "Confirm Revert",
                                    "Are you sure you want to revert the selected changes?",
@@ -222,7 +233,7 @@ void CompareDataDialog::onRevertSelected()
         return;
     }
 
-    // Perform revert operations
+    // Выполняем операции отката
     for (int row : rowsToRevert) {
         QString typeName = model->item(row, 0)->data(Qt::UserRole + 1).toString();
         int id = model->item(row, 0)->data(Qt::UserRole + 2).toInt();
@@ -281,6 +292,26 @@ void CompareDataDialog::onRevertSelected()
                                                id);
             } else if (changeType == "Deleted") {
                 revertDeletedData<ToolSensor>(storage->getToolSensors(), id);
+            }
+        } else if (typeName == "ToolMnemonic") {
+            if (changeType == "Added") {
+                revertAddedData<ToolMnemonic>(storage->getToolMnemonics(), id);
+            } else if (changeType == "Modified") {
+                revertModifiedData<ToolMnemonic>(storage->getToolMnemonics(),
+                                                 storage->getBackupToolMnemonics(),
+                                                 id);
+            } else if (changeType == "Deleted") {
+                revertDeletedData<ToolMnemonic>(storage->getToolMnemonics(), id);
+            }
+        } else if (typeName == "SensorMnemonic") {
+            if (changeType == "Added") {
+                revertAddedData<SensorMnemonic>(storage->getSensorMnemonics(), id);
+            } else if (changeType == "Modified") {
+                revertModifiedData<SensorMnemonic>(storage->getSensorMnemonics(),
+                                                   storage->getBackupSensorMnemonics(),
+                                                   id);
+            } else if (changeType == "Deleted") {
+                revertDeletedData<SensorMnemonic>(storage->getSensorMnemonics(), id);
             }
         } else if (typeName == "MainMnemonic") {
             if (changeType == "Added") {
@@ -345,7 +376,7 @@ void CompareDataDialog::onRevertSelected()
 
     QMessageBox::information(this, "Revert Complete", "Selected changes have been reverted.");
 
-    // Refresh the data
+    // Обновляем данные
     model->removeRows(0, model->rowCount());
     populateData();
 }
