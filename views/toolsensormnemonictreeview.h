@@ -5,8 +5,10 @@
 #include <QStandardItemModel>
 #include <QTreeView>
 #include "editor_windows/sensor_editor.h"
+#include "editor_windows/sensoraddwindow.h"
 #include "editor_windows/sensormnemonicrelationeditor.h"
 #include "editor_windows/tool_editor.h"
+#include "editor_windows/tooladdwindow.h"
 #include "editor_windows/toolmnemonicrelationeditor.h"
 #include "editor_windows/toolsensorrelationeditor.h"
 #include "storage.h"

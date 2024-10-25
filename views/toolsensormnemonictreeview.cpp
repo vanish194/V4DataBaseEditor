@@ -206,6 +206,11 @@ void ToolSensorMnemonicTreeView::contextMenuEvent(QContextMenuEvent *event)
     }
 
     QMenu contextMenu(this);
+    // Добавляем действие "Add" для поддерживаемых типов
+    if (elementType == ToolType || elementType == SensorType) {
+        QAction *addAction = contextMenu.addAction("Add");
+        connect(addAction, &QAction::triggered, this, [=]() { onAddItem(elementId, elementType); });
+    }
 
     // Добавляем действие "Edit" для поддерживаемых типов
     if (elementType == ToolType || elementType == SensorType || elementType == MainMnemonicType
@@ -232,6 +237,14 @@ void ToolSensorMnemonicTreeView::contextMenuEvent(QContextMenuEvent *event)
 
         connect(mnemonicRelationsAction, &QAction::triggered, this, [=]() {
             onSensorMnemonicRelations(elementId);
+        });
+    }
+    // **Добавляем действие "Delete"**
+    if (elementType == ToolType || elementType == SensorType || elementType == MainMnemonicType
+        || elementType == AdditionalMnemonicType) {
+        QAction *deleteAction = contextMenu.addAction("Delete");
+        connect(deleteAction, &QAction::triggered, this, [=]() {
+            onDeleteItem(elementId, elementType);
         });
     }
 
@@ -302,6 +315,103 @@ void ToolSensorMnemonicTreeView::onEditItem(int elementId, ElementType elementTy
     //}
 }
 
+void ToolSensorMnemonicTreeView::onDeleteItem(int elementId, ElementType elementType)
+{
+    Storage *storage = Storage::getInstance();
+    StorageEditor storageEditor(storage);
+
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this,
+                                  "Confirm Delete",
+                                  "Are you sure you want to delete this item?",
+                                  QMessageBox::Yes | QMessageBox::No);
+    if (reply != QMessageBox::Yes) {
+        return;
+    }
+
+    if (elementType == ToolType) {
+        // Удаление инструмента
+        for (Tool &tool : storage->getTools()) {
+            if (abs(tool.getId()) == elementId) {
+                tool.setId(-abs(tool.getId())); // Отмечаем инструмент как удалённый
+                break;
+            }
+        }
+        // Также нужно удалить связанные ToolDescriptions
+        for (ToolDescription &desc : storage->getToolDescriptions()) {
+            if (abs(desc.getId()) == elementId) {
+                desc.setId(-abs(desc.getId())); // Отмечаем описание как удалённое
+                break;
+            }
+        }
+        // Удаляем все связи ToolSensor и ToolMnemonic
+        for (ToolSensor &toolSensor : storage->getToolSensors()) {
+            if (abs(toolSensor.getToolId()) == elementId) {
+                toolSensor.setId(-abs(toolSensor.getId()));
+            }
+        }
+        for (ToolMnemonic &toolMnemonic : storage->getToolMnemonics()) {
+            if (abs(toolMnemonic.getToolId()) == elementId) {
+                toolMnemonic.setId(-abs(toolMnemonic.getId()));
+            }
+        }
+    } else if (elementType == SensorType) {
+        // Удаление сенсора
+        for (Sensor &sensor : storage->getSensors()) {
+            if (abs(sensor.getId()) == elementId) {
+                sensor.setId(-abs(sensor.getId())); // Отмечаем сенсор как удалённый
+                break;
+            }
+        }
+        // Удаляем все связи ToolSensor и SensorMnemonic
+        for (ToolSensor &toolSensor : storage->getToolSensors()) {
+            if (abs(toolSensor.getSensorId()) == elementId) {
+                toolSensor.setId(-abs(toolSensor.getId()));
+            }
+        }
+        for (SensorMnemonic &sensorMnemonic : storage->getSensorMnemonics()) {
+            if (abs(sensorMnemonic.getSensorId()) == elementId) {
+                sensorMnemonic.setId(-abs(sensorMnemonic.getId()));
+            }
+        }
+    } else if (elementType == MainMnemonicType) {
+        // Удаление основной мнемоники
+        for (MainMnemonic &mnemonic : storage->getMainMnemonics()) {
+            if (abs(mnemonic.getId()) == elementId) {
+                mnemonic.setId(-abs(mnemonic.getId())); // Отмечаем мнемонику как удалённую
+                break;
+            }
+        }
+        // Удаляем связанные AdditionalMnemonics
+        for (AdditionalMnemonic &additionalMnemonic : storage->getAdditionalMnemonics()) {
+            if (abs(additionalMnemonic.getMainMnemonicId()) == elementId) {
+                additionalMnemonic.setId(-abs(additionalMnemonic.getId()));
+            }
+        }
+        // Удаляем все связи ToolMnemonic и SensorMnemonic
+        for (ToolMnemonic &toolMnemonic : storage->getToolMnemonics()) {
+            if (abs(toolMnemonic.getMnemonicId()) == elementId) {
+                toolMnemonic.setId(-abs(toolMnemonic.getId()));
+            }
+        }
+        for (SensorMnemonic &sensorMnemonic : storage->getSensorMnemonics()) {
+            if (abs(sensorMnemonic.getMnemonicId()) == elementId) {
+                sensorMnemonic.setId(-abs(sensorMnemonic.getId()));
+            }
+        }
+    } else if (elementType == AdditionalMnemonicType) {
+        // Удаление дополнительной мнемоники
+        for (AdditionalMnemonic &additionalMnemonic : storage->getAdditionalMnemonics()) {
+            if (abs(additionalMnemonic.getId()) == elementId) {
+                additionalMnemonic.setId(-abs(additionalMnemonic.getId()));
+                break;
+            }
+        }
+    }
+
+    buildTree(); // Обновляем дерево после удаления
+}
+
 void ToolSensorMnemonicTreeView::onToolSensorRelations(int toolId)
 {
     ToolSensorRelationEditor *relationEditor = new ToolSensorRelationEditor(this);
@@ -330,4 +440,47 @@ void ToolSensorMnemonicTreeView::onSensorMnemonicRelations(int sensorId)
         buildTree(); // Перестраиваем дерево после закрытия редактора
     });
     relationEditor->exec();
+}
+void ToolSensorMnemonicTreeView::onAddItem(int elementId, ElementType elementType)
+{
+    Storage *storage = Storage::getInstance();
+    StorageEditor storageEditor(storage);
+
+    if (elementType == ToolType) {
+        // Добавление нового инструмента
+        ToolAddWindow addWindow;
+
+        // Генерируем новые ID
+        int newToolId = storage->generateNewToolId();
+        int newToolDescriptionId = storage->generateNewToolDescriptionId();
+
+        addWindow.setNewToolId(newToolId);
+        addWindow.setNewToolDescriptionId(newToolDescriptionId);
+
+        if (addWindow.exec() == QDialog::Accepted) {
+            Tool newTool = addWindow.getNewTool();
+            ToolDescription newToolDescription = addWindow.getNewToolDescription();
+
+            storageEditor.insertOrReplace(storage->getTools(), newTool);
+            storageEditor.insertOrReplace(storage->getToolDescriptions(), newToolDescription);
+
+            buildTree();
+        } else {
+        }
+    } else if (elementType == SensorType) {
+        // Добавление нового сенсора
+        SensorAddWindow addWindow;
+
+        int newSensorId = storage->generateNewSensorId();
+        addWindow.setNewSensorId(newSensorId);
+
+        if (addWindow.exec() == QDialog::Accepted) {
+            Sensor newSensor = addWindow.getNewSensor();
+
+            storageEditor.insertOrReplace(storage->getSensors(), newSensor);
+
+            buildTree();
+        } else {
+        }
+    }
 }
