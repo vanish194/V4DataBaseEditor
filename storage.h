@@ -261,6 +261,22 @@ public:
     void setMaxMethodId(int id);
     void setMaxToolDescriptionId(int id);
 
+    // Методы для получения максимальных ID
+    int getMaxUnitId() const;
+    int getMaxToolId() const;
+    int getMaxSensorId() const;
+    int getMaxProducerId() const;
+    int getMaxUnitTypeId() const;
+    int getMaxToolSensorId() const;
+    int getMaxToolMnemonicId() const;
+    int getMaxSensorMnemonicId() const;
+    int getMaxAdditionalMnemonicId() const;
+    int getMaxMainMnemonicId() const;
+    int getMaxConversionFormulaId() const;
+    int getMaxCompanyId() const;
+    int getMaxMethodId() const;
+    int getMaxToolDescriptionId() const;
+
     // Запрет копирования и присваивания
     Storage(const Storage &) = delete;
     Storage &operator=(const Storage &) = delete;

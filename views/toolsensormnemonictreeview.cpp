@@ -194,57 +194,60 @@ const Sensor *ToolSensorMnemonicTreeView::findSensorById(int sensorId)
 void ToolSensorMnemonicTreeView::contextMenuEvent(QContextMenuEvent *event)
 {
     QModelIndex index = indexAt(event->pos());
-    if (!index.isValid())
-        return;
+    int elementId = 0;
+    ElementType elementType = NoneType;
 
-    int elementId = index.data(Qt::UserRole + 1).toInt();
-    ElementType elementType = static_cast<ElementType>(index.data(Qt::UserRole + 2).toInt());
-
-    if (elementId == 0 || elementType == NoneType) {
-        qDebug() << "Invalid selection: N/A or unsupported item chosen";
-        return;
+    if (index.isValid()) {
+        elementId = index.data(Qt::UserRole + 1).toInt();
+        elementType = static_cast<ElementType>(index.data(Qt::UserRole + 2).toInt());
     }
 
     QMenu contextMenu(this);
-    // Добавляем действие "Add" для поддерживаемых типов
-    if (elementType == ToolType || elementType == SensorType) {
-        QAction *addAction = contextMenu.addAction("Add");
-        connect(addAction, &QAction::triggered, this, [=]() { onAddItem(elementId, elementType); });
-    }
 
-    // Добавляем действие "Edit" для поддерживаемых типов
-    if (elementType == ToolType || elementType == SensorType || elementType == MainMnemonicType
-        || elementType == AdditionalMnemonicType) {
-        QAction *editAction = contextMenu.addAction("Edit");
-        connect(editAction, &QAction::triggered, this, [=]() {
-            onEditItem(elementId, elementType);
-        });
-    }
+    // Добавляем действия "Add Tool", "Add Sensor", "Add Main Mnemonic", "Add Additional Mnemonic"
+    QAction *addToolAction = contextMenu.addAction("Add Tool");
+    connect(addToolAction, &QAction::triggered, this, [=]() { onAddItem(ToolType); });
 
-    if (elementType == ToolType) {
-        QAction *sensorRelationsAction = contextMenu.addAction("Tool Sensor Relations");
-        QAction *mnemonicRelationsAction = contextMenu.addAction("Tool Mnemonic Relations");
+    QAction *addSensorAction = contextMenu.addAction("Add Sensor");
+    connect(addSensorAction, &QAction::triggered, this, [=]() { onAddItem(SensorType); });
 
-        connect(sensorRelationsAction, &QAction::triggered, this, [=]() {
-            onToolSensorRelations(elementId);
-        });
+    QAction *addMainMnemonicAction = contextMenu.addAction("Add Main Mnemonic");
+    connect(addMainMnemonicAction, &QAction::triggered, this, [=]() {
+        onAddItem(MainMnemonicType);
+    });
 
-        connect(mnemonicRelationsAction, &QAction::triggered, this, [=]() {
-            onToolMnemonicRelations(elementId);
-        });
-    } else if (elementType == SensorType) {
-        QAction *mnemonicRelationsAction = contextMenu.addAction("Sensor Mnemonic Relations");
+    QAction *addAdditionalMnemonicAction = contextMenu.addAction("Add Additional Mnemonic");
+    connect(addAdditionalMnemonicAction, &QAction::triggered, this, [=]() {
+        onAddItem(AdditionalMnemonicType);
+    });
 
-        connect(mnemonicRelationsAction, &QAction::triggered, this, [=]() {
-            onSensorMnemonicRelations(elementId);
-        });
-    }
-    // **Добавляем действие "Delete"**
-    if (elementType == ToolType || elementType == SensorType || elementType == MainMnemonicType
-        || elementType == AdditionalMnemonicType) {
+    // Добавляем действие "Delete" для выбранных элементов определённых типов
+    if (elementId != 0
+        && (elementType == ToolType || elementType == SensorType || elementType == MainMnemonicType
+            || elementType == AdditionalMnemonicType)) {
         QAction *deleteAction = contextMenu.addAction("Delete");
         connect(deleteAction, &QAction::triggered, this, [=]() {
             onDeleteItem(elementId, elementType);
+        });
+    }
+
+    // Добавляем редакторы связей для инструментов и сенсоров
+    if (elementId != 0 && elementType == ToolType) {
+        QAction *toolSensorRelationsAction = contextMenu.addAction("Relation ToolSensor Editor");
+        connect(toolSensorRelationsAction, &QAction::triggered, this, [=]() {
+            onToolSensorRelations(elementId);
+        });
+
+        QAction *toolMnemonicRelationsAction = contextMenu.addAction(
+            "Relation ToolMnemonic Editor");
+        connect(toolMnemonicRelationsAction, &QAction::triggered, this, [=]() {
+            onToolMnemonicRelations(elementId);
+        });
+    } else if (elementId != 0 && elementType == SensorType) {
+        QAction *sensorMnemonicRelationsAction = contextMenu.addAction(
+            "Relation SensorMnemonic Editor");
+        connect(sensorMnemonicRelationsAction, &QAction::triggered, this, [=]() {
+            onSensorMnemonicRelations(elementId);
         });
     }
 
@@ -283,36 +286,36 @@ void ToolSensorMnemonicTreeView::onEditItem(int elementId, ElementType elementTy
                 break;
             }
         }
-    } // else if (elementType == MainMnemonicType) {
-      //MainMnemonicEditor editor;
-      //for (const MainMnemonic &mnemonic : storage->getMainMnemonics()) {
-      //    if (mnemonic.getId() == elementId) {
-      //        editor.setMainMnemonic(mnemonic);
-      //       if (editor.exec() == QDialog::Accepted) {
-      //           MainMnemonic updatedMnemonic = editor.getMainMnemonic();
-      //            StorageEditor storageEditor(storage);
-      //           storageEditor.insertOrReplace(storage->getMainMnemonics(), updatedMnemonic);
-      //           buildTree();
-      //       }
-      //        break;
-      //  }
-      // }
-
-    //else if (elementType == AdditionalMnemonicType)
-    //{
-    // AdditionalMnemonicEditor editor;
-    // for (const AdditionalMnemonic &mnemonic : storage->getAdditionalMnemonics()) {
-    //  if (mnemonic.getId() == elementId) {
-    //     editor.setAdditionalMnemonic(mnemonic);
-    //    if (editor.exec() == QDialog::Accepted) {
-    //       AdditionalMnemonic updatedMnemonic = editor.getAdditionalMnemonic();
-    //       StorageEditor storageEditor(storage);
-    //      storageEditor.insertOrReplace(storage->getAdditionalMnemonics(), updatedMnemonic);
-    //      buildTree();
-    //  }
-    //    break;
-    // }
-    //}
+    } else if (elementType == MainMnemonicType) {
+        for (const MainMnemonic &mnemonic : storage->getMainMnemonics()) {
+            if (mnemonic.getId() == elementId) {
+                MainMnemonicEditor editor;
+                editor.setMainMnemonic(mnemonic);
+                if (editor.exec() == QDialog::Accepted) {
+                    MainMnemonic updatedMnemonic = editor.getMainMnemonic();
+                    StorageEditor storageEditor(storage);
+                    storageEditor.insertOrReplace(storage->getMainMnemonics(), updatedMnemonic);
+                    buildTree();
+                }
+                break;
+            }
+        }
+    } else if (elementType == AdditionalMnemonicType) {
+        for (const AdditionalMnemonic &mnemonic : storage->getAdditionalMnemonics()) {
+            if (mnemonic.getId() == elementId) {
+                AdditionalMnemonicEditor editor;
+                editor.setAdditionalMnemonic(mnemonic);
+                if (editor.exec() == QDialog::Accepted) {
+                    AdditionalMnemonic updatedMnemonic = editor.getAdditionalMnemonic();
+                    StorageEditor storageEditor(storage);
+                    storageEditor.insertOrReplace(storage->getAdditionalMnemonics(),
+                                                  updatedMnemonic);
+                    buildTree();
+                }
+                break;
+            }
+        }
+    }
 }
 
 void ToolSensorMnemonicTreeView::onDeleteItem(int elementId, ElementType elementType)
@@ -441,7 +444,7 @@ void ToolSensorMnemonicTreeView::onSensorMnemonicRelations(int sensorId)
     });
     relationEditor->exec();
 }
-void ToolSensorMnemonicTreeView::onAddItem(int elementId, ElementType elementType)
+void ToolSensorMnemonicTreeView::onAddItem(ElementType elementType)
 {
     Storage *storage = Storage::getInstance();
     StorageEditor storageEditor(storage);
@@ -450,7 +453,6 @@ void ToolSensorMnemonicTreeView::onAddItem(int elementId, ElementType elementTyp
         // Добавление нового инструмента
         ToolAddWindow addWindow;
 
-        // Генерируем новые ID
         int newToolId = storage->generateNewToolId();
         int newToolDescriptionId = storage->generateNewToolDescriptionId();
 
@@ -466,6 +468,9 @@ void ToolSensorMnemonicTreeView::onAddItem(int elementId, ElementType elementTyp
 
             buildTree();
         } else {
+            // Если пользователь отменил, уменьшаем счётчики ID
+            storage->setMaxToolId(storage->getMaxToolId() - 1);
+            storage->setMaxToolDescriptionId(storage->getMaxToolDescriptionId() - 1);
         }
     } else if (elementType == SensorType) {
         // Добавление нового сенсора
@@ -481,6 +486,39 @@ void ToolSensorMnemonicTreeView::onAddItem(int elementId, ElementType elementTyp
 
             buildTree();
         } else {
+            storage->setMaxSensorId(storage->getMaxSensorId() - 1);
+        }
+    } else if (elementType == MainMnemonicType) {
+        // Добавление новой основной мнемоники
+        MainMnemonicAddWindow addWindow;
+
+        int newMainMnemonicId = storage->generateNewMainMnemonicId();
+        addWindow.setNewMainMnemonicId(newMainMnemonicId);
+
+        if (addWindow.exec() == QDialog::Accepted) {
+            MainMnemonic newMainMnemonic = addWindow.getNewMainMnemonic();
+
+            storageEditor.insertOrReplace(storage->getMainMnemonics(), newMainMnemonic);
+
+            buildTree();
+        } else {
+            storage->setMaxMainMnemonicId(storage->getMaxMainMnemonicId() - 1);
+        }
+    } else if (elementType == AdditionalMnemonicType) {
+        // Добавление новой дополнительной мнемоники
+        AdditionalMnemonicAddWindow addWindow;
+
+        int newAdditionalMnemonicId = storage->generateNewAdditionalMnemonicId();
+        addWindow.setNewAdditionalMnemonicId(newAdditionalMnemonicId);
+
+        if (addWindow.exec() == QDialog::Accepted) {
+            AdditionalMnemonic newAdditionalMnemonic = addWindow.getNewAdditionalMnemonic();
+
+            storageEditor.insertOrReplace(storage->getAdditionalMnemonics(), newAdditionalMnemonic);
+
+            buildTree();
+        } else {
+            storage->setMaxAdditionalMnemonicId(storage->getMaxAdditionalMnemonicId() - 1);
         }
     }
 }

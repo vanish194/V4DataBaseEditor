@@ -15,7 +15,7 @@ Storage::~Storage() {}
 
 bool Storage::isDataLoaded()
 {
-    // Checking if any data has been uploaded
+    // Проверка, были ли загружены какие-либо данные
     return !units.isEmpty() || !tools.isEmpty() || !sensors.isEmpty() || !producers.isEmpty()
            || !unitTypes.isEmpty() || !toolSensors.isEmpty() || !toolMnemonics.isEmpty()
            || !sensorMnemonics.isEmpty() || !additionalMnemonics.isEmpty()
@@ -23,7 +23,7 @@ bool Storage::isDataLoaded()
            || !methods.isEmpty() || !toolDescriptions.isEmpty();
 }
 
-// Data access methods
+// Методы доступа к данным
 QList<Unit> &Storage::getUnits()
 {
     return units;
@@ -81,7 +81,7 @@ QList<ToolDescription> &Storage::getToolDescriptions()
     return toolDescriptions;
 }
 
-// Methods for searching objects by ID
+// Методы поиска объектов по ID
 const Tool *Storage::findToolById(int id) const
 {
     for (const Tool &tool : tools) {
@@ -182,7 +182,7 @@ const Method *Storage::findMethodById(int id) const
     return nullptr;
 }
 
-// Backup management methods
+// Методы работы с резервными копиями
 void Storage::createBackup()
 {
     backupUnits = units;
@@ -237,7 +237,7 @@ void Storage::clearBackup()
     backupToolDescriptions.clear();
 }
 
-// Methods of accessing backup data
+// Методы доступа к резервным данным
 QList<Unit> &Storage::getBackupUnits()
 {
     return backupUnits;
@@ -295,7 +295,7 @@ QList<ToolDescription> &Storage::getBackupToolDescriptions()
     return backupToolDescriptions;
 }
 
-// Template functions for getting added, modified, and deleted data
+// Шаблонные функции для получения добавленных, измененных и удаленных данных
 template<typename T>
 QList<T> getAddedData(const QList<T> &dataList, const QList<T> &backupList)
 {
@@ -303,7 +303,7 @@ QList<T> getAddedData(const QList<T> &dataList, const QList<T> &backupList)
 
     for (const T &item : dataList) {
         if (item.getId() < 0) {
-            // Deleted objects are processed separately
+            // Удаленные объекты обрабатываются отдельно
             continue;
         }
 
@@ -315,7 +315,7 @@ QList<T> getAddedData(const QList<T> &dataList, const QList<T> &backupList)
             }
         }
         if (!foundInBackup) {
-            // New object
+            // Новый объект
             addedData.append(item);
         }
     }
@@ -330,14 +330,14 @@ QList<T> getModifiedData(const QList<T> &dataList, const QList<T> &backupList)
 
     for (const T &item : dataList) {
         if (item.getId() < 0) {
-            // Deleted objects are processed separately
+            // Удаленные объекты обрабатываются отдельно
             continue;
         }
 
         for (const T &backupItem : backupList) {
             if (item.getId() == backupItem.getId()) {
                 if (!(item == backupItem)) {
-                    // The object has been changed
+                    // Объект был изменен
                     modifiedData.append(item);
                 }
                 break;
@@ -362,7 +362,7 @@ QList<T> getDeletedData(const QList<T> &dataList)
     return deletedData;
 }
 
-// Methods for obtaining added data
+// Методы для получения добавленных данных
 QList<Unit> Storage::getAddedUnits()
 {
     return getAddedData(units, backupUnits);
@@ -420,7 +420,7 @@ QList<ToolDescription> Storage::getAddedToolDescriptions()
     return getAddedData(toolDescriptions, backupToolDescriptions);
 }
 
-// Methods for obtaining modified data
+// Методы для получения измененных данных
 QList<Unit> Storage::getModifiedUnits()
 {
     return getModifiedData(units, backupUnits);
@@ -478,7 +478,7 @@ QList<ToolDescription> Storage::getModifiedToolDescriptions()
     return getModifiedData(toolDescriptions, backupToolDescriptions);
 }
 
-// Methods for obtaining deleted data
+// Методы для получения удаленных данных
 QList<Unit> Storage::getDeletedUnits()
 {
     return getDeletedData(units);
@@ -536,12 +536,12 @@ QList<ToolDescription> Storage::getDeletedToolDescriptions()
     return getDeletedData(toolDescriptions);
 }
 
-// The method for getting all the changed data
+// Метод для получения всех измененных данных
 ModifiedData Storage::getAllModifiedData()
 {
     ModifiedData modifiedData;
 
-    // Added objects
+    // Добавленные объекты
     modifiedData.addedUnits = getAddedUnits();
     modifiedData.addedTools = getAddedTools();
     modifiedData.addedSensors = getAddedSensors();
@@ -557,7 +557,7 @@ ModifiedData Storage::getAllModifiedData()
     modifiedData.addedMethods = getAddedMethods();
     modifiedData.addedToolDescriptions = getAddedToolDescriptions();
 
-    // Modified objects
+    // Измененные объекты
     modifiedData.modifiedUnits = getModifiedUnits();
     modifiedData.modifiedTools = getModifiedTools();
     modifiedData.modifiedSensors = getModifiedSensors();
@@ -573,7 +573,7 @@ ModifiedData Storage::getAllModifiedData()
     modifiedData.modifiedMethods = getModifiedMethods();
     modifiedData.modifiedToolDescriptions = getModifiedToolDescriptions();
 
-    // Deleted objects
+    // Удаленные объекты
     modifiedData.deletedUnits = getDeletedUnits();
     modifiedData.deletedTools = getDeletedTools();
     modifiedData.deletedSensors = getDeletedSensors();
@@ -592,7 +592,7 @@ ModifiedData Storage::getAllModifiedData()
     return modifiedData;
 }
 
-// Methods for generating new IDs
+// Методы для генерации новых ID
 int Storage::generateNewUnitId()
 {
     return ++maxUnitId;
@@ -650,7 +650,7 @@ int Storage::generateNewToolDescriptionId()
     return ++maxToolDescriptionId;
 }
 
-// Methods for setting maximum IDs when uploading data
+// Методы для установки максимальных ID при загрузке данных
 void Storage::setMaxUnitId(int id)
 {
     maxUnitId = id;
@@ -706,4 +706,62 @@ void Storage::setMaxMethodId(int id)
 void Storage::setMaxToolDescriptionId(int id)
 {
     maxToolDescriptionId = id;
+}
+
+// Методы для получения максимальных ID
+int Storage::getMaxUnitId() const
+{
+    return maxUnitId;
+}
+int Storage::getMaxToolId() const
+{
+    return maxToolId;
+}
+int Storage::getMaxSensorId() const
+{
+    return maxSensorId;
+}
+int Storage::getMaxProducerId() const
+{
+    return maxProducerId;
+}
+int Storage::getMaxUnitTypeId() const
+{
+    return maxUnitTypeId;
+}
+int Storage::getMaxToolSensorId() const
+{
+    return maxToolSensorId;
+}
+int Storage::getMaxToolMnemonicId() const
+{
+    return maxToolMnemonicId;
+}
+int Storage::getMaxSensorMnemonicId() const
+{
+    return maxSensorMnemonicId;
+}
+int Storage::getMaxAdditionalMnemonicId() const
+{
+    return maxAdditionalMnemonicId;
+}
+int Storage::getMaxMainMnemonicId() const
+{
+    return maxMainMnemonicId;
+}
+int Storage::getMaxConversionFormulaId() const
+{
+    return maxConversionFormulaId;
+}
+int Storage::getMaxCompanyId() const
+{
+    return maxCompanyId;
+}
+int Storage::getMaxMethodId() const
+{
+    return maxMethodId;
+}
+int Storage::getMaxToolDescriptionId() const
+{
+    return maxToolDescriptionId;
 }

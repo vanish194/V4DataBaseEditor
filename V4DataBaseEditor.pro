@@ -25,7 +25,11 @@ SOURCES += \
     db_model/toolsensor.cpp \
     db_model/unit.cpp \
     db_model/unittype.cpp \
+    editor_windows/additionalmnemonicaddwindow.cpp \
+    editor_windows/additionalmnemoniceditor.cpp \
     editor_windows/comparedatadialog.cpp \
+    editor_windows/mainmnemonicaddwindow.cpp \
+    editor_windows/mainmnemoniceditor.cpp \
     editor_windows/sensor_editor.cpp \
     editor_windows/sensoraddwindow.cpp \
     editor_windows/sensormnemonicrelationeditor.cpp \
@@ -56,7 +60,11 @@ HEADERS += \
     db_model/toolsensor.h \
     db_model/unit.h \
     db_model/unittype.h \
+    editor_windows/additionalmnemonicaddwindow.h \
+    editor_windows/additionalmnemoniceditor.h \
     editor_windows/comparedatadialog.h \
+    editor_windows/mainmnemonicaddwindow.h \
+    editor_windows/mainmnemoniceditor.h \
     editor_windows/sensor_editor.h \
     editor_windows/sensoraddwindow.h \
     editor_windows/sensormnemonicrelationeditor.h \
@@ -70,7 +78,11 @@ HEADERS += \
     views/toolsensormnemonictreeview.h
 
 FORMS += \
+    editor_windows/additionalmnemonicaddwindow.ui \
+    editor_windows/additionalmnemoniceditor.ui \
     editor_windows/comparedatadialog.ui \
+    editor_windows/mainmnemonicaddwindow.ui \
+    editor_windows/mainmnemoniceditor.ui \
     editor_windows/sensor_editor.ui \
     editor_windows/sensoraddwindow.ui \
     editor_windows/sensormnemonicrelationeditor.ui \
