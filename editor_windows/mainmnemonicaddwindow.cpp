@@ -33,6 +33,7 @@ void MainMnemonicAddWindow::loadUnits()
     if (ui.comboBox_unit->count() == 0) {
         ui.comboBox_unit->addItem("No Units Available", -1);
     }
+    ui.comboBox_unit->model()->sort(0);
 }
 
 void MainMnemonicAddWindow::onAddButtonClicked()

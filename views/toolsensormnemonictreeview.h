@@ -17,6 +17,7 @@
 #include "editor_windows/toolsensorrelationeditor.h"
 #include "storage.h"
 #include "storageeditor.h"
+
 class ToolSensorMnemonicTreeView : public QTreeView
 {
     Q_OBJECT
@@ -34,14 +35,17 @@ public:
 
     explicit ToolSensorMnemonicTreeView(QWidget *parent = nullptr);
     void buildTree();
+    void setExpansionDepth(int depth);
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
+
 private slots:
     void onAddItem(ElementType elementType);
 
 private:
     QStandardItemModel *model;
+    int expansionDepth = 3;
     const Sensor *findSensorById(int sensorId);
 
     void onEditItem(int elementId, ElementType elementType);

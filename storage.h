@@ -127,6 +127,7 @@ public:
     static Storage *getInstance();
     ~Storage();
 
+    bool isConnected = false;
     bool isDataLoaded();
 
     // Методы доступа к данным

@@ -66,11 +66,19 @@ void ToolSensorRelationEditor::loadTools()
     ui->treeWidgetTools->clear();
     ui->treeWidgetTools->setHeaderLabels(QStringList() << "Tool");
 
-    for (const Tool &tool : storage->getTools()) {
-        // Пропускаем удалённые инструменты
-        if (tool.getId() < 0) {
-            continue;
-        }
+    // Получаем список инструментов
+    QList<Tool> tools = storage->getTools();
+
+    // Сортируем по имени инструмента
+    std::sort(tools.begin(), tools.end(), [](const Tool &a, const Tool &b) {
+        return a.getName() < b.getName();
+    });
+
+    // Добавляем элементы в виджет
+    for (const Tool &tool : tools) {
+        if (tool.getId() < 0)
+            continue; // Пропускаем удалённые инструменты
+
         QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeWidgetTools);
         item->setText(0, tool.getName());
         item->setData(0, Qt::UserRole, tool.getId());
@@ -83,11 +91,19 @@ void ToolSensorRelationEditor::loadSensors()
     ui->treeWidgetSensors->setHeaderLabels(QStringList() << "Sensor"
                                                          << "Offset (mm)");
 
-    for (const Sensor &sensor : storage->getSensors()) {
-        // Пропускаем удалённые сенсоры
-        if (sensor.getId() < 0) {
-            continue;
-        }
+    // Получаем список сенсоров
+    QList<Sensor> sensors = storage->getSensors();
+
+    // Сортируем по имени сенсора
+    std::sort(sensors.begin(), sensors.end(), [](const Sensor &a, const Sensor &b) {
+        return a.getName() < b.getName();
+    });
+
+    // Добавляем элементы в виджет
+    for (const Sensor &sensor : sensors) {
+        if (sensor.getId() < 0)
+            continue; // Пропускаем удалённые сенсоры
+
         QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeWidgetSensors);
         item->setText(0, sensor.getName());
         item->setData(0, Qt::UserRole, sensor.getId());
@@ -244,6 +260,7 @@ void ToolSensorRelationEditor::addRelationFromTool()
         tableWidget->setItem(i, 1, itemOffset);
     }
     layout->addWidget(tableWidget);
+    tableWidget->sortItems(Qt::AscendingOrder);
 
     QPushButton *okButton = new QPushButton("OK", &dialog);
     QPushButton *cancelButton = new QPushButton("Cancel", &dialog);

@@ -62,7 +62,13 @@ void SensorMnemonicRelationEditor::loadSensors()
     ui->treeWidgetSensors->clear();
     ui->treeWidgetSensors->setHeaderLabels(QStringList() << "Sensor");
 
-    for (const Sensor &sensor : storage->getSensors()) {
+    // Получаем список сенсоров и сортируем его по имени
+    QList<Sensor> sensors = storage->getSensors();
+    std::sort(sensors.begin(), sensors.end(), [](const Sensor &a, const Sensor &b) {
+        return a.getName() < b.getName();
+    });
+
+    for (const Sensor &sensor : sensors) {
         if (sensor.getId() < 0) {
             continue;
         }
@@ -77,7 +83,10 @@ void SensorMnemonicRelationEditor::loadMnemonics()
     ui->treeWidgetMnemonics->clear();
     ui->treeWidgetMnemonics->setHeaderLabels(QStringList() << "Mnemonic");
 
-    for (const MainMnemonic &mnemonic : storage->getMainMnemonics()) {
+    // Получаем список мнемоник и сортируем его по имени
+    QList<MainMnemonic> mnemonics = storage->getMainMnemonics();
+
+    for (const MainMnemonic &mnemonic : mnemonics) {
         if (mnemonic.getId() < 0) {
             continue;
         }
@@ -110,6 +119,17 @@ void SensorMnemonicRelationEditor::updateMnemonicSelectionForSensor(int sensorId
             relatedSensorMnemonics.append(&sensorMnemonic);
         }
     }
+
+    std::sort(relatedSensorMnemonics.begin(),
+              relatedSensorMnemonics.end(),
+              [this](const SensorMnemonic *a, const SensorMnemonic *b) {
+                  const MainMnemonic *mnemonicA = findMainMnemonicById(a->getMnemonicId());
+                  const MainMnemonic *mnemonicB = findMainMnemonicById(b->getMnemonicId());
+                  if (mnemonicA && mnemonicB) {
+                      return mnemonicA->getName() < mnemonicB->getName();
+                  }
+                  return false; // Если один из мнемоник не найден, оставляем их на месте
+              });
 
     for (const SensorMnemonic *sensorMnemonic : relatedSensorMnemonics) {
         const MainMnemonic *mnemonic = findMainMnemonicById(sensorMnemonic->getMnemonicId());
@@ -205,6 +225,7 @@ void SensorMnemonicRelationEditor::addRelationFromSensor()
         listWidget->addItem(item);
     }
     layout->addWidget(listWidget);
+    listWidget->sortItems(Qt::AscendingOrder);
 
     QPushButton *okButton = new QPushButton("OK", &dialog);
     QPushButton *cancelButton = new QPushButton("Cancel", &dialog);

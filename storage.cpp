@@ -185,6 +185,7 @@ const Method *Storage::findMethodById(int id) const
 // Методы работы с резервными копиями
 void Storage::createBackup()
 {
+    isConnected = true;
     backupUnits = units;
     backupTools = tools;
     backupSensors = sensors;

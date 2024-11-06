@@ -19,74 +19,101 @@ ToolSensorMnemonicTreeView::ToolSensorMnemonicTreeView(QWidget *parent)
 
     header()->setSectionResizeMode(QHeaderView::Stretch);
 }
-
 void ToolSensorMnemonicTreeView::buildTree()
 {
     Storage *storage = Storage::getInstance();
     model->clear();
     model->setHorizontalHeaderLabels(QStringList() << "Tool -> Sensor -> Mnemonics");
 
-    for (const Tool &tool : storage->getTools()) {
-        // Пропускаем удалённые инструменты
-        if (tool.getId() < 0) {
-            continue;
+    // Получаем список инструментов и сортируем их
+    QList<Tool> tools = storage->getTools();
+    QList<Tool> validTools;
+    for (const Tool &tool : tools) {
+        if (tool.getId() > 0) {
+            validTools.append(tool);
         }
+    }
+    std::sort(validTools.begin(), validTools.end(), [](const Tool &a, const Tool &b) {
+        return a.getName().compare(b.getName(), Qt::CaseInsensitive) < 0;
+    });
 
+    for (const Tool &tool : validTools) {
         QStandardItem *toolItem = new QStandardItem(tool.getName());
         toolItem->setData(QVariant(tool.getId()), Qt::UserRole + 1); // Сохраняем ID инструмента
         toolItem->setData(QVariant(ToolType), Qt::UserRole + 2); // Сохраняем тип элемента
 
-        // Встроенные мнемоники для прибора
+        // Обработка встроенных мнемоник инструмента
+        QList<const MainMnemonic *> toolMnemonicsList;
         for (const ToolMnemonic &toolMnemonic : storage->getToolMnemonics()) {
-            // Пропускаем удалённые связи
-            if (toolMnemonic.getId() < 0) {
-                continue;
-            }
-            if (toolMnemonic.getToolId() == tool.getId()) {
+            if (toolMnemonic.getId() > 0 && toolMnemonic.getToolId() == tool.getId()) {
                 const MainMnemonic *mnemonic = storage->findMainMnemonicById(
                     toolMnemonic.getMnemonicId());
-                if (mnemonic && mnemonic->getId() > 0) { // Проверяем, что мнемоника не удалена
-                    QStandardItem *mnemonicItem = new QStandardItem(mnemonic->getName());
-                    mnemonicItem->setData(QVariant(mnemonic->getId()),
-                                          Qt::UserRole + 1); // ID мнемоники
-                    mnemonicItem->setData(QVariant(MainMnemonicType),
-                                          Qt::UserRole + 2); // Тип элемента
-
-                    // Обработка дополнительных мнемоник для данной основной мнемоники
-                    for (const AdditionalMnemonic &additionalMnemonic :
-                         storage->getAdditionalMnemonics()) {
-                        // Пропускаем удалённые дополнительные мнемоники
-                        if (additionalMnemonic.getId() < 0) {
-                            continue;
-                        }
-                        if (additionalMnemonic.getMainMnemonicId() == mnemonic->getId()) {
-                            QStandardItem *additionalMnemonicItem = new QStandardItem(
-                                additionalMnemonic.getName());
-                            additionalMnemonicItem->setData(QVariant(additionalMnemonic.getId()),
-                                                            Qt::UserRole
-                                                                + 1); // ID дополнительной мнемоники
-                            additionalMnemonicItem->setData(QVariant(AdditionalMnemonicType),
-                                                            Qt::UserRole + 2); // Тип элемента
-                            mnemonicItem->appendRow(additionalMnemonicItem);
-                        }
-                    }
-
-                    toolItem->appendRow(mnemonicItem);
+                if (mnemonic && mnemonic->getId() > 0) {
+                    toolMnemonicsList.append(mnemonic);
                 }
             }
         }
+        // Сортируем мнемоники по имени
+        std::sort(toolMnemonicsList.begin(),
+                  toolMnemonicsList.end(),
+                  [](const MainMnemonic *a, const MainMnemonic *b) {
+                      return a->getName().compare(b->getName(), Qt::CaseInsensitive) < 0;
+                  });
 
-        // Получение всех сенсоров для данного инструмента
+        // Добавляем мнемоники инструмента
+        for (const MainMnemonic *mnemonic : toolMnemonicsList) {
+            QStandardItem *mnemonicItem = new QStandardItem(mnemonic->getName());
+            mnemonicItem->setData(QVariant(mnemonic->getId()), Qt::UserRole + 1); // ID мнемоники
+            mnemonicItem->setData(QVariant(MainMnemonicType), Qt::UserRole + 2); // Тип элемента
+
+            // Обработка дополнительных мнемоник
+            QList<AdditionalMnemonic> additionalMnemonicsList;
+            for (const AdditionalMnemonic &additionalMnemonic : storage->getAdditionalMnemonics()) {
+                if (additionalMnemonic.getId() > 0
+                    && additionalMnemonic.getMainMnemonicId() == mnemonic->getId()) {
+                    additionalMnemonicsList.append(additionalMnemonic);
+                }
+            }
+            // Сортируем дополнительные мнемоники
+            std::sort(additionalMnemonicsList.begin(),
+                      additionalMnemonicsList.end(),
+                      [](const AdditionalMnemonic &a, const AdditionalMnemonic &b) {
+                          return a.getName().compare(b.getName(), Qt::CaseInsensitive) < 0;
+                      });
+
+            // Добавляем дополнительные мнемоники
+            for (const AdditionalMnemonic &additionalMnemonic : additionalMnemonicsList) {
+                QStandardItem *additionalMnemonicItem = new QStandardItem(
+                    additionalMnemonic.getName());
+                additionalMnemonicItem->setData(QVariant(additionalMnemonic.getId()),
+                                                Qt::UserRole + 1);
+                additionalMnemonicItem->setData(QVariant(AdditionalMnemonicType), Qt::UserRole + 2);
+                mnemonicItem->appendRow(additionalMnemonicItem);
+            }
+
+            toolItem->appendRow(mnemonicItem);
+        }
+
+        // Обработка сенсоров инструмента
         QList<ToolSensor> toolSensors;
         for (const ToolSensor &toolSensor : storage->getToolSensors()) {
-            // Пропускаем удалённые связи
-            if (toolSensor.getId() < 0) {
-                continue;
-            }
-            if (toolSensor.getToolId() == tool.getId()) {
+            if (toolSensor.getId() > 0 && toolSensor.getToolId() == tool.getId()) {
                 toolSensors.append(toolSensor);
             }
         }
+
+        // Сортируем сенсоры по имени
+        std::sort(toolSensors.begin(),
+                  toolSensors.end(),
+                  [this](const ToolSensor &a, const ToolSensor &b) {
+                      const Sensor *sensorA = findSensorById(a.getSensorId());
+                      const Sensor *sensorB = findSensorById(b.getSensorId());
+                      if (sensorA && sensorB) {
+                          return sensorA->getName().compare(sensorB->getName(), Qt::CaseInsensitive)
+                                 < 0;
+                      }
+                      return false;
+                  });
 
         // Если нет сенсоров, добавляем "N/A"
         if (toolSensors.isEmpty()) {
@@ -98,29 +125,29 @@ void ToolSensorMnemonicTreeView::buildTree()
 
         for (const ToolSensor &toolSensor : toolSensors) {
             const Sensor *sensor = findSensorById(toolSensor.getSensorId());
-            if (sensor && sensor->getId() > 0) { // Проверяем, что сенсор не удалён
+            if (sensor && sensor->getId() > 0) {
                 QStandardItem *sensorItem = new QStandardItem(sensor->getName());
-                sensorItem->setData(QVariant(sensor->getId()),
-                                    Qt::UserRole + 1); // Сохраняем ID сенсора
-                sensorItem->setData(QVariant(SensorType),
-                                    Qt::UserRole + 2); // Сохраняем тип элемента
+                sensorItem->setData(QVariant(sensor->getId()), Qt::UserRole + 1); // ID сенсора
+                sensorItem->setData(QVariant(SensorType), Qt::UserRole + 2); // Тип элемента
 
-                // Мнемоники, связанные с этим сенсором (через SensorMnemonic)
+                // Обработка мнемоник сенсора
                 QList<const MainMnemonic *> sensorMnemonics;
                 for (const SensorMnemonic &sensorMnemonic : storage->getSensorMnemonics()) {
-                    // Пропускаем удалённые связи
-                    if (sensorMnemonic.getId() < 0) {
-                        continue;
-                    }
-                    if (sensorMnemonic.getSensorId() == sensor->getId()) {
+                    if (sensorMnemonic.getId() > 0
+                        && sensorMnemonic.getSensorId() == sensor->getId()) {
                         const MainMnemonic *mnemonic = storage->findMainMnemonicById(
                             sensorMnemonic.getMnemonicId());
-                        if (mnemonic
-                            && mnemonic->getId() > 0) { // Проверяем, что мнемоника не удалена
+                        if (mnemonic && mnemonic->getId() > 0) {
                             sensorMnemonics.append(mnemonic);
                         }
                     }
                 }
+                // Сортируем мнемоники сенсора
+                std::sort(sensorMnemonics.begin(),
+                          sensorMnemonics.end(),
+                          [](const MainMnemonic *a, const MainMnemonic *b) {
+                              return a->getName().compare(b->getName(), Qt::CaseInsensitive) < 0;
+                          });
 
                 // Если нет связанных мнемоник, добавляем "N/A"
                 if (sensorMnemonics.isEmpty()) {
@@ -130,6 +157,7 @@ void ToolSensorMnemonicTreeView::buildTree()
                     sensorItem->appendRow(naItem);
                 }
 
+                // Добавляем мнемоники сенсора
                 for (const MainMnemonic *mnemonic : sensorMnemonics) {
                     QStandardItem *mnemonicItem = new QStandardItem(mnemonic->getName());
                     mnemonicItem->setData(QVariant(mnemonic->getId()),
@@ -137,23 +165,31 @@ void ToolSensorMnemonicTreeView::buildTree()
                     mnemonicItem->setData(QVariant(MainMnemonicType),
                                           Qt::UserRole + 2); // Тип элемента
 
-                    // Обработка дополнительных мнемоник для данной основной мнемоники
+                    // Обработка дополнительных мнемоник
+                    QList<AdditionalMnemonic> additionalMnemonicsList;
                     for (const AdditionalMnemonic &additionalMnemonic :
                          storage->getAdditionalMnemonics()) {
-                        // Пропускаем удалённые дополнительные мнемоники
-                        if (additionalMnemonic.getId() < 0) {
-                            continue;
+                        if (additionalMnemonic.getId() > 0
+                            && additionalMnemonic.getMainMnemonicId() == mnemonic->getId()) {
+                            additionalMnemonicsList.append(additionalMnemonic);
                         }
-                        if (additionalMnemonic.getMainMnemonicId() == mnemonic->getId()) {
-                            QStandardItem *additionalMnemonicItem = new QStandardItem(
-                                additionalMnemonic.getName());
-                            additionalMnemonicItem->setData(QVariant(additionalMnemonic.getId()),
-                                                            Qt::UserRole
-                                                                + 1); // ID дополнительной мнемоники
-                            additionalMnemonicItem->setData(QVariant(AdditionalMnemonicType),
-                                                            Qt::UserRole + 2); // Тип элемента
-                            mnemonicItem->appendRow(additionalMnemonicItem);
-                        }
+                    }
+                    // Сортируем дополнительные мнемоники
+                    std::sort(additionalMnemonicsList.begin(),
+                              additionalMnemonicsList.end(),
+                              [](const AdditionalMnemonic &a, const AdditionalMnemonic &b) {
+                                  return a.getName().compare(b.getName(), Qt::CaseInsensitive) < 0;
+                              });
+
+                    // Добавляем дополнительные мнемоники
+                    for (const AdditionalMnemonic &additionalMnemonic : additionalMnemonicsList) {
+                        QStandardItem *additionalMnemonicItem = new QStandardItem(
+                            additionalMnemonic.getName());
+                        additionalMnemonicItem->setData(QVariant(additionalMnemonic.getId()),
+                                                        Qt::UserRole + 1);
+                        additionalMnemonicItem->setData(QVariant(AdditionalMnemonicType),
+                                                        Qt::UserRole + 2);
+                        mnemonicItem->appendRow(additionalMnemonicItem);
                     }
 
                     sensorItem->appendRow(mnemonicItem);
@@ -171,9 +207,17 @@ void ToolSensorMnemonicTreeView::buildTree()
 
         model->appendRow(toolItem);
     }
+    if (expansionDepth == 0) {
+        ToolSensorMnemonicTreeView::collapseAll();
+    } else {
+        expandToDepth(expansionDepth - 1);
+    }
+}
 
-    // Расширить все узлы
-    expandAll();
+void ToolSensorMnemonicTreeView::setExpansionDepth(int depth)
+{
+    expansionDepth = depth;
+    buildTree();
 }
 
 const Sensor *ToolSensorMnemonicTreeView::findSensorById(int sensorId)
@@ -193,65 +237,76 @@ const Sensor *ToolSensorMnemonicTreeView::findSensorById(int sensorId)
 
 void ToolSensorMnemonicTreeView::contextMenuEvent(QContextMenuEvent *event)
 {
-    QModelIndex index = indexAt(event->pos());
-    int elementId = 0;
-    ElementType elementType = NoneType;
+    Storage *storage = Storage::getInstance();
+    if (storage->isConnected) {
+        QModelIndex index = indexAt(event->pos());
+        int elementId = 0;
+        ElementType elementType = NoneType;
 
-    if (index.isValid()) {
-        elementId = index.data(Qt::UserRole + 1).toInt();
-        elementType = static_cast<ElementType>(index.data(Qt::UserRole + 2).toInt());
+        if (index.isValid()) {
+            elementId = index.data(Qt::UserRole + 1).toInt();
+            elementType = static_cast<ElementType>(index.data(Qt::UserRole + 2).toInt());
+        }
+
+        QMenu contextMenu(this);
+        // Добавляем действие "Edit" для выбранных элементов определённых типов
+        if (elementId != 0
+            && (elementType == ToolType || elementType == SensorType
+                || elementType == MainMnemonicType || elementType == AdditionalMnemonicType)) {
+            QAction *editAction = contextMenu.addAction("Edit");
+            connect(editAction, &QAction::triggered, this, [=]() {
+                onEditItem(elementId, elementType);
+            });
+        }
+        // Добавляем действие "Delete" для выбранных элементов определённых типов
+        if (elementId != 0
+            && (elementType == ToolType || elementType == SensorType
+                || elementType == MainMnemonicType || elementType == AdditionalMnemonicType)) {
+            QAction *deleteAction = contextMenu.addAction("Delete");
+            connect(deleteAction, &QAction::triggered, this, [=]() {
+                onDeleteItem(elementId, elementType);
+            });
+        }
+
+        // Добавляем редакторы связей для инструментов и сенсоров
+        if (elementId != 0 && elementType == ToolType) {
+            QAction *toolSensorRelationsAction = contextMenu.addAction(
+                "Relation ToolSensor Editor");
+            connect(toolSensorRelationsAction, &QAction::triggered, this, [=]() {
+                onToolSensorRelations(elementId);
+            });
+
+            QAction *toolMnemonicRelationsAction = contextMenu.addAction(
+                "Relation ToolMnemonic Editor");
+            connect(toolMnemonicRelationsAction, &QAction::triggered, this, [=]() {
+                onToolMnemonicRelations(elementId);
+            });
+        } else if (elementId != 0 && elementType == SensorType) {
+            QAction *sensorMnemonicRelationsAction = contextMenu.addAction(
+                "Relation SensorMnemonic Editor");
+            connect(sensorMnemonicRelationsAction, &QAction::triggered, this, [=]() {
+                onSensorMnemonicRelations(elementId);
+            });
+        }
+        // Добавляем действия "Add Tool", "Add Sensor", "Add Main Mnemonic", "Add Additional Mnemonic"
+        QAction *addToolAction = contextMenu.addAction("Add Tool");
+        connect(addToolAction, &QAction::triggered, this, [=]() { onAddItem(ToolType); });
+
+        QAction *addSensorAction = contextMenu.addAction("Add Sensor");
+        connect(addSensorAction, &QAction::triggered, this, [=]() { onAddItem(SensorType); });
+
+        QAction *addMainMnemonicAction = contextMenu.addAction("Add Main Mnemonic");
+        connect(addMainMnemonicAction, &QAction::triggered, this, [=]() {
+            onAddItem(MainMnemonicType);
+        });
+
+        QAction *addAdditionalMnemonicAction = contextMenu.addAction("Add Additional Mnemonic");
+        connect(addAdditionalMnemonicAction, &QAction::triggered, this, [=]() {
+            onAddItem(AdditionalMnemonicType);
+        });
+
+        contextMenu.exec(mapToGlobal(event->pos()));
     }
-
-    QMenu contextMenu(this);
-
-    // Добавляем действия "Add Tool", "Add Sensor", "Add Main Mnemonic", "Add Additional Mnemonic"
-    QAction *addToolAction = contextMenu.addAction("Add Tool");
-    connect(addToolAction, &QAction::triggered, this, [=]() { onAddItem(ToolType); });
-
-    QAction *addSensorAction = contextMenu.addAction("Add Sensor");
-    connect(addSensorAction, &QAction::triggered, this, [=]() { onAddItem(SensorType); });
-
-    QAction *addMainMnemonicAction = contextMenu.addAction("Add Main Mnemonic");
-    connect(addMainMnemonicAction, &QAction::triggered, this, [=]() {
-        onAddItem(MainMnemonicType);
-    });
-
-    QAction *addAdditionalMnemonicAction = contextMenu.addAction("Add Additional Mnemonic");
-    connect(addAdditionalMnemonicAction, &QAction::triggered, this, [=]() {
-        onAddItem(AdditionalMnemonicType);
-    });
-
-    // Добавляем действие "Delete" для выбранных элементов определённых типов
-    if (elementId != 0
-        && (elementType == ToolType || elementType == SensorType || elementType == MainMnemonicType
-            || elementType == AdditionalMnemonicType)) {
-        QAction *deleteAction = contextMenu.addAction("Delete");
-        connect(deleteAction, &QAction::triggered, this, [=]() {
-            onDeleteItem(elementId, elementType);
-        });
-    }
-
-    // Добавляем редакторы связей для инструментов и сенсоров
-    if (elementId != 0 && elementType == ToolType) {
-        QAction *toolSensorRelationsAction = contextMenu.addAction("Relation ToolSensor Editor");
-        connect(toolSensorRelationsAction, &QAction::triggered, this, [=]() {
-            onToolSensorRelations(elementId);
-        });
-
-        QAction *toolMnemonicRelationsAction = contextMenu.addAction(
-            "Relation ToolMnemonic Editor");
-        connect(toolMnemonicRelationsAction, &QAction::triggered, this, [=]() {
-            onToolMnemonicRelations(elementId);
-        });
-    } else if (elementId != 0 && elementType == SensorType) {
-        QAction *sensorMnemonicRelationsAction = contextMenu.addAction(
-            "Relation SensorMnemonic Editor");
-        connect(sensorMnemonicRelationsAction, &QAction::triggered, this, [=]() {
-            onSensorMnemonicRelations(elementId);
-        });
-    }
-
-    contextMenu.exec(mapToGlobal(event->pos()));
 }
 
 void ToolSensorMnemonicTreeView::onEditItem(int elementId, ElementType elementType)

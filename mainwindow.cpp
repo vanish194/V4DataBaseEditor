@@ -3,18 +3,6 @@
 
 #include <QFileDialog>
 #include <QMessageBox>
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
-
-#include <QFileDialog>
-#include <QMessageBox>
-#include <QPixmap>
-
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
-
-#include <QFileDialog>
-#include <QMessageBox>
 #include <QPixmap>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -26,7 +14,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Отключаем действия по умолчанию
     ui->actionCompareCurrentData->setEnabled(false);
-    ui->actionApplyChanges->setEnabled(false); // Отключаем "Apply Changes" по умолчанию
+    ui->actionApplyChanges->setEnabled(false);
 
     // Подключаем действия к слотам
     connect(ui->actionOpen, &QAction::triggered, this, &MainWindow::onOpenDatabase);
@@ -34,10 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
             &QAction::triggered,
             this,
             &MainWindow::onCompareCurrentData);
-    connect(ui->actionApplyChanges,
-            &QAction::triggered,
-            this,
-            &MainWindow::onApplyChanges); // Подключаем "Apply Changes"
+    connect(ui->actionApplyChanges, &QAction::triggered, this, &MainWindow::onApplyChanges);
 
     // Инициализация виджетов
     mainSplitter = ui->mainSplitter;
@@ -46,20 +31,56 @@ MainWindow::MainWindow(QWidget *parent)
     imageLabel = ui->imageLabel;
     treeView = ui->treeView;
 
-    mainSplitter->setStretchFactor(4, 5); // Левая часть - дерево
-    mainSplitter->setStretchFactor(1, 2); // Правая часть (описание и изображение)
+    imageLabel->installEventFilter(this);
+
+    mainSplitter->setStretchFactor(4, 5);
+    mainSplitter->setStretchFactor(1, 2);
+    rightSplitter->setStretchFactor(0, 1); // detailView
+    rightSplitter->setStretchFactor(1, 2); // imageLabel
 
     // Подключение сигнала выбора элемента к слоту обновления деталей и изображения
     connect(treeView->selectionModel(),
             &QItemSelectionModel::currentChanged,
             this,
             &MainWindow::onTreeSelectionChanged);
+
+    // Подключение кнопок к слотам
+    connect(ui->toolModeButton, &QPushButton::clicked, this, &MainWindow::onToolModeButtonClicked);
+    connect(ui->sensorModeButton,
+            &QPushButton::clicked,
+            this,
+            &MainWindow::onSensorModeButtonClicked);
+    connect(ui->mainMnemonicModeButton,
+            &QPushButton::clicked,
+            this,
+            &MainWindow::onMainMnemonicModeButtonClicked);
+    connect(ui->additionalMnemonicModeButton,
+            &QPushButton::clicked,
+            this,
+            &MainWindow::onAdditionalMnemonicModeButtonClicked);
+}
+bool MainWindow::eventFilter(QObject *obj, QEvent *event)
+{
+    if (obj == imageLabel && event->type() == QEvent::Resize) {
+        // Обработка изменения размера imageLabel
+        if (!originalPixmap.isNull()) {
+            // Масштабируем оригинальный pixmap до нового размера imageLabel
+            QPixmap scaledPixmap = originalPixmap.scaled(imageLabel->size(),
+                                                         Qt::KeepAspectRatio,
+                                                         Qt::SmoothTransformation);
+            imageLabel->setPixmap(scaledPixmap);
+        }
+        return false; // Событие не полностью обработано, передаём дальше
+    }
+    // Передаём остальные события стандартному обработчику
+    return QMainWindow::eventFilter(obj, event);
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
 }
+
 void MainWindow::onOpenDatabase()
 {
     QString fileName = QFileDialog::getOpenFileName(this,
@@ -72,6 +93,7 @@ void MainWindow::onOpenDatabase()
             setViewsForToolSensorMnemonic();
 
             // Включаем действия после успешного открытия базы данных
+
             ui->actionCompareCurrentData->setEnabled(true);
             ui->actionApplyChanges->setEnabled(true);
 
@@ -149,19 +171,20 @@ void MainWindow::onTreeSelectionChanged(const QModelIndex &current, const QModel
                                   .arg(toolDescription->getOuterDiameterMm())
                                   .arg(toolDescription->getInnerDiameterMm());
 
-                // Uploading an image, if available
+                // Загрузка изображения, если доступно
                 if (!toolDescription->getImage().isEmpty()) {
                     QPixmap pixmap;
                     if (pixmap.loadFromData(toolDescription->getImage())) {
-                        // Image quality improvement when zooming
-                        imageLabel->setPixmap(pixmap.scaled(imageLabel->size(),
-                                                            Qt::KeepAspectRatio,
-                                                            Qt::SmoothTransformation));
+                        originalPixmap = pixmap; // Сохраняем оригинальный pixmap
+                        // Устанавливаем pixmap без масштабирования
+                        imageLabel->setPixmap(originalPixmap);
                     } else {
                         imageLabel->setText("Error loading image");
+                        originalPixmap = QPixmap(); // Очищаем оригинальный pixmap
                     }
                 } else {
                     imageLabel->setText("No Image Available");
+                    originalPixmap = QPixmap(); // Очищаем оригинальный pixmap
                 }
 
                 const Producer *producer = storage->findProducerById(
@@ -243,5 +266,32 @@ void MainWindow::onApplyChanges()
 
     } else {
         QMessageBox::critical(this, "Apply Changes", "Failed to apply changes to the database.");
+    }
+}
+void MainWindow::onToolModeButtonClicked()
+{
+    if (treeView) {
+        treeView->setExpansionDepth(0);
+    }
+}
+
+void MainWindow::onSensorModeButtonClicked()
+{
+    if (treeView) {
+        treeView->setExpansionDepth(1);
+    }
+}
+
+void MainWindow::onMainMnemonicModeButtonClicked()
+{
+    if (treeView) {
+        treeView->setExpansionDepth(2);
+    }
+}
+
+void MainWindow::onAdditionalMnemonicModeButtonClicked()
+{
+    if (treeView) {
+        treeView->setExpansionDepth(3);
     }
 }

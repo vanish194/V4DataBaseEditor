@@ -61,7 +61,12 @@ void ToolMnemonicRelationEditor::loadTools()
     ui->treeWidgetTools->clear();
     ui->treeWidgetTools->setHeaderLabels(QStringList() << "Tool");
 
-    for (const Tool &tool : storage->getTools()) {
+    auto tools = storage->getTools();
+    std::sort(tools.begin(), tools.end(), [](const Tool &a, const Tool &b) {
+        return a.getName().compare(b.getName(), Qt::CaseInsensitive) < 0;
+    });
+
+    for (const Tool &tool : tools) {
         if (tool.getId() < 0) {
             continue;
         }
@@ -77,7 +82,12 @@ void ToolMnemonicRelationEditor::loadMnemonics()
     ui->treeWidgetMnemonics->setHeaderLabels(QStringList() << "Mnemonic"
                                                            << "Offset (mm)");
 
-    for (const MainMnemonic &mnemonic : storage->getMainMnemonics()) {
+    auto mnemonics = storage->getMainMnemonics();
+    std::sort(mnemonics.begin(), mnemonics.end(), [](const MainMnemonic &a, const MainMnemonic &b) {
+        return a.getName().compare(b.getName(), Qt::CaseInsensitive) < 0;
+    });
+
+    for (const MainMnemonic &mnemonic : mnemonics) {
         if (mnemonic.getId() < 0) {
             continue;
         }
@@ -216,6 +226,7 @@ void ToolMnemonicRelationEditor::addRelationFromTool()
         tableWidget->setItem(i, 1, itemOffset);
     }
     layout->addWidget(tableWidget);
+    tableWidget->sortItems(Qt::AscendingOrder);
 
     QPushButton *okButton = new QPushButton("OK", &dialog);
     QPushButton *cancelButton = new QPushButton("Cancel", &dialog);

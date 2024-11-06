@@ -52,6 +52,7 @@ void AdditionalMnemonicEditor::loadCompanies()
     if (ui.comboBox_company->count() == 0) {
         ui.comboBox_company->addItem("No Companies Available", -1);
     }
+    ui.comboBox_company->model()->sort(0);
 }
 
 void AdditionalMnemonicEditor::loadMainMnemonics()
@@ -66,6 +67,7 @@ void AdditionalMnemonicEditor::loadMainMnemonics()
     if (ui.comboBox_mainMnemonic->count() == 0) {
         ui.comboBox_mainMnemonic->addItem("No Main Mnemonics Available", -1);
     }
+    ui.comboBox_mainMnemonic->model()->sort(0);
 }
 
 void AdditionalMnemonicEditor::loadUnits()
@@ -80,6 +82,7 @@ void AdditionalMnemonicEditor::loadUnits()
     if (ui.comboBox_unit->count() == 0) {
         ui.comboBox_unit->addItem("No Units Available", -1);
     }
+    ui.comboBox_unit->model()->sort(0);
 }
 
 AdditionalMnemonic AdditionalMnemonicEditor::getAdditionalMnemonic() const

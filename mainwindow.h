@@ -25,13 +25,20 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+protected:
+    bool eventFilter(QObject *obj, QEvent *event) override;
+
 private slots:
     void onOpenDatabase();
     void onCompareCurrentData();
     void onApplyChanges();
 
-    // Слот для обновления деталей и изображения
     void onTreeSelectionChanged(const QModelIndex &current, const QModelIndex &previous);
+
+    void onToolModeButtonClicked();
+    void onSensorModeButtonClicked();
+    void onMainMnemonicModeButtonClicked();
+    void onAdditionalMnemonicModeButtonClicked();
 
 private:
     Ui::MainWindow *ui;
@@ -39,9 +46,11 @@ private:
     Storage *storage;
     ToolSensorMnemonicTreeView *treeView;
     QTextEdit *detailView;
-    QLabel *imageLabel;       // Для отображения изображения
-    QSplitter *mainSplitter;  // Главный сплиттер
-    QSplitter *rightSplitter; // Сплиттер для правой половины
+    QLabel *imageLabel;
+    QSplitter *mainSplitter;
+    QSplitter *rightSplitter;
+
+    QPixmap originalPixmap;
 
     void setViewsForToolSensorMnemonic();
 };
