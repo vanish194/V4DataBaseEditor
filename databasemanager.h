@@ -10,14 +10,11 @@
 class DatabaseManager
 {
 public:
-    // Конструктор и деструктор
     DatabaseManager();
     ~DatabaseManager();
 
-    // Метод для подключения к базе данных
     bool connect(const QString &path);
 
-    // Методы для загрузки данных
     void loadAllData();
     QSqlDatabase &getDatabase();
 
@@ -25,7 +22,7 @@ private:
     QSqlDatabase db;
 
     int getDatabaseVersion() const;
-    // Приватные методы для загрузки данных из каждой таблицы
+    // Private methods for loading data from each table
     void loadUnits();
     void loadUnitTypes();
     void loadMethods();

@@ -11,15 +11,15 @@ class SensorEditor : public QDialog
 
 public:
     explicit SensorEditor(QWidget *parent = nullptr);
-    void setSensor(const Sensor &sensor); // Устанавливает данные для редактирования сенсора
-    Sensor getSensor() const; // Возвращает обновленный сенсор после редактирования
+    void setSensor(const Sensor &sensor); // Sets the data for editing the sensor
+    Sensor getSensor() const;             // Returns updated sensor after editing
 
 private slots:
-    void onSaveButtonClicked(); // Обработка нажатия кнопки Save
+    void onSaveButtonClicked(); // Handling the Save button click
 
 private:
     Ui::SensorEditor ui;
-    Sensor currentSensor; // Текущий редактируемый сенсор
+    Sensor currentSensor; // Current editable sensor
 };
 
 #endif // SENSOREDITOR_H

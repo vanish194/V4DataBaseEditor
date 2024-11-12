@@ -10,7 +10,6 @@ MainMnemonic::MainMnemonic(
     , m_service(service)
 {}
 
-// Оператор сравнения
 bool MainMnemonic::operator==(const MainMnemonic &other) const
 {
     return m_id == other.m_id && m_name == other.m_name && m_description == other.m_description

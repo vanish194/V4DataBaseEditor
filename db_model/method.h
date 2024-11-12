@@ -6,17 +6,17 @@
 class Method
 {
 public:
-    // Конструктор
+    // Constructor
     Method(int id = 0, const QString &name = "");
 
-    // Оператор сравнения
+    // Comparison operator
     bool operator==(const Method &other) const;
 
-    // Геттеры
+    // Getters
     int getId() const;
     QString getName() const;
 
-    // Сеттеры
+    // Setters
     void setId(int id);
     void setName(const QString &name);
 

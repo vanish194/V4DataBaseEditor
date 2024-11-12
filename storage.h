@@ -17,10 +17,10 @@
 #include "db_model/Unit.h"
 #include "db_model/UnitType.h"
 
-// Структура для хранения всех измененных данных
+// Structure for storing all changed data
 struct ModifiedData
 {
-    // Списки добавленных объектов
+    // Lists of added objects
     QList<Unit> addedUnits;
     QList<Tool> addedTools;
     QList<Sensor> addedSensors;
@@ -36,7 +36,7 @@ struct ModifiedData
     QList<Method> addedMethods;
     QList<ToolDescription> addedToolDescriptions;
 
-    // Списки измененных объектов
+    // Lists of changed objects
     QList<Unit> modifiedUnits;
     QList<Tool> modifiedTools;
     QList<Sensor> modifiedSensors;
@@ -52,7 +52,7 @@ struct ModifiedData
     QList<Method> modifiedMethods;
     QList<ToolDescription> modifiedToolDescriptions;
 
-    // Списки удаленных объектов
+    // Lists of deleted objects
     QList<Unit> deletedUnits;
     QList<Tool> deletedTools;
     QList<Sensor> deletedSensors;
@@ -75,7 +75,7 @@ private:
     static Storage *instance;
     Storage();
 
-    // Основные данные
+    // Basic data
     QList<Unit> units;
     QList<Tool> tools;
     QList<Sensor> sensors;
@@ -91,7 +91,7 @@ private:
     QList<Method> methods;
     QList<ToolDescription> toolDescriptions;
 
-    // Резервные копии данных
+    // Data backups
     QList<Unit> backupUnits;
     QList<Tool> backupTools;
     QList<Sensor> backupSensors;
@@ -107,7 +107,7 @@ private:
     QList<Method> backupMethods;
     QList<ToolDescription> backupToolDescriptions;
 
-    // Переменные для хранения максимальных ID
+    // Variables for storing maximum IDs
     int maxUnitId = 0;
     int maxToolId = 0;
     int maxSensorId = 0;
@@ -130,7 +130,7 @@ public:
     bool isConnected = false;
     bool isDataLoaded();
 
-    // Методы доступа к данным
+    // Data Access Methods
     QList<Unit> &getUnits();
     QList<Tool> &getTools();
     QList<Sensor> &getSensors();
@@ -146,7 +146,7 @@ public:
     QList<Method> &getMethods();
     QList<ToolDescription> &getToolDescriptions();
 
-    // Методы поиска объектов по ID
+    // Methods for searching objects by ID
     const Tool *findToolById(int id) const;
     const Sensor *findSensorById(int id) const;
     const MainMnemonic *findMainMnemonicById(int id) const;
@@ -158,12 +158,12 @@ public:
     const Producer *findProducerById(int id) const;
     const Method *findMethodById(int id) const;
 
-    // Методы работы с резервными копиями
+    // Methods of working with backup copies
     void createBackup();
     void restoreFromBackup();
     void clearBackup();
 
-    // Методы доступа к резервным данным
+    // Methods of accessing backup data
     QList<Unit> &getBackupUnits();
     QList<Tool> &getBackupTools();
     QList<Sensor> &getBackupSensors();
@@ -179,7 +179,7 @@ public:
     QList<Method> &getBackupMethods();
     QList<ToolDescription> &getBackupToolDescriptions();
 
-    // Методы получения добавленных данных
+    // Methods for obtaining added data
     QList<Unit> getAddedUnits();
     QList<Tool> getAddedTools();
     QList<Sensor> getAddedSensors();
@@ -195,7 +195,7 @@ public:
     QList<Method> getAddedMethods();
     QList<ToolDescription> getAddedToolDescriptions();
 
-    // Методы получения измененных данных
+    // Methods for obtaining modified data
     QList<Unit> getModifiedUnits();
     QList<Tool> getModifiedTools();
     QList<Sensor> getModifiedSensors();
@@ -211,7 +211,7 @@ public:
     QList<Method> getModifiedMethods();
     QList<ToolDescription> getModifiedToolDescriptions();
 
-    // Методы получения удаленных данных
+    // Methods for obtaining remote data
     QList<Unit> getDeletedUnits();
     QList<Tool> getDeletedTools();
     QList<Sensor> getDeletedSensors();
@@ -227,10 +227,10 @@ public:
     QList<Method> getDeletedMethods();
     QList<ToolDescription> getDeletedToolDescriptions();
 
-    // Метод для получения всех измененных данных
+    // Method to get all changed data
     ModifiedData getAllModifiedData();
 
-    // Методы для генерации новых ID
+    // Methods for generating new IDs
     int generateNewUnitId();
     int generateNewToolId();
     int generateNewSensorId();
@@ -246,7 +246,7 @@ public:
     int generateNewMethodId();
     int generateNewToolDescriptionId();
 
-    // Методы для установки максимальных ID при загрузке данных
+    // Methods for setting max IDs when loading data
     void setMaxUnitId(int id);
     void setMaxToolId(int id);
     void setMaxSensorId(int id);
@@ -262,7 +262,7 @@ public:
     void setMaxMethodId(int id);
     void setMaxToolDescriptionId(int id);
 
-    // Методы для получения максимальных ID
+    // Methods for getting maximum IDs
     int getMaxUnitId() const;
     int getMaxToolId() const;
     int getMaxSensorId() const;
@@ -278,7 +278,7 @@ public:
     int getMaxMethodId() const;
     int getMaxToolDescriptionId() const;
 
-    // Запрет копирования и присваивания
+    // No copying and assignment
     Storage(const Storage &) = delete;
     Storage &operator=(const Storage &) = delete;
 };

@@ -33,44 +33,50 @@ MainWindow::MainWindow(QWidget *parent)
 
     imageLabel->installEventFilter(this);
 
-    mainSplitter->setStretchFactor(4, 5);
-    mainSplitter->setStretchFactor(1, 2);
-    rightSplitter->setStretchFactor(0, 1); // detailView
-    rightSplitter->setStretchFactor(1, 2); // imageLabel
-
+    mainSplitter->setStretchFactor(0, 1);
+    mainSplitter->setStretchFactor(1, 3);
+    mainSplitter->setCollapsible(false, false);
+    rightSplitter->setStretchFactor(0, 1);
+    rightSplitter->setStretchFactor(1, 2);
+    rightSplitter->setCollapsible(false, false);
     // Подключение сигнала выбора элемента к слоту обновления деталей и изображения
     connect(treeView->selectionModel(),
             &QItemSelectionModel::currentChanged,
             this,
             &MainWindow::onTreeSelectionChanged);
 
-    // Подключение кнопок к слотам
-    connect(ui->toolModeButton, &QPushButton::clicked, this, &MainWindow::onToolModeButtonClicked);
-    connect(ui->sensorModeButton,
-            &QPushButton::clicked,
+    // Подключение меню к слотам
+    connect(ui->actionToolMode, &QAction::triggered, this, &MainWindow::on_actionToolMode_triggered);
+    connect(ui->actionSensorMode,
+            &QAction::triggered,
             this,
-            &MainWindow::onSensorModeButtonClicked);
-    connect(ui->mainMnemonicModeButton,
-            &QPushButton::clicked,
+            &MainWindow::on_actionSensorMode_triggered);
+    connect(ui->actionMainMnemonicMode,
+            &QAction::triggered,
             this,
-            &MainWindow::onMainMnemonicModeButtonClicked);
-    connect(ui->additionalMnemonicModeButton,
-            &QPushButton::clicked,
+            &MainWindow::on_actionMainMnemonicMode_triggered);
+    connect(ui->actionAdditionalMnemonicMode,
+            &QAction::triggered,
             this,
-            &MainWindow::onAdditionalMnemonicModeButtonClicked);
+            &MainWindow::on_actionAdditionalMnemonicMode_triggered);
 }
+
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
     if (obj == imageLabel && event->type() == QEvent::Resize) {
-        // Обработка изменения размера imageLabel
         if (!originalPixmap.isNull()) {
-            // Масштабируем оригинальный pixmap до нового размера imageLabel
-            QPixmap scaledPixmap = originalPixmap.scaled(imageLabel->size(),
-                                                         Qt::KeepAspectRatio,
-                                                         Qt::SmoothTransformation);
+            // Применяем поворот и масштабирование при изменении размера
+            QTransform transform;
+            transform.rotate(90); // Поворачиваем на 90 градусов
+            QPixmap rotatedPixmap = originalPixmap.transformed(transform);
+
+            // Масштабируем повернутое изображение до нового размера imageLabel
+            QPixmap scaledPixmap = rotatedPixmap.scaled(imageLabel->size(),
+                                                        Qt::KeepAspectRatio,
+                                                        Qt::SmoothTransformation);
             imageLabel->setPixmap(scaledPixmap);
         }
-        return false; // Событие не полностью обработано, передаём дальше
+        return true; // Событие полностью обработано, не передаем дальше
     }
     // Передаём остальные события стандартному обработчику
     return QMainWindow::eventFilter(obj, event);
@@ -79,6 +85,27 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    if (storage->isConnected) {
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this,
+                                      "Save Changes",
+                                      "Do you want to save changes before exiting?",
+                                      QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+
+        if (reply == QMessageBox::Yes) {
+            onApplyChanges();
+            event->accept(); // Закрытие разрешено
+        } else if (reply == QMessageBox::No) {
+            event->accept(); // Закрытие разрешено без сохранения
+        } else {
+            event->ignore(); // Отмена закрытия
+        }
+    } else {
+        event->accept(); // Закрытие разрешено, если нет изменений
+    }
 }
 
 void MainWindow::onOpenDatabase()
@@ -136,7 +163,7 @@ void MainWindow::onTreeSelectionChanged(const QModelIndex &current, const QModel
 {
     Q_UNUSED(previous);
 
-    // Clearing the detail and image area if the element is not selected
+    // Очищаем детали и изображение, если элемент не выбран
     if (!current.isValid()) {
         detailView->clear();
         imageLabel->clear();
@@ -144,18 +171,15 @@ void MainWindow::onTreeSelectionChanged(const QModelIndex &current, const QModel
         return;
     }
 
-    // Getting the element type and its ID from the selected element
     int elementId = current.data(Qt::UserRole + 1).toInt();
     ToolSensorMnemonicTreeView::ElementType elementType
         = static_cast<ToolSensorMnemonicTreeView::ElementType>(
             current.data(Qt::UserRole + 2).toInt());
 
-    // Clearing the image before updating
     imageLabel->clear();
 
     QString description;
 
-    // Processing of various types of elements
     switch (elementType) {
     case ToolSensorMnemonicTreeView::ToolType: {
         const Tool *tool = storage->findToolById(elementId);
@@ -171,13 +195,22 @@ void MainWindow::onTreeSelectionChanged(const QModelIndex &current, const QModel
                                   .arg(toolDescription->getOuterDiameterMm())
                                   .arg(toolDescription->getInnerDiameterMm());
 
-                // Загрузка изображения, если доступно
                 if (!toolDescription->getImage().isEmpty()) {
                     QPixmap pixmap;
                     if (pixmap.loadFromData(toolDescription->getImage())) {
                         originalPixmap = pixmap; // Сохраняем оригинальный pixmap
-                        // Устанавливаем pixmap без масштабирования
-                        imageLabel->setPixmap(originalPixmap);
+
+                        // Поворот изображения на 90 градусов
+                        QTransform transform;
+                        transform.rotate(90);
+                        QPixmap rotatedPixmap = originalPixmap.transformed(transform);
+
+                        // Масштабируем изображение под размер imageLabel
+                        QPixmap scaledPixmap = rotatedPixmap.scaled(imageLabel->size(),
+                                                                    Qt::KeepAspectRatio,
+                                                                    Qt::SmoothTransformation);
+
+                        imageLabel->setPixmap(scaledPixmap);
                     } else {
                         imageLabel->setText("Error loading image");
                         originalPixmap = QPixmap(); // Очищаем оригинальный pixmap
@@ -191,7 +224,6 @@ void MainWindow::onTreeSelectionChanged(const QModelIndex &current, const QModel
                     toolDescription->getProducerId());
                 QString producerName = producer ? producer->getName() : "Unknown Producer";
                 description += QString("\nProducer: %1").arg(producerName);
-
             } else {
                 description = QString("Tool: %1\nNo Tool Description available.")
                                   .arg(tool->getName());
@@ -199,47 +231,6 @@ void MainWindow::onTreeSelectionChanged(const QModelIndex &current, const QModel
         } else {
             description = "Tool not found.";
         }
-        break;
-    }
-    case ToolSensorMnemonicTreeView::SensorType: {
-        const Sensor *sensor = storage->findSensorById(elementId);
-        if (sensor) {
-            const Method *method = storage->findMethodById(sensor->getMethodId());
-            QString methodName = method ? method->getName() : "Unknown Method";
-            description = QString("Sensor: %1\nMethod: %2\nDescription: %3")
-                              .arg(sensor->getName())
-                              .arg(methodName)
-                              .arg(sensor->getDescription());
-        } else {
-            description = "Sensor not found.";
-        }
-        imageLabel->setText("No Image");
-        break;
-    }
-    case ToolSensorMnemonicTreeView::MainMnemonicType: {
-        const MainMnemonic *mnemonic = storage->findMainMnemonicById(elementId);
-        if (mnemonic) {
-            description = QString("Main Mnemonic: %1\nDescription: %2")
-                              .arg(mnemonic->getName())
-                              .arg(mnemonic->getDescription());
-        } else {
-            description = "Main Mnemonic not found.";
-        }
-        imageLabel->setText("No Image");
-        break;
-    }
-    case ToolSensorMnemonicTreeView::AdditionalMnemonicType: {
-        const AdditionalMnemonic *mnemonic = storage->findAdditionalMnemonicById(elementId);
-        if (mnemonic) {
-            const Company *company = storage->findCompanyById(mnemonic->getCompanyId());
-            QString companyName = company ? company->getName() : "Unknown Company";
-            description = QString("Additional Mnemonic: %1\nCompany: %2")
-                              .arg(mnemonic->getName())
-                              .arg(companyName);
-        } else {
-            description = "Additional Mnemonic not found.";
-        }
-        imageLabel->setText("No Image");
         break;
     }
     default:
@@ -268,28 +259,28 @@ void MainWindow::onApplyChanges()
         QMessageBox::critical(this, "Apply Changes", "Failed to apply changes to the database.");
     }
 }
-void MainWindow::onToolModeButtonClicked()
+
+void MainWindow::on_actionToolMode_triggered()
 {
     if (treeView) {
         treeView->setExpansionDepth(0);
     }
 }
 
-void MainWindow::onSensorModeButtonClicked()
+void MainWindow::on_actionSensorMode_triggered()
 {
     if (treeView) {
         treeView->setExpansionDepth(1);
     }
 }
 
-void MainWindow::onMainMnemonicModeButtonClicked()
+void MainWindow::on_actionMainMnemonicMode_triggered()
 {
     if (treeView) {
         treeView->setExpansionDepth(2);
     }
 }
-
-void MainWindow::onAdditionalMnemonicModeButtonClicked()
+void MainWindow::on_actionAdditionalMnemonicMode_triggered()
 {
     if (treeView) {
         treeView->setExpansionDepth(3);

@@ -6,22 +6,22 @@
 class Sensor
 {
 public:
-    // Конструктор
+    // Constructor
     Sensor(int id = 0,
            int methodId = 0,
            const QString &name = QString(),
            const QString &description = QString());
 
-    // Оператор сравнения
+    // Comparison operator
     bool operator==(const Sensor &other) const;
 
-    // Геттеры
+    // Getters
     int getId() const;
     int getMethodId() const;
     QString getName() const;
     QString getDescription() const;
 
-    // Сеттеры
+    // Setters
     void setId(int id);
     void setMethodId(int methodId);
     void setName(const QString &name);

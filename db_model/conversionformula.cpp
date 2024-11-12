@@ -1,6 +1,5 @@
 #include "conversionformula.h"
 
-// Конструктор
 ConversionFormula::ConversionFormula(int id,
                                      const QString &formula,
                                      int initialUnitId,
@@ -11,14 +10,12 @@ ConversionFormula::ConversionFormula(int id,
     , m_derivedUnitId(derivedUnitId)
 {}
 
-// Оператор сравнения
 bool ConversionFormula::operator==(const ConversionFormula &other) const
 {
     return m_id == other.m_id && m_formula == other.m_formula
            && m_initialUnitId == other.m_initialUnitId && m_derivedUnitId == other.m_derivedUnitId;
 }
 
-// Геттеры
 int ConversionFormula::getId() const
 {
     return m_id;
@@ -39,7 +36,6 @@ int ConversionFormula::getDerivedUnitId() const
     return m_derivedUnitId;
 }
 
-// Сеттеры
 void ConversionFormula::setId(int id)
 {
     m_id = id;

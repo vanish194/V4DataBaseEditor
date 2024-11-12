@@ -1,6 +1,5 @@
 #include "additionalmnemonic.h"
 
-// Конструктор
 AdditionalMnemonic::AdditionalMnemonic(
     int id, const QString &name, int companyId, int mainMnemonicId, int unitId)
     : m_id(id)
@@ -10,14 +9,12 @@ AdditionalMnemonic::AdditionalMnemonic(
     , m_unitId(unitId)
 {}
 
-// Оператор сравнения
 bool AdditionalMnemonic::operator==(const AdditionalMnemonic &other) const
 {
     return m_id == other.m_id && m_name == other.m_name && m_companyId == other.m_companyId
            && m_mainMnemonicId == other.m_mainMnemonicId && m_unitId == other.m_unitId;
 }
 
-// Геттеры
 int AdditionalMnemonic::getId() const
 {
     return m_id;
@@ -43,7 +40,6 @@ int AdditionalMnemonic::getUnitId() const
     return m_unitId;
 }
 
-// Сеттеры
 void AdditionalMnemonic::setId(int id)
 {
     m_id = id;

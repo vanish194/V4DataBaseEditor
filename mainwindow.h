@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QCloseEvent>
 #include <QLabel>
 #include <QMainWindow>
 #include <QSplitter>
@@ -27,6 +28,7 @@ public:
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
+    void closeEvent(QCloseEvent *event) override;
 
 private slots:
     void onOpenDatabase();
@@ -35,10 +37,13 @@ private slots:
 
     void onTreeSelectionChanged(const QModelIndex &current, const QModelIndex &previous);
 
-    void onToolModeButtonClicked();
-    void onSensorModeButtonClicked();
-    void onMainMnemonicModeButtonClicked();
-    void onAdditionalMnemonicModeButtonClicked();
+    void on_actionToolMode_triggered();
+
+    void on_actionSensorMode_triggered();
+
+    void on_actionMainMnemonicMode_triggered();
+
+    void on_actionAdditionalMnemonicMode_triggered();
 
 private:
     Ui::MainWindow *ui;

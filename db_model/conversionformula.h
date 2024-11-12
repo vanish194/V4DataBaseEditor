@@ -6,22 +6,22 @@
 class ConversionFormula
 {
 public:
-    // Конструктор
+    // Constructor
     ConversionFormula(int id = 0,
                       const QString &formula = QString(),
                       int initialUnitId = 0,
                       int derivedUnitId = 0);
 
-    // Оператор сравнения
+    // Comparison operator
     bool operator==(const ConversionFormula &other) const;
 
-    // Геттеры
+    // Getters
     int getId() const;
     QString getFormula() const;
     int getInitialUnitId() const;
     int getDerivedUnitId() const;
 
-    // Сеттеры
+    // Setters
     void setId(int id);
     void setFormula(const QString &formula);
     void setInitialUnitId(int initialUnitId);

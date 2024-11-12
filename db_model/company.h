@@ -6,17 +6,17 @@
 class Company
 {
 public:
-    // Конструктор
+    // Constructor
     Company(int id = 0, const QString &name = "");
 
-    // Оператор сравнения
+    // Comparison operator
     bool operator==(const Company &other) const;
 
-    // Геттеры
+    // Getters
     int getId() const;
     QString getName() const;
 
-    // Сеттеры
+    // Setters
     void setId(int id);
     void setName(const QString &name);
 

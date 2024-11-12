@@ -6,24 +6,24 @@
 class AdditionalMnemonic
 {
 public:
-    // Конструктор
+    // Constructor
     AdditionalMnemonic(int id = 0,
                        const QString &name = QString(),
                        int companyId = 0,
                        int mainMnemonicId = 0,
                        int unitId = 0);
 
-    // Оператор сравнения
+    // Comparison operator
     bool operator==(const AdditionalMnemonic &other) const;
 
-    // Геттеры
+    // Getters
     int getId() const;
     QString getName() const;
     int getCompanyId() const;
     int getMainMnemonicId() const;
     int getUnitId() const;
 
-    // Сеттеры
+    // Setters
     void setId(int id);
     void setName(const QString &name);
     void setCompanyId(int companyId);

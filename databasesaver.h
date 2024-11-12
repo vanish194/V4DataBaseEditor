@@ -35,7 +35,7 @@ private:
     bool saveSensorMnemonics();
     bool saveConversionFormulas();
 
-    // Вспомогательный шаблонный метод для обработки записей
+    // Helper template method for processing records
     template<typename T>
     bool processItems(const QList<T> &deletedItems,
                       const QList<T> &modifiedItems,
@@ -45,7 +45,7 @@ private:
                       const QStringList &columns,
                       const std::function<void(const T &, QSqlQuery &)> &bindValues);
 
-    // Вспомогательный метод для получения положительного ID
+    // Helper method for getting positive ID
     int positiveId(int id) { return id < 0 ? -id : id; }
 };
 
