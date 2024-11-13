@@ -233,12 +233,52 @@ void MainWindow::onTreeSelectionChanged(const QModelIndex &current, const QModel
         }
         break;
     }
+    case ToolSensorMnemonicTreeView::SensorType: {
+        const Sensor *sensor = storage->findSensorById(elementId);
+        if (sensor) {
+            const Method *method = storage->findMethodById(sensor->getMethodId());
+            QString methodName = method ? method->getName() : "Unknown Method";
+            description = QString("Sensor: %1\nMethod: %2\nDescription: %3")
+                              .arg(sensor->getName())
+                              .arg(methodName)
+                              .arg(sensor->getDescription());
+        } else {
+            description = "Sensor not found.";
+        }
+        imageLabel->setText("No Image");
+        break;
+    }
+    case ToolSensorMnemonicTreeView::MainMnemonicType: {
+        const MainMnemonic *mnemonic = storage->findMainMnemonicById(elementId);
+        if (mnemonic) {
+            description = QString("Main Mnemonic: %1\nDescription: %2")
+                              .arg(mnemonic->getName())
+                              .arg(mnemonic->getDescription());
+        } else {
+            description = "Main Mnemonic not found.";
+        }
+        imageLabel->setText("No Image");
+        break;
+    }
+    case ToolSensorMnemonicTreeView::AdditionalMnemonicType: {
+        const AdditionalMnemonic *mnemonic = storage->findAdditionalMnemonicById(elementId);
+        if (mnemonic) {
+            const Company *company = storage->findCompanyById(mnemonic->getCompanyId());
+            QString companyName = company ? company->getName() : "Unknown Company";
+            description = QString("Additional Mnemonic: %1\nCompany: %2")
+                              .arg(mnemonic->getName())
+                              .arg(companyName);
+        } else {
+            description = "Additional Mnemonic not found.";
+        }
+        imageLabel->setText("No Image");
+        break;
+    }
     default:
         description = "No description available.";
         imageLabel->setText("No Image");
         break;
     }
-
     // Displaying the description in a text widget
     detailView->setText(description);
 }
