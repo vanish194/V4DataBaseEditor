@@ -31,7 +31,7 @@ void MainMnemonicAddWindow::loadUnits()
         }
     }
     if (ui.comboBox_unit->count() == 0) {
-        ui.comboBox_unit->addItem("No Units Available", -1);
+        ui.comboBox_unit->addItem(tr("No Units Available"), -1);
     }
     ui.comboBox_unit->model()->sort(0);
 }
@@ -39,11 +39,11 @@ void MainMnemonicAddWindow::loadUnits()
 void MainMnemonicAddWindow::onAddButtonClicked()
 {
     if (ui.lineEdit_name->text().isEmpty()) {
-        QMessageBox::warning(this, "Input Error", "Please enter a mnemonic name.");
+        QMessageBox::warning(this, tr("Input Error"), tr("Please enter a mnemonic name."));
         return;
     }
     if (ui.comboBox_unit->currentData().toInt() == -1) {
-        QMessageBox::warning(this, "Input Error", "Please select a unit.");
+        QMessageBox::warning(this, tr("Input Error"), tr("Please select a unit."));
         return;
     }
 

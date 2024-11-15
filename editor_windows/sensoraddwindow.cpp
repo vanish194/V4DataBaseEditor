@@ -32,18 +32,18 @@ void SensorAddWindow::loadMethods()
         }
     }
     if (ui.comboBox_method->count() == 0) {
-        ui.comboBox_method->addItem("No Methods Available", -1);
+        ui.comboBox_method->addItem(tr("No Methods Available"), -1);
     }
 }
 
 void SensorAddWindow::onAddButtonClicked()
 {
     if (ui.lineEdit_name->text().isEmpty()) {
-        QMessageBox::warning(this, "Input Error", "Please enter a sensor name.");
+        QMessageBox::warning(this, tr("Input Error"), tr("Please enter a sensor name."));
         return;
     }
     if (ui.comboBox_method->currentData().toInt() == -1) {
-        QMessageBox::warning(this, "Input Error", "Please select a method.");
+        QMessageBox::warning(this, tr("Input Error"), tr("Please select a method."));
         return;
     }
 

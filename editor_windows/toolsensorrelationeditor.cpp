@@ -64,7 +64,7 @@ void ToolSensorRelationEditor::setTool(int toolId)
 void ToolSensorRelationEditor::loadTools()
 {
     ui->treeWidgetTools->clear();
-    ui->treeWidgetTools->setHeaderLabels(QStringList() << "Tool");
+    ui->treeWidgetTools->setHeaderLabels(QStringList() << tr("Tool"));
 
     // Получаем список инструментов
     QList<Tool> tools = storage->getTools();
@@ -88,8 +88,7 @@ void ToolSensorRelationEditor::loadTools()
 void ToolSensorRelationEditor::loadSensors()
 {
     ui->treeWidgetSensors->clear();
-    ui->treeWidgetSensors->setHeaderLabels(QStringList() << "Sensor"
-                                                         << "Offset (mm)");
+    ui->treeWidgetSensors->setHeaderLabels(QStringList() << tr("Sensor") << tr("Offset (mm)"));
 
     // Получаем список сенсоров
     QList<Sensor> sensors = storage->getSensors();
@@ -191,9 +190,9 @@ void ToolSensorRelationEditor::showToolContextMenu(const QPoint &pos)
         return;
 
     QMenu contextMenu;
-    QAction *addAction = contextMenu.addAction("Add Sensor");
-    QAction *removeAction = contextMenu.addAction("Remove Sensor");
-    QAction *editOffsetAction = contextMenu.addAction("Edit Offset");
+    QAction *addAction = contextMenu.addAction(tr("Add Sensor"));
+    QAction *removeAction = contextMenu.addAction(tr("Remove Sensor"));
+    QAction *editOffsetAction = contextMenu.addAction(tr("Edit Offset"));
 
     connect(addAction, &QAction::triggered, this, &ToolSensorRelationEditor::addRelationFromTool);
     connect(removeAction,
@@ -232,22 +231,21 @@ void ToolSensorRelationEditor::addRelationFromTool()
     }
 
     if (availableSensors.isEmpty()) {
-        QMessageBox::information(this, "Add Sensor", "No available sensors to add.");
+        QMessageBox::information(this, tr("Add Sensor"), tr("No available sensors to add."));
         return;
     }
 
     // Show dialog to select sensors and specify offsetMm
     QDialog dialog(this);
-    dialog.setWindowTitle("Add Sensors");
+    dialog.setWindowTitle(tr("Add Sensors"));
     QVBoxLayout *layout = new QVBoxLayout(&dialog);
 
-    QLabel *label = new QLabel("Select Sensors and specify Offset (mm):", &dialog);
+    QLabel *label = new QLabel(tr("Select Sensors and specify Offset (mm):"), &dialog);
     layout->addWidget(label);
 
     QTableWidget *tableWidget = new QTableWidget(&dialog);
     tableWidget->setColumnCount(2);
-    tableWidget->setHorizontalHeaderLabels(QStringList() << "Sensor"
-                                                         << "Offset (mm)");
+    tableWidget->setHorizontalHeaderLabels(QStringList() << tr("Sensor") << tr("Offset (mm)"));
     tableWidget->setRowCount(availableSensors.size());
     tableWidget->setSelectionMode(QAbstractItemView::MultiSelection);
     for (int i = 0; i < availableSensors.size(); ++i) {
@@ -262,8 +260,8 @@ void ToolSensorRelationEditor::addRelationFromTool()
     layout->addWidget(tableWidget);
     tableWidget->sortItems(Qt::AscendingOrder);
 
-    QPushButton *okButton = new QPushButton("OK", &dialog);
-    QPushButton *cancelButton = new QPushButton("Cancel", &dialog);
+    QPushButton *okButton = new QPushButton(tr("OK"), &dialog);
+    QPushButton *cancelButton = new QPushButton(tr("Cancel"), &dialog);
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->addWidget(okButton);
     buttonLayout->addWidget(cancelButton);
@@ -310,16 +308,16 @@ void ToolSensorRelationEditor::removeRelationFromTool()
     }
 
     if (relatedToolSensors.isEmpty()) {
-        QMessageBox::information(this, "Remove Sensor", "No sensors to remove.");
+        QMessageBox::information(this, tr("Remove Sensor"), tr("No sensors to remove."));
         return;
     }
 
     // Показываем диалог для выбора сенсоров для удаления
     QDialog dialog(this);
-    dialog.setWindowTitle("Remove Sensors");
+    dialog.setWindowTitle(tr("Remove Sensors"));
     QVBoxLayout *layout = new QVBoxLayout(&dialog);
 
-    QLabel *label = new QLabel("Select Sensors to remove:", &dialog);
+    QLabel *label = new QLabel(tr("Select Sensors to remove:"), &dialog);
     layout->addWidget(label);
 
     QListWidget *listWidget = new QListWidget(&dialog);
@@ -338,8 +336,8 @@ void ToolSensorRelationEditor::removeRelationFromTool()
     }
     layout->addWidget(listWidget);
 
-    QPushButton *okButton = new QPushButton("OK", &dialog);
-    QPushButton *cancelButton = new QPushButton("Cancel", &dialog);
+    QPushButton *okButton = new QPushButton(tr("OK"), &dialog);
+    QPushButton *cancelButton = new QPushButton(tr("Cancel"), &dialog);
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->addWidget(okButton);
     buttonLayout->addWidget(cancelButton);
@@ -370,7 +368,7 @@ void ToolSensorRelationEditor::editOffsetFromTool()
 {
     QList<QTreeWidgetItem *> selectedTools = ui->treeWidgetTools->selectedItems();
     if (selectedTools.isEmpty()) {
-        QMessageBox::warning(this, "Edit Offset", "No tool selected.");
+        QMessageBox::warning(this, tr("Edit Offset"), tr("No tool selected."));
         return;
     }
 
@@ -385,25 +383,26 @@ void ToolSensorRelationEditor::editOffsetFromTool()
     }
 
     if (relatedToolSensors.isEmpty()) {
-        QMessageBox::information(this, "Edit Offset", "No sensors related to the selected tool.");
+        QMessageBox::information(this,
+                                 tr("Edit Offset_"),
+                                 tr("No sensors related to the selected tool."));
         return;
     }
 
     // Create dialog to select relation
     QDialog dialog(this);
-    dialog.setWindowTitle("Select Sensor to Edit Offset");
+    dialog.setWindowTitle(tr("Select Sensor to Edit Offset"));
 
     QVBoxLayout *layout = new QVBoxLayout(&dialog);
 
-    QLabel *label = new QLabel("Select a sensor to edit the offset:", &dialog);
+    QLabel *label = new QLabel(tr("Select a sensor to edit the offset:"), &dialog);
     layout->addWidget(label);
 
     // Table to display relations
     QTableWidget *tableWidget = new QTableWidget(&dialog);
     tableWidget->setColumnCount(3);
-    tableWidget->setHorizontalHeaderLabels(QStringList() << "Tool"
-                                                         << "Sensor"
-                                                         << "Offset (mm)");
+    tableWidget->setHorizontalHeaderLabels(QStringList()
+                                           << tr("Tool") << tr("Sensor") << tr("Offset (mm)"));
     tableWidget->setRowCount(relatedToolSensors.size());
     tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     tableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -414,11 +413,12 @@ void ToolSensorRelationEditor::editOffsetFromTool()
         const Tool *tool = findToolById(toolSensor->getToolId());
         const Sensor *sensor = findSensorById(toolSensor->getSensorId());
 
-        QTableWidgetItem *toolItem = new QTableWidgetItem(tool ? tool->getName() : "Unknown");
+        QTableWidgetItem *toolItem = new QTableWidgetItem(tool ? tool->getName() : tr("Unknown"));
         toolItem->setData(Qt::UserRole, toolSensor->getToolId());
         tableWidget->setItem(i, 0, toolItem);
 
-        QTableWidgetItem *sensorItem = new QTableWidgetItem(sensor ? sensor->getName() : "Unknown");
+        QTableWidgetItem *sensorItem = new QTableWidgetItem(sensor ? sensor->getName()
+                                                                   : tr("Unknown"));
         sensorItem->setData(Qt::UserRole, toolSensor->getSensorId());
         tableWidget->setItem(i, 1, sensorItem);
 
@@ -430,8 +430,8 @@ void ToolSensorRelationEditor::editOffsetFromTool()
     layout->addWidget(tableWidget);
 
     // OK and Cancel buttons
-    QPushButton *okButton = new QPushButton("OK", &dialog);
-    QPushButton *cancelButton = new QPushButton("Cancel", &dialog);
+    QPushButton *okButton = new QPushButton(tr("OK"), &dialog);
+    QPushButton *cancelButton = new QPushButton(tr("Cancel"), &dialog);
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->addWidget(okButton);
     buttonLayout->addWidget(cancelButton);
@@ -444,7 +444,7 @@ void ToolSensorRelationEditor::editOffsetFromTool()
         // Get selected item
         QModelIndexList selectedRows = tableWidget->selectionModel()->selectedRows();
         if (selectedRows.isEmpty()) {
-            QMessageBox::warning(this, "Edit Offset", "No sensor selected.");
+            QMessageBox::warning(this, tr("Edit Offset"), tr("No sensor selected."));
             return;
         }
 
@@ -461,16 +461,16 @@ void ToolSensorRelationEditor::editOffsetFromTool()
 
         if (!toolSensorPtr) {
             QMessageBox::warning(this,
-                                 "Edit Offset",
-                                 "No relation found for the selected Tool and Sensor.");
+                                 tr("Edit Offset"),
+                                 tr("No relation found for the selected Tool and Sensor."));
             return;
         }
 
         // Show dialog to input new offset value
         bool ok;
         int newOffsetMm = QInputDialog::getInt(this,
-                                               "Edit Offset",
-                                               "Enter new Offset (mm):",
+                                               tr("Edit Offset"),
+                                               tr("Enter new Offset (mm):"),
                                                toolSensorPtr->getOffsetMm(),
                                                0,
                                                1000000,

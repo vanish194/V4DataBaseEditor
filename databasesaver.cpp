@@ -1,5 +1,5 @@
 #include "databasesaver.h"
-
+#include <QLocale>
 DatabaseSaver::DatabaseSaver(QSqlDatabase &database)
     : db(database)
 {
@@ -14,7 +14,7 @@ bool DatabaseSaver::saveAllData()
 
     // Начинаем транзакцию
     if (!db.transaction()) {
-        qDebug() << "Ошибка начала транзакции:" << db.lastError().text();
+        qDebug() << QObject::tr("Start Transaction Eror:") << db.lastError().text();
         return false;
     }
 
@@ -35,12 +35,12 @@ bool DatabaseSaver::saveAllData()
 
     if (success) {
         if (!db.commit()) {
-            qDebug() << "Ошибка подтверждения транзакции:" << db.lastError().text();
+            qDebug() << QObject::tr("Commit Transaction Eror:") << db.lastError().text();
             db.rollback();
             return false;
         }
     } else {
-        qDebug() << "Ошибка сохранения данных. Откат транзакции.";
+        qDebug() << QObject::tr("Error saving data. Transaction rolled back.");
         db.rollback();
     }
 
@@ -66,7 +66,8 @@ bool DatabaseSaver::processItems(const QList<T> &deletedItems,
         query.prepare(QString("DELETE FROM %1 WHERE %2 = ?").arg(tableName, idColumn));
         query.addBindValue(id);
         if (!query.exec()) {
-            qDebug() << "Ошибка удаления из" << tableName << ":" << query.lastError().text();
+            qDebug() << QObject::tr("Error deleting from") << tableName << ":"
+                     << query.lastError().text();
             success = false;
         }
     }
@@ -83,7 +84,8 @@ bool DatabaseSaver::processItems(const QList<T> &deletedItems,
         bindValues(item, query);
         query.addBindValue(item.getId());
         if (!query.exec()) {
-            qDebug() << "Ошибка обновления в" << tableName << ":" << query.lastError().text();
+            qDebug() << QObject::tr("Update error in") << tableName << ":"
+                     << query.lastError().text();
             success = false;
         }
     }
@@ -97,7 +99,8 @@ bool DatabaseSaver::processItems(const QList<T> &deletedItems,
         query.addBindValue(item.getId()); // Привязываем значение для idColumn
         bindValues(item, query); // Привязываем значения для остальных столбцов
         if (!query.exec()) {
-            qDebug() << "Ошибка вставки в" << tableName << ":" << query.lastError().text();
+            qDebug() << QObject::tr("Error inserting into") << tableName << ":"
+                     << query.lastError().text();
             success = false;
         }
     }

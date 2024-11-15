@@ -91,8 +91,8 @@ void MainWindow::closeEvent(QCloseEvent *event)
     if (storage->isConnected) {
         QMessageBox::StandardButton reply;
         reply = QMessageBox::question(this,
-                                      "Save Changes",
-                                      "Do you want to save changes before exiting?",
+                                      tr("Save Changes"),
+                                      tr("Do you want to save changes before exiting?"),
                                       QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
 
         if (reply == QMessageBox::Yes) {
@@ -111,7 +111,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 void MainWindow::onOpenDatabase()
 {
     QString fileName = QFileDialog::getOpenFileName(this,
-                                                    "Open Database",
+                                                    tr("Open Database"),
                                                     "",
                                                     "SQLite Database (*.db)");
     if (!fileName.isEmpty()) {
@@ -127,8 +127,8 @@ void MainWindow::onOpenDatabase()
         } else {
             QMessageBox::critical(
                 this,
-                "Database Error",
-                "Failed to open database. Check if the file is correct and try again.");
+                tr("Database Error"),
+                tr("Failed to open database. Check if the file is correct and try again."));
         }
     }
 }
@@ -140,13 +140,15 @@ void MainWindow::setViewsForToolSensorMnemonic()
     // Clearing the detail area and the image
     detailView->clear();
     imageLabel->clear();
-    imageLabel->setText("No Image");
+    imageLabel->setText(tr("No Image"));
 }
 
 void MainWindow::onCompareCurrentData()
 {
     if (!storage->isDataLoaded()) {
-        QMessageBox::warning(this, "No Data", "No data is loaded. Please open a database first.");
+        QMessageBox::warning(this,
+                             tr("No Data"),
+                             tr("No data is loaded. Please open a database first."));
         return;
     }
 
@@ -167,7 +169,7 @@ void MainWindow::onTreeSelectionChanged(const QModelIndex &current, const QModel
     if (!current.isValid()) {
         detailView->clear();
         imageLabel->clear();
-        imageLabel->setText("No Image");
+        imageLabel->setText(tr("No Image"));
         return;
     }
 
@@ -187,8 +189,9 @@ void MainWindow::onTreeSelectionChanged(const QModelIndex &current, const QModel
             const ToolDescription *toolDescription = storage->findToolDescriptionById(
                 tool->getToolDescriptionId());
             if (toolDescription) {
-                description = QString("Tool: %1\nDescription: %2\nLength: %3 mm\nOuter Diameter: "
-                                      "%4 mm\nInner Diameter: %5 mm")
+                description = QString(
+                                  tr("Tool: %1\nDescription: %2\nLength: %3 mm\nOuter Diameter: "
+                                     "%4 mm\nInner Diameter: %5 mm"))
                                   .arg(tool->getName())
                                   .arg(toolDescription->getDescription())
                                   .arg(toolDescription->getLengthMm())
@@ -212,24 +215,24 @@ void MainWindow::onTreeSelectionChanged(const QModelIndex &current, const QModel
 
                         imageLabel->setPixmap(scaledPixmap);
                     } else {
-                        imageLabel->setText("Error loading image");
+                        imageLabel->setText(tr("Error loading image"));
                         originalPixmap = QPixmap(); // Очищаем оригинальный pixmap
                     }
                 } else {
-                    imageLabel->setText("No Image Available");
+                    imageLabel->setText(tr("No Image Available"));
                     originalPixmap = QPixmap(); // Очищаем оригинальный pixmap
                 }
 
                 const Producer *producer = storage->findProducerById(
                     toolDescription->getProducerId());
-                QString producerName = producer ? producer->getName() : "Unknown Producer";
-                description += QString("\nProducer: %1").arg(producerName);
+                QString producerName = producer ? producer->getName() : tr("Unknown Producer");
+                description += QString(tr("\nProducer: %1")).arg(producerName);
             } else {
-                description = QString("Tool: %1\nNo Tool Description available.")
+                description = QString(tr("Tool: %1\nNo Tool Description available."))
                                   .arg(tool->getName());
             }
         } else {
-            description = "Tool not found.";
+            description = tr("Tool not found.");
         }
         break;
     }
@@ -237,46 +240,46 @@ void MainWindow::onTreeSelectionChanged(const QModelIndex &current, const QModel
         const Sensor *sensor = storage->findSensorById(elementId);
         if (sensor) {
             const Method *method = storage->findMethodById(sensor->getMethodId());
-            QString methodName = method ? method->getName() : "Unknown Method";
-            description = QString("Sensor: %1\nMethod: %2\nDescription: %3")
+            QString methodName = method ? method->getName() : tr("Unknown Method");
+            description = QString(tr("Sensor: %1\nMethod: %2\nDescription: %3"))
                               .arg(sensor->getName())
                               .arg(methodName)
                               .arg(sensor->getDescription());
         } else {
-            description = "Sensor not found.";
+            description = tr("Sensor not found.");
         }
-        imageLabel->setText("No Image");
+        imageLabel->setText(tr("No Image"));
         break;
     }
     case ToolSensorMnemonicTreeView::MainMnemonicType: {
         const MainMnemonic *mnemonic = storage->findMainMnemonicById(elementId);
         if (mnemonic) {
-            description = QString("Main Mnemonic: %1\nDescription: %2")
+            description = QString(tr("Main Mnemonic: %1\nDescription: %2"))
                               .arg(mnemonic->getName())
                               .arg(mnemonic->getDescription());
         } else {
-            description = "Main Mnemonic not found.";
+            description = tr("Main Mnemonic not found.");
         }
-        imageLabel->setText("No Image");
+        imageLabel->setText(tr("No Image"));
         break;
     }
     case ToolSensorMnemonicTreeView::AdditionalMnemonicType: {
         const AdditionalMnemonic *mnemonic = storage->findAdditionalMnemonicById(elementId);
         if (mnemonic) {
             const Company *company = storage->findCompanyById(mnemonic->getCompanyId());
-            QString companyName = company ? company->getName() : "Unknown Company";
-            description = QString("Additional Mnemonic: %1\nCompany: %2")
+            QString companyName = company ? company->getName() : tr("Unknown Company");
+            description = QString(tr("Additional Mnemonic: %1\nCompany: %2"))
                               .arg(mnemonic->getName())
                               .arg(companyName);
         } else {
-            description = "Additional Mnemonic not found.";
+            description = tr("Additional Mnemonic not found.");
         }
-        imageLabel->setText("No Image");
+        imageLabel->setText(tr("No Image"));
         break;
     }
     default:
-        description = "No description available.";
-        imageLabel->setText("No Image");
+        description = tr("No description available.");
+        imageLabel->setText(tr("No Image"));
         break;
     }
     // Displaying the description in a text widget
@@ -289,14 +292,16 @@ void MainWindow::onApplyChanges()
 
     if (dbSaver.saveAllData()) {
         QMessageBox::information(this,
-                                 "Apply Changes",
-                                 "Changes have been applied to the database.");
+                                 tr("Apply Changes"),
+                                 tr("Changes have been applied to the database."));
 
         // После успешного сохранения обновляем резервную копию данных
         storage->createBackup();
 
     } else {
-        QMessageBox::critical(this, "Apply Changes", "Failed to apply changes to the database.");
+        QMessageBox::critical(this,
+                              tr("Apply Changes"),
+                              tr("Failed to apply changes to the database."));
     }
 }
 

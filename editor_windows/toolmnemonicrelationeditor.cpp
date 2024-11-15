@@ -59,7 +59,7 @@ void ToolMnemonicRelationEditor::setTool(int toolId)
 void ToolMnemonicRelationEditor::loadTools()
 {
     ui->treeWidgetTools->clear();
-    ui->treeWidgetTools->setHeaderLabels(QStringList() << "Tool");
+    ui->treeWidgetTools->setHeaderLabels(QStringList() << tr("Tool"));
 
     auto tools = storage->getTools();
     std::sort(tools.begin(), tools.end(), [](const Tool &a, const Tool &b) {
@@ -79,8 +79,7 @@ void ToolMnemonicRelationEditor::loadTools()
 void ToolMnemonicRelationEditor::loadMnemonics()
 {
     ui->treeWidgetMnemonics->clear();
-    ui->treeWidgetMnemonics->setHeaderLabels(QStringList() << "Mnemonic"
-                                                           << "Offset (mm)");
+    ui->treeWidgetMnemonics->setHeaderLabels(QStringList() << tr("Mnemonic") << tr("Offset (mm)"));
 
     auto mnemonics = storage->getMainMnemonics();
     std::sort(mnemonics.begin(), mnemonics.end(), [](const MainMnemonic &a, const MainMnemonic &b) {
@@ -159,9 +158,9 @@ void ToolMnemonicRelationEditor::showToolContextMenu(const QPoint &pos)
         return;
 
     QMenu contextMenu;
-    QAction *addAction = contextMenu.addAction("Add Mnemonic");
-    QAction *removeAction = contextMenu.addAction("Remove Mnemonic");
-    QAction *editOffsetAction = contextMenu.addAction("Edit Offset");
+    QAction *addAction = contextMenu.addAction(tr("Add Mnemonic"));
+    QAction *removeAction = contextMenu.addAction(tr("Remove Mnemonic"));
+    QAction *editOffsetAction = contextMenu.addAction(tr("Edit Offset"));
 
     connect(addAction, &QAction::triggered, this, &ToolMnemonicRelationEditor::addRelationFromTool);
     connect(removeAction,
@@ -199,21 +198,20 @@ void ToolMnemonicRelationEditor::addRelationFromTool()
     }
 
     if (availableMnemonics.isEmpty()) {
-        QMessageBox::information(this, "Add Mnemonic", "No available mnemonics to add.");
+        QMessageBox::information(this, tr("Add Mnemonic"), tr("No available mnemonics to add."));
         return;
     }
 
     QDialog dialog(this);
-    dialog.setWindowTitle("Add Mnemonics");
+    dialog.setWindowTitle(tr("Add Mnemonics"));
     QVBoxLayout *layout = new QVBoxLayout(&dialog);
 
-    QLabel *label = new QLabel("Select Mnemonics and specify Offset (mm):", &dialog);
+    QLabel *label = new QLabel(tr("Select Mnemonics and specify Offset (mm):"), &dialog);
     layout->addWidget(label);
 
     QTableWidget *tableWidget = new QTableWidget(&dialog);
     tableWidget->setColumnCount(2);
-    tableWidget->setHorizontalHeaderLabels(QStringList() << "Mnemonic"
-                                                         << "Offset (mm)");
+    tableWidget->setHorizontalHeaderLabels(QStringList() << tr("Mnemonic") << tr("Offset (mm)"));
     tableWidget->setRowCount(availableMnemonics.size());
     tableWidget->setSelectionMode(QAbstractItemView::MultiSelection);
     for (int i = 0; i < availableMnemonics.size(); ++i) {
@@ -228,8 +226,8 @@ void ToolMnemonicRelationEditor::addRelationFromTool()
     layout->addWidget(tableWidget);
     tableWidget->sortItems(Qt::AscendingOrder);
 
-    QPushButton *okButton = new QPushButton("OK", &dialog);
-    QPushButton *cancelButton = new QPushButton("Cancel", &dialog);
+    QPushButton *okButton = new QPushButton(tr("OK"), &dialog);
+    QPushButton *cancelButton = new QPushButton(tr("Cancel"), &dialog);
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->addWidget(okButton);
     buttonLayout->addWidget(cancelButton);
@@ -272,15 +270,15 @@ void ToolMnemonicRelationEditor::removeRelationFromTool()
     }
 
     if (relatedToolMnemonics.isEmpty()) {
-        QMessageBox::information(this, "Remove Mnemonic", "No mnemonics to remove.");
+        QMessageBox::information(this, tr("Remove Mnemonic"), tr("No mnemonics to remove."));
         return;
     }
 
     QDialog dialog(this);
-    dialog.setWindowTitle("Remove Mnemonics");
+    dialog.setWindowTitle(tr("Remove Mnemonics"));
     QVBoxLayout *layout = new QVBoxLayout(&dialog);
 
-    QLabel *label = new QLabel("Select Mnemonics to remove:", &dialog);
+    QLabel *label = new QLabel(tr("Select Mnemonics to remove:"), &dialog);
     layout->addWidget(label);
 
     QListWidget *listWidget = new QListWidget(&dialog);
@@ -295,8 +293,8 @@ void ToolMnemonicRelationEditor::removeRelationFromTool()
     }
     layout->addWidget(listWidget);
 
-    QPushButton *okButton = new QPushButton("OK", &dialog);
-    QPushButton *cancelButton = new QPushButton("Cancel", &dialog);
+    QPushButton *okButton = new QPushButton(tr("OK"), &dialog);
+    QPushButton *cancelButton = new QPushButton(tr("Cancel"), &dialog);
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->addWidget(okButton);
     buttonLayout->addWidget(cancelButton);
@@ -326,7 +324,7 @@ void ToolMnemonicRelationEditor::editOffsetFromTool()
 {
     QList<QTreeWidgetItem *> selectedTools = ui->treeWidgetTools->selectedItems();
     if (selectedTools.isEmpty()) {
-        QMessageBox::warning(this, "Edit Offset", "No tool selected.");
+        QMessageBox::warning(this, tr("Edit Offset"), tr("No tool selected."));
         return;
     }
 
@@ -340,23 +338,24 @@ void ToolMnemonicRelationEditor::editOffsetFromTool()
     }
 
     if (relatedToolMnemonics.isEmpty()) {
-        QMessageBox::information(this, "Edit Offset", "No mnemonics related to the selected tool.");
+        QMessageBox::information(this,
+                                 tr("Edit Offset"),
+                                 tr("No mnemonics related to the selected tool."));
         return;
     }
 
     QDialog dialog(this);
-    dialog.setWindowTitle("Select Mnemonic to Edit Offset");
+    dialog.setWindowTitle(tr("Select Mnemonic to Edit Offset"));
 
     QVBoxLayout *layout = new QVBoxLayout(&dialog);
 
-    QLabel *label = new QLabel("Select a mnemonic to edit the offset:", &dialog);
+    QLabel *label = new QLabel(tr("Select a mnemonic to edit the offset:"), &dialog);
     layout->addWidget(label);
 
     QTableWidget *tableWidget = new QTableWidget(&dialog);
     tableWidget->setColumnCount(3);
-    tableWidget->setHorizontalHeaderLabels(QStringList() << "Tool"
-                                                         << "Mnemonic"
-                                                         << "Offset (mm)");
+    tableWidget->setHorizontalHeaderLabels(QStringList()
+                                           << tr("Tool") << tr("Mnemonic") << tr("Offset (mm)"));
     tableWidget->setRowCount(relatedToolMnemonics.size());
     tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     tableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -366,12 +365,12 @@ void ToolMnemonicRelationEditor::editOffsetFromTool()
         const Tool *tool = findToolById(toolMnemonic->getToolId());
         const MainMnemonic *mnemonic = findMainMnemonicById(toolMnemonic->getMnemonicId());
 
-        QTableWidgetItem *toolItem = new QTableWidgetItem(tool ? tool->getName() : "Unknown");
+        QTableWidgetItem *toolItem = new QTableWidgetItem(tool ? tool->getName() : tr("Unknown"));
         toolItem->setData(Qt::UserRole, toolMnemonic->getToolId());
         tableWidget->setItem(i, 0, toolItem);
 
         QTableWidgetItem *mnemonicItem = new QTableWidgetItem(mnemonic ? mnemonic->getName()
-                                                                       : "Unknown");
+                                                                       : tr("Unknown"));
         mnemonicItem->setData(Qt::UserRole, toolMnemonic->getMnemonicId());
         tableWidget->setItem(i, 1, mnemonicItem);
 
@@ -382,8 +381,8 @@ void ToolMnemonicRelationEditor::editOffsetFromTool()
 
     layout->addWidget(tableWidget);
 
-    QPushButton *okButton = new QPushButton("OK", &dialog);
-    QPushButton *cancelButton = new QPushButton("Cancel", &dialog);
+    QPushButton *okButton = new QPushButton(tr("OK"), &dialog);
+    QPushButton *cancelButton = new QPushButton(tr("Cancel"), &dialog);
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->addWidget(okButton);
     buttonLayout->addWidget(cancelButton);
@@ -395,7 +394,7 @@ void ToolMnemonicRelationEditor::editOffsetFromTool()
     if (dialog.exec() == QDialog::Accepted) {
         QModelIndexList selectedRows = tableWidget->selectionModel()->selectedRows();
         if (selectedRows.isEmpty()) {
-            QMessageBox::warning(this, "Edit Offset", "No mnemonic selected.");
+            QMessageBox::warning(this, tr("Edit Offset"), tr("No mnemonic selected."));
             return;
         }
 
@@ -412,15 +411,15 @@ void ToolMnemonicRelationEditor::editOffsetFromTool()
 
         if (!toolMnemonicPtr) {
             QMessageBox::warning(this,
-                                 "Edit Offset",
-                                 "No relation found for the selected Tool and Mnemonic.");
+                                 tr("Edit Offset"),
+                                 tr("No relation found for the selected Tool and Mnemonic."));
             return;
         }
 
         bool ok;
         int newOffsetMm = QInputDialog::getInt(this,
-                                               "Edit Offset",
-                                               "Enter new Offset (mm):",
+                                               tr("Edit Offset"),
+                                               tr("Enter new Offset (mm):"),
                                                toolMnemonicPtr->getOffsetMm(),
                                                0,
                                                1000000,

@@ -38,18 +38,18 @@ void ToolAddWindow::loadProducers()
         }
     }
     if (ui.comboBox_producer->count() == 0) {
-        ui.comboBox_producer->addItem("No Producers Available", -1);
+        ui.comboBox_producer->addItem(tr("No Producers Available"), -1);
     }
 }
 
 void ToolAddWindow::onAddButtonClicked()
 {
     if (ui.lineEdit_name->text().isEmpty()) {
-        QMessageBox::warning(this, "Input Error", "Please enter a tool name.");
+        QMessageBox::warning(this, tr("Input Error"), tr("Please enter a tool name."));
         return;
     }
     if (ui.comboBox_producer->currentData().toInt() == -1) {
-        QMessageBox::warning(this, "Input Error", "Please select a producer.");
+        QMessageBox::warning(this, tr("Input Error"), tr("Please select a producer."));
         return;
     }
 

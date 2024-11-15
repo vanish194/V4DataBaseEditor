@@ -50,7 +50,7 @@ void AdditionalMnemonicEditor::loadCompanies()
         }
     }
     if (ui.comboBox_company->count() == 0) {
-        ui.comboBox_company->addItem("No Companies Available", -1);
+        ui.comboBox_company->addItem(tr("No Companies Available"), -1);
     }
     ui.comboBox_company->model()->sort(0);
 }
@@ -65,7 +65,7 @@ void AdditionalMnemonicEditor::loadMainMnemonics()
         }
     }
     if (ui.comboBox_mainMnemonic->count() == 0) {
-        ui.comboBox_mainMnemonic->addItem("No Main Mnemonics Available", -1);
+        ui.comboBox_mainMnemonic->addItem(tr("No Main Mnemonics Available"), -1);
     }
     ui.comboBox_mainMnemonic->model()->sort(0);
 }
@@ -80,7 +80,7 @@ void AdditionalMnemonicEditor::loadUnits()
         }
     }
     if (ui.comboBox_unit->count() == 0) {
-        ui.comboBox_unit->addItem("No Units Available", -1);
+        ui.comboBox_unit->addItem(tr("No Units Available"), -1);
     }
     ui.comboBox_unit->model()->sort(0);
 }
@@ -93,19 +93,19 @@ AdditionalMnemonic AdditionalMnemonicEditor::getAdditionalMnemonic() const
 void AdditionalMnemonicEditor::onSaveButtonClicked()
 {
     if (ui.lineEdit_name->text().isEmpty()) {
-        QMessageBox::warning(this, "Input Error", "Please enter a mnemonic name.");
+        QMessageBox::warning(this, tr("Input Error"), tr("Please enter a mnemonic name."));
         return;
     }
     if (ui.comboBox_company->currentData().toInt() == -1) {
-        QMessageBox::warning(this, "Input Error", "Please select a company.");
+        QMessageBox::warning(this, tr("Input Error"), tr("Please select a company."));
         return;
     }
     if (ui.comboBox_mainMnemonic->currentData().toInt() == -1) {
-        QMessageBox::warning(this, "Input Error", "Please select a main mnemonic.");
+        QMessageBox::warning(this, tr("Input Error"), tr("Please select a main mnemonic."));
         return;
     }
     if (ui.comboBox_unit->currentData().toInt() == -1) {
-        QMessageBox::warning(this, "Input Error", "Please select a unit.");
+        QMessageBox::warning(this, tr("Input Error"), tr("Please select a unit."));
         return;
     }
 

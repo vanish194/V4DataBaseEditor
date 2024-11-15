@@ -11,7 +11,7 @@ ToolSensorMnemonicTreeView::ToolSensorMnemonicTreeView(QWidget *parent)
     , model(new QStandardItemModel(this))
 {
     setHeaderHidden(false);
-    model->setHorizontalHeaderLabels(QStringList() << "Tool -> Sensor -> Mnemonics");
+    model->setHorizontalHeaderLabels(QStringList() << tr("Tool -> Sensor -> Mnemonics"));
     setModel(model);
     buildTree();
 
@@ -23,7 +23,7 @@ void ToolSensorMnemonicTreeView::buildTree()
 {
     Storage *storage = Storage::getInstance();
     model->clear();
-    model->setHorizontalHeaderLabels(QStringList() << "Tool -> Sensor -> Mnemonics");
+    model->setHorizontalHeaderLabels(QStringList() << tr("Tool -> Sensor -> Mnemonics"));
 
     // Получаем список инструментов и сортируем их
     QList<Tool> tools = storage->getTools();
@@ -253,7 +253,7 @@ void ToolSensorMnemonicTreeView::contextMenuEvent(QContextMenuEvent *event)
         if (elementId != 0
             && (elementType == ToolType || elementType == SensorType
                 || elementType == MainMnemonicType || elementType == AdditionalMnemonicType)) {
-            QAction *editAction = contextMenu.addAction("Edit");
+            QAction *editAction = contextMenu.addAction(tr("Edit"));
             connect(editAction, &QAction::triggered, this, [=]() {
                 onEditItem(elementId, elementType);
             });
@@ -262,7 +262,7 @@ void ToolSensorMnemonicTreeView::contextMenuEvent(QContextMenuEvent *event)
         if (elementId != 0
             && (elementType == ToolType || elementType == SensorType
                 || elementType == MainMnemonicType || elementType == AdditionalMnemonicType)) {
-            QAction *deleteAction = contextMenu.addAction("Delete");
+            QAction *deleteAction = contextMenu.addAction(tr("Delete"));
             connect(deleteAction, &QAction::triggered, this, [=]() {
                 onDeleteItem(elementId, elementType);
             });
@@ -271,36 +271,36 @@ void ToolSensorMnemonicTreeView::contextMenuEvent(QContextMenuEvent *event)
         // Добавляем редакторы связей для инструментов и сенсоров
         if (elementId != 0 && elementType == ToolType) {
             QAction *toolSensorRelationsAction = contextMenu.addAction(
-                "Relation ToolSensor Editor");
+                tr("Relation ToolSensor Editor"));
             connect(toolSensorRelationsAction, &QAction::triggered, this, [=]() {
                 onToolSensorRelations(elementId);
             });
 
             QAction *toolMnemonicRelationsAction = contextMenu.addAction(
-                "Relation ToolMnemonic Editor");
+                tr("Relation ToolMnemonic Editor"));
             connect(toolMnemonicRelationsAction, &QAction::triggered, this, [=]() {
                 onToolMnemonicRelations(elementId);
             });
         } else if (elementId != 0 && elementType == SensorType) {
             QAction *sensorMnemonicRelationsAction = contextMenu.addAction(
-                "Relation SensorMnemonic Editor");
+                tr("Relation SensorMnemonic Editor"));
             connect(sensorMnemonicRelationsAction, &QAction::triggered, this, [=]() {
                 onSensorMnemonicRelations(elementId);
             });
         }
         // Добавляем действия "Add Tool", "Add Sensor", "Add Main Mnemonic", "Add Additional Mnemonic"
-        QAction *addToolAction = contextMenu.addAction("Add Tool");
+        QAction *addToolAction = contextMenu.addAction(tr("Add Tool"));
         connect(addToolAction, &QAction::triggered, this, [=]() { onAddItem(ToolType); });
 
-        QAction *addSensorAction = contextMenu.addAction("Add Sensor");
+        QAction *addSensorAction = contextMenu.addAction(tr("Add Sensor"));
         connect(addSensorAction, &QAction::triggered, this, [=]() { onAddItem(SensorType); });
 
-        QAction *addMainMnemonicAction = contextMenu.addAction("Add Main Mnemonic");
+        QAction *addMainMnemonicAction = contextMenu.addAction(tr("Add Main Mnemonic"));
         connect(addMainMnemonicAction, &QAction::triggered, this, [=]() {
             onAddItem(MainMnemonicType);
         });
 
-        QAction *addAdditionalMnemonicAction = contextMenu.addAction("Add Additional Mnemonic");
+        QAction *addAdditionalMnemonicAction = contextMenu.addAction(tr("Add Additional Mnemonic"));
         connect(addAdditionalMnemonicAction, &QAction::triggered, this, [=]() {
             onAddItem(AdditionalMnemonicType);
         });
@@ -380,8 +380,8 @@ void ToolSensorMnemonicTreeView::onDeleteItem(int elementId, ElementType element
 
     QMessageBox::StandardButton reply;
     reply = QMessageBox::question(this,
-                                  "Confirm Delete",
-                                  "Are you sure you want to delete this item?",
+                                  tr("Confirm Delete"),
+                                  tr("Are you sure you want to delete this item?"),
                                   QMessageBox::Yes | QMessageBox::No);
     if (reply != QMessageBox::Yes) {
         return;

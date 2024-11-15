@@ -4,6 +4,6 @@ StorageEditor::StorageEditor(Storage *storage)
     : storage(storage)
 {
     if (!storage) {
-        qDebug() << "Warning: Storage pointer is null!";
+        qDebug() << QObject::tr("Warning: Storage pointer is null!");
     }
 }

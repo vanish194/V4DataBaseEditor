@@ -53,11 +53,11 @@ MainMnemonic MainMnemonicEditor::getMainMnemonic() const
 void MainMnemonicEditor::onSaveButtonClicked()
 {
     if (ui.lineEdit_name->text().isEmpty()) {
-        QMessageBox::warning(this, "Input Error", "Please enter a mnemonic name.");
+        QMessageBox::warning(this, tr("Input Error"), tr("Please enter a mnemonic name."));
         return;
     }
     if (ui.comboBox_unit->currentData().toInt() == -1) {
-        QMessageBox::warning(this, "Input Error", "Please select a unit.");
+        QMessageBox::warning(this, tr("Input Error"), tr("Please select a unit."));
         return;
     }
 

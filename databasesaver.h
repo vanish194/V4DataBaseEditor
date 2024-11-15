@@ -2,12 +2,12 @@
 #define DATABASESAVER_H
 
 #include <QDebug>
+#include <QLocale>
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
 #include "storage.h"
 #include <functional>
-
 class DatabaseSaver
 {
 public:

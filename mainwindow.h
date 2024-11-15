@@ -3,6 +3,7 @@
 
 #include <QCloseEvent>
 #include <QLabel>
+#include <QLocale>
 #include <QMainWindow>
 #include <QSplitter>
 #include <QTextEdit>

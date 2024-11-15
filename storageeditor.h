@@ -2,8 +2,8 @@
 #define STORAGEEDITOR_H
 
 #include <QDebug>
+#include <QLocale>
 #include "storage.h"
-
 class StorageEditor
 {
 public:

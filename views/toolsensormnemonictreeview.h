@@ -45,7 +45,7 @@ private slots:
 
 private:
     QStandardItemModel *model;
-    int expansionDepth = 3;
+    int expansionDepth = 3; //for tree view
     const Sensor *findSensorById(int sensorId);
 
     void onEditItem(int elementId, ElementType elementType);

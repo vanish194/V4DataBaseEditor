@@ -60,7 +60,7 @@ void SensorMnemonicRelationEditor::setSensor(int sensorId)
 void SensorMnemonicRelationEditor::loadSensors()
 {
     ui->treeWidgetSensors->clear();
-    ui->treeWidgetSensors->setHeaderLabels(QStringList() << "Sensor");
+    ui->treeWidgetSensors->setHeaderLabels(QStringList() << tr("Sensor"));
 
     // Получаем список сенсоров и сортируем его по имени
     QList<Sensor> sensors = storage->getSensors();
@@ -81,7 +81,7 @@ void SensorMnemonicRelationEditor::loadSensors()
 void SensorMnemonicRelationEditor::loadMnemonics()
 {
     ui->treeWidgetMnemonics->clear();
-    ui->treeWidgetMnemonics->setHeaderLabels(QStringList() << "Mnemonic");
+    ui->treeWidgetMnemonics->setHeaderLabels(QStringList() << tr("Mnemonic"));
 
     // Получаем список мнемоник и сортируем его по имени
     QList<MainMnemonic> mnemonics = storage->getMainMnemonics();
@@ -168,8 +168,8 @@ void SensorMnemonicRelationEditor::showSensorContextMenu(const QPoint &pos)
         return;
 
     QMenu contextMenu;
-    QAction *addAction = contextMenu.addAction("Add Mnemonic");
-    QAction *removeAction = contextMenu.addAction("Remove Mnemonic");
+    QAction *addAction = contextMenu.addAction(tr("Add Mnemonic"));
+    QAction *removeAction = contextMenu.addAction(tr("Remove Mnemonic"));
 
     connect(addAction,
             &QAction::triggered,
@@ -206,15 +206,15 @@ void SensorMnemonicRelationEditor::addRelationFromSensor()
     }
 
     if (availableMnemonics.isEmpty()) {
-        QMessageBox::information(this, "Add Mnemonic", "No available mnemonics to add.");
+        QMessageBox::information(this, tr("Add Mnemonic"), tr("No available mnemonics to add."));
         return;
     }
 
     QDialog dialog(this);
-    dialog.setWindowTitle("Add Mnemonics");
+    dialog.setWindowTitle(tr("Add Mnemonics"));
     QVBoxLayout *layout = new QVBoxLayout(&dialog);
 
-    QLabel *label = new QLabel("Select Mnemonics to add:", &dialog);
+    QLabel *label = new QLabel(tr("Select Mnemonics to add:"), &dialog);
     layout->addWidget(label);
 
     QListWidget *listWidget = new QListWidget(&dialog);
@@ -227,8 +227,8 @@ void SensorMnemonicRelationEditor::addRelationFromSensor()
     layout->addWidget(listWidget);
     listWidget->sortItems(Qt::AscendingOrder);
 
-    QPushButton *okButton = new QPushButton("OK", &dialog);
-    QPushButton *cancelButton = new QPushButton("Cancel", &dialog);
+    QPushButton *okButton = new QPushButton(tr("OK"), &dialog);
+    QPushButton *cancelButton = new QPushButton(tr("Cancel"), &dialog);
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->addWidget(okButton);
     buttonLayout->addWidget(cancelButton);
@@ -267,15 +267,15 @@ void SensorMnemonicRelationEditor::removeRelationFromSensor()
     }
 
     if (relatedSensorMnemonics.isEmpty()) {
-        QMessageBox::information(this, "Remove Mnemonic", "No mnemonics to remove.");
+        QMessageBox::information(this, tr("Remove Mnemonic"), tr("No mnemonics to remove."));
         return;
     }
 
     QDialog dialog(this);
-    dialog.setWindowTitle("Remove Mnemonics");
+    dialog.setWindowTitle(tr("Remove Mnemonics"));
     QVBoxLayout *layout = new QVBoxLayout(&dialog);
 
-    QLabel *label = new QLabel("Select Mnemonics to remove:", &dialog);
+    QLabel *label = new QLabel(tr("Select Mnemonics to remove:"), &dialog);
     layout->addWidget(label);
 
     QListWidget *listWidget = new QListWidget(&dialog);
@@ -290,8 +290,8 @@ void SensorMnemonicRelationEditor::removeRelationFromSensor()
     }
     layout->addWidget(listWidget);
 
-    QPushButton *okButton = new QPushButton("OK", &dialog);
-    QPushButton *cancelButton = new QPushButton("Cancel", &dialog);
+    QPushButton *okButton = new QPushButton(tr("OK"), &dialog);
+    QPushButton *cancelButton = new QPushButton(tr("Cancel"), &dialog);
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->addWidget(okButton);
     buttonLayout->addWidget(cancelButton);
