@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Find necessary Qt6 components
-find_package(Qt6 REQUIRED COMPONENTS Core Sql Gui Widgets LinguistTools)
+find_package(Qt6 REQUIRED COMPONENTS Core Sql Gui Widgets)
 
 # Enable automatic processing of MOC, UIC, and RCC files
 set(CMAKE_AUTOMOC ON)
@@ -13,7 +13,9 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 # Set the search paths for UIC
-set(CMAKE_AUTOUIC_SEARCH_PATHS "${CMAKE_CURRENT_SOURCE_DIR}/editor_windows")
+set(CMAKE_AUTOUIC_SEARCH_PATHS
+    ${CMAKE_CURRENT_SOURCE_DIR}/editor_windows
+)
 
 # Source files
 set(SOURCES
@@ -50,7 +52,7 @@ set(SOURCES
     storage.cpp
     storageeditor.cpp
     views/toolsensormnemonictreeview.cpp
-    resources.qrc 
+    resources.qrc
 )
 
 # Header files
@@ -89,24 +91,35 @@ set(HEADERS
     views/toolsensormnemonictreeview.h
 )
 
-# Translation files
-set(TRANSLATION_FILES
-    translations/V4DataBaseEditor_ru.ts
+# UI files
+set(UI_FILES
+    editor_windows/additionalmnemonicaddwindow.ui
+    editor_windows/additionalmnemoniceditor.ui
+    editor_windows/comparedatadialog.ui
+    editor_windows/mainmnemonicaddwindow.ui
+    editor_windows/mainmnemoniceditor.ui
+    editor_windows/sensor_editor.ui
+    editor_windows/sensoraddwindow.ui
+    editor_windows/sensormnemonicrelationeditor.ui
+    editor_windows/tool_editor.ui
+    editor_windows/tooladdwindow.ui
+    editor_windows/toolmnemonicrelationeditor.ui
+    editor_windows/toolsensorrelationeditor.ui
+    mainwindow.ui
 )
-# Process translations
-qt6_add_translation(QM_FILES ${TRANSLATION_FILES})
 
-# Add a custom target for translations
-add_custom_target(translations ALL DEPENDS ${QM_FILES})
+# Resource files
+set(RESOURCE_FILES
+    resources.qrc
+)
 
 # Create the executable
 add_executable(${PROJECT_NAME}
     ${SOURCES}
     ${HEADERS}
+    ${UI_FILES}
+    ${RESOURCE_FILES}
 )
-
-# Make the executable depend on the translations
-add_dependencies(${PROJECT_NAME} translations)
 
 # Include directories
 target_include_directories(${PROJECT_NAME}
@@ -124,11 +137,8 @@ target_link_libraries(${PROJECT_NAME}
     Qt6::Widgets
 )
 
-# Copy translation files after building them
+# Copy standard Qt translations after building (for qtbase_ru.qm)
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/translations"
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${QM_FILES} "$<TARGET_FILE_DIR:${PROJECT_NAME}>/translations"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/translations/qtbase_ru.qm" "$<TARGET_FILE_DIR:${PROJECT_NAME}>/translations"
 )
-
-# Optional: Output the paths of QM_FILES for debugging
-message(STATUS "QM_FILES: ${QM_FILES}")

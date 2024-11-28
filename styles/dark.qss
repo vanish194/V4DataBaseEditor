@@ -1,0 +1,113 @@
+/* Тёмная тема */
+QWidget {
+    background-color: #2D2D30;
+    color: #FFFFFF;
+}
+
+/* Меню и панели */
+QMenuBar {
+    background-color: #2D2D30;
+    color: #FFFFFF;
+}
+
+QMenuBar::item {
+    background-color: #2D2D30;
+    color: #FFFFFF;
+}
+
+QMenuBar::item:selected {
+    background-color: #505055;
+    color: #FFFFFF;
+}
+
+QMenuBar::item:pressed {
+    background-color: #28282B;
+    color: #FFFFFF;
+}
+
+QMenu {
+    background-color: #2D2D30;
+    color: #FFFFFF;
+}
+
+QMenu::item {
+    background-color: transparent;
+    color: #FFFFFF;
+}
+
+QMenu::item:selected {
+    background-color: #505055;
+    color: #FFFFFF;
+}
+
+QMenu::item:disabled {
+    color: #808080;
+}
+
+QToolBar, QStatusBar {
+    background-color: #2D2D30;
+    color: #FFFFFF;
+}
+
+/* Кнопки */
+QPushButton {
+    background-color: #3E3E42;
+    color: #FFFFFF;
+    border: 1px solid #3E3E42;
+    padding: 5px;
+}
+
+QPushButton:hover {
+    background-color: #505055;
+}
+
+QPushButton:pressed {
+    background-color: #28282B;
+}
+
+/* Дерево */
+QTreeView {
+    background-color: #2D2D30;
+    color: #FFFFFF;
+    alternate-background-color: #3E3E42;
+    selection-background-color: #505055;
+    selection-color: #FFFFFF;
+}
+
+QTreeView::item {
+    background-color: #2D2D30;
+    color: #FFFFFF;
+}
+
+QTreeView::item:selected {
+    background-color: #505055;
+    color: #FFFFFF;
+}
+
+QTreeView::item:hover {
+    background-color: #3E3E42;
+    color: #FFFFFF;
+}
+
+/* Таблица */
+QTableView {
+    background-color: #2D2D30;
+    color: #FFFFFF;
+    alternate-background-color: #3E3E42;
+    selection-background-color: #505055;
+    selection-color: #FFFFFF;
+}
+
+QHeaderView::section {
+    background-color: #3E3E42;
+    color: #FFFFFF;
+    padding: 4px;
+    border: 1px solid #2D2D30;
+}
+
+QTableCornerButton::section {
+    background-color: #3E3E42;
+    border: 1px solid #2D2D30;
+}
+
+/* Добавьте другие виджеты по необходимости */

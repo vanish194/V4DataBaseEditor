@@ -4,13 +4,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++17
 
-# You can make your code fail to compile if it uses deprecated APIs.
-# In order to do so, uncomment the following line.
-#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
-
 RESOURCES += resources.qrc
 
-TRANSLATIONS += translations/V4DataBaseEditor_ru.ts
 
 SOURCES += \
     databasemanager.cpp \
@@ -96,7 +91,16 @@ FORMS += \
     editor_windows/toolsensorrelationeditor.ui \
     mainwindow.ui
 
+# Копирование файлов перевода после сборки
+win32 {
+    TRANSLATIONS_SRC = $$shell_path($$PWD/translations/*.qm)
+    TRANSLATIONS_DEST = $$shell_path($$OUT_PWD/translations)
 
+    QMAKE_POST_LINK += cmd /c "if not exist $$quote($$TRANSLATIONS_DEST) mkdir $$quote($$TRANSLATIONS_DEST) & copy /Y $$quote($$TRANSLATIONS_SRC) $$quote($$TRANSLATIONS_DEST)"
+}
+
+DISTFILES += \
+    CMakeLists.txt
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
