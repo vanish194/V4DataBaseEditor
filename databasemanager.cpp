@@ -1,4 +1,8 @@
 #include "databasemanager.h"
+#include <QDir>
+#include <QFile>
+#include <QTextStream>
+#include <QCoreApplication>
 
 DatabaseManager::DatabaseManager()
 {
@@ -32,9 +36,25 @@ bool DatabaseManager::connect(const QString &path)
     }
 
     if (currentVersion != expectedVersion) {
-        qDebug() << "Error: Database version mismatch. Expected version" << expectedVersion
-                 << "but found version" << currentVersion;
-        return false;
+        qDebug() << "Database version mismatch. Expected" << expectedVersion
+                 << "but found" << currentVersion;
+        // Try to apply migrations if possible
+        if (currentVersion < expectedVersion) {
+            if (!applyMigrations(currentVersion, expectedVersion)) {
+                qDebug() << "Error: Failed to apply migrations.";
+                return false;
+            }
+            // Recheck version
+            int newVersion = getDatabaseVersion();
+            if (newVersion != expectedVersion) {
+                qDebug() << "Error: After migrations expected version" << expectedVersion
+                         << "but found" << newVersion;
+                return false;
+            }
+        } else {
+            qDebug() << "Error: Database version is newer than application supports.";
+            return false;
+        }
     }
 
     return true;
@@ -55,6 +75,52 @@ int DatabaseManager::getDatabaseVersion() const
     }
 
     return version;
+}
+
+bool DatabaseManager::applyMigrations(int currentVersion, int expectedVersion)
+{
+    QDir migrationsDir(QCoreApplication::applicationDirPath());
+    if (migrationsDir.dirName() == "debug" || migrationsDir.dirName() == "release")
+        migrationsDir.cdUp();
+    if (!migrationsDir.cd("migrations")) {
+        qDebug() << "Migrations folder not found:" << migrationsDir.absolutePath();
+        return false;
+    }
+
+    // Apply incremental migration files named like: upgrade_1_2.sql
+    for (int v = currentVersion; v < expectedVersion; ++v) {
+        int from = v;
+        int to = v + 1;
+        QString fileName = QString("upgrade_%1_%2.sql").arg(from).arg(to);
+        QFile file(migrationsDir.filePath(fileName));
+        if (!file.exists()) {
+            qDebug() << "Migration file not found:" << file.fileName();
+            return false;
+        }
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            qDebug() << "Unable to open migration file:" << file.fileName();
+            return false;
+        }
+        QTextStream in(&file);
+        QString sql = in.readAll();
+        file.close();
+
+        // Split by ';' and execute statements
+        QStringList statements = sql.split(';', Qt::SkipEmptyParts);
+        QSqlQuery query(db);
+        for (QString stmt : statements) {
+            stmt = stmt.trimmed();
+            if (stmt.isEmpty())
+                continue;
+            if (!query.exec(stmt)) {
+                qDebug() << "Migration failed on" << file.fileName() << ":" << query.lastError().text();
+                return false;
+            }
+        }
+        qDebug() << "Applied migration:" << file.fileName();
+    }
+
+    return true;
 }
 
 // Methods for loading data

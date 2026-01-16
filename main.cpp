@@ -2,27 +2,71 @@
 #include <QDebug>
 #include <QDir>
 #include <QFile>
+#include <QCoreApplication>
+#include <QTextStream>
+#include <QDateTime>
 #include <QLocale>
 #include <QSettings>
 #include <QStyleFactory>
 #include <QTranslator>
 #include "mainwindow.h"
 
+void fileMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    Q_UNUSED(context)
+    QDir appDir(QCoreApplication::applicationDirPath());
+    if (appDir.dirName() == "debug" || appDir.dirName() == "release") {
+        appDir.cdUp();
+    }
+    QDir logDir = appDir.filePath("logs");
+    if (!QDir(logDir.path()).exists())
+        QDir().mkpath(logDir.path());
+
+    QString logFile = QDir(logDir.path()).filePath("app.log");
+    QFile outFile(logFile);
+    if (outFile.open(QIODevice::Append | QIODevice::Text)) {
+        QTextStream ts(&outFile);
+        ts << QDateTime::currentDateTime().toString(Qt::ISODate) << " ";
+        switch (type) {
+        case QtDebugMsg:
+            ts << "DEBUG: ";
+            break;
+        case QtInfoMsg:
+            ts << "INFO: ";
+            break;
+        case QtWarningMsg:
+            ts << "WARN: ";
+            break;
+        case QtCriticalMsg:
+            ts << "CRIT: ";
+            break;
+        case QtFatalMsg:
+            ts << "FATAL: ";
+            break;
+        }
+        ts << msg << "\n";
+        outFile.close();
+    }
+}
+
 bool isDarkTheme()
 {
     bool darkTheme = false;
 
 #ifdef Q_OS_WIN
-    // Открываем ключ реестра
     QSettings settings(
         "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
         QSettings::NativeFormat);
-
-    // Читаем значение параметра AppsUseLightTheme
     if (settings.contains("AppsUseLightTheme")) {
         int value = settings.value("AppsUseLightTheme").toInt();
-        darkTheme = (value == 0); // 0 означает тёмную тему
+        darkTheme = (value == 0);
     }
+#else
+    // Fallback: try to detect by palette brightness
+    QPalette pal = QApplication::palette();
+    QColor bg = pal.color(QPalette::Window);
+    int brightness = (bg.red() + bg.green() + bg.blue()) / 3;
+    darkTheme = (brightness < 128);
 #endif
 
     return darkTheme;
@@ -31,6 +75,8 @@ bool isDarkTheme()
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
+
+    qInstallMessageHandler(fileMessageOutput);
 
     // Получаем текущую системную локаль
     QString locale = QLocale::system().name(); // Например, "ru_RU"

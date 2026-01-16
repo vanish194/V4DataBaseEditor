@@ -65,13 +65,8 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
     if (obj == imageLabel && event->type() == QEvent::Resize) {
         if (!originalPixmap.isNull()) {
-            // Применяем поворот и масштабирование при изменении размера
-            QTransform transform;
-            transform.rotate(90); // Поворачиваем на 90 градусов
-            QPixmap rotatedPixmap = originalPixmap.transformed(transform);
-
-            // Масштабируем повернутое изображение до нового размера imageLabel
-            QPixmap scaledPixmap = rotatedPixmap.scaled(imageLabel->size(),
+            // Масштабируем оригинальное изображение до нового размера imageLabel
+            QPixmap scaledPixmap = originalPixmap.scaled(imageLabel->size(),
                                                         Qt::KeepAspectRatio,
                                                         Qt::SmoothTransformation);
             imageLabel->setPixmap(scaledPixmap);
@@ -203,13 +198,8 @@ void MainWindow::onTreeSelectionChanged(const QModelIndex &current, const QModel
                     if (pixmap.loadFromData(toolDescription->getImage())) {
                         originalPixmap = pixmap; // Сохраняем оригинальный pixmap
 
-                        // Поворот изображения на 90 градусов
-                        QTransform transform;
-                        transform.rotate(90);
-                        QPixmap rotatedPixmap = originalPixmap.transformed(transform);
-
                         // Масштабируем изображение под размер imageLabel
-                        QPixmap scaledPixmap = rotatedPixmap.scaled(imageLabel->size(),
+                        QPixmap scaledPixmap = originalPixmap.scaled(imageLabel->size(),
                                                                     Qt::KeepAspectRatio,
                                                                     Qt::SmoothTransformation);
 

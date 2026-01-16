@@ -1,0 +1,4 @@
+-- Migration from version 1 to 2
+-- Add SQL statements required to upgrade schema from v1 to v2.
+-- Example:
+-- ALTER TABLE example ADD COLUMN new_column INTEGER DEFAULT 0;

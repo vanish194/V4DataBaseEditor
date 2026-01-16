@@ -22,6 +22,7 @@ private:
     QSqlDatabase db;
 
     int getDatabaseVersion() const;
+    bool applyMigrations(int currentVersion, int expectedVersion);
     // Private methods for loading data from each table
     void loadUnits();
     void loadUnitTypes();
